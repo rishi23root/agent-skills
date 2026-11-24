@@ -1,0 +1,91 @@
+---
+name: improve
+description: >-
+  Front door. Turns a rough, dictated or client-worded request into a clear
+  agent brief grounded in the current project, then stops. Does not code.
+disable-model-invocation: true
+metadata:
+  layer: "1"
+  role: front-door
+  requires: ""
+---
+
+# improve
+
+The front door of the factory. Someone describes work in their own words. You
+work out what they are asking, check it against the project as it is today, and
+write the brief the next agent will build from. You do not design the diff, open
+issues, start workers, or edit the product.
+
+Called on its own (`/improve`), you show the brief and stop. Called by
+`factory`, you return the brief to it.
+
+## Steps
+
+1. **Name the input.** It is one of these:
+   - **A plain question**, with no change requested. Say so, call it
+     `trivial`, and write no brief. The caller answers it.
+   - **Something already written for a builder**: a filled brief, or a ticket
+     that is marked ready. Do not rewrite it. State its size and risk, list
+     any gaps, and stop.
+   - **Rough input**: client words, dictation, or the owner's own task. Go on
+     to step 2.
+
+2. **Lock the project.** Use the project they named, else the current
+   repository. If two projects fit or none does, ask which one. One question,
+   then stop.
+
+3. **Read the context, with a budget.** At most ten reads, where a search
+   counts as one. This skill's own reference files do not count. You are
+   learning the ground, not designing.
+   - `docs/agents/factory.md` if it exists. It is the per-repo profile:
+     tracker, labels, test and run commands, where the spec and glossary live,
+     and any outside notes folder.
+   - `AGENTS.md` or `CLAUDE.md`, the README's first screen, the glossary, the
+     spec section and ADR titles that share nouns with the request.
+   - `git status` and the last fifteen commit subjects, so you know what is in
+     flight.
+   - Open issues or PRs that match the request's keywords, when a tracker is
+     configured.
+   - Files the request names. Signatures and headers only.
+
+   A missing file, a missing history or a missing tracker is a fact, not a
+   task. Note it and continue. If the profile is missing, infer the commands
+   from the package or build files and list them under Assumptions.
+
+4. **Repair wording only when one reading is possible.** Dictation drops and
+   swaps words. Replace a word when the spec, glossary or repo leaves exactly
+   one meaning, and list the repair under Assumptions. Otherwise quote the odd
+   word under Open questions. An ordinary word that has two meanings in this
+   project is treated the same way. Never run with a guess. A flagged guess
+   that you act on is still a guess.
+
+5. **Write the brief** in the format in [brief-format.md](brief-format.md).
+   Use the project's own terms for things it already names. Keep a word the
+   project does not have, and flag it. If the request conflicts with the spec
+   or an ADR, say so. Do not widen scope to make the pieces fit.
+
+6. **Size it and rate the risk** using [sizing.md](sizing.md). State the size,
+   the risk, and the seat the table points to. This is a recommendation.
+   `factory` or the owner decides.
+
+7. **Leave holes open.** A missing fact that would change the design goes
+   under Open questions. Do not answer it yourself, and do not borrow a likely
+   default from other products. A missing fact that would not change the design
+   goes under Assumptions with the choice you made.
+
+   When the open questions leave the goal itself unknown, say so. Mark the
+   size as provisional, leave the acceptance checks empty, and do not pad the
+   brief with guesses.
+
+8. **Show the brief and stop.** On a correction, issue the whole brief again so
+   there is one current version.
+
+## What good looks like
+
+- A stranger with the repo and this brief could start, and could tell when
+  they are done.
+- Every acceptance check is something that can be run or observed.
+- The brief is shorter than the context you read. It points to files. It does
+  not paste them.
+- Nothing in it was invented to fill a gap.

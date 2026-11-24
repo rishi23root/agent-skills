@@ -1,0 +1,175 @@
+# Architecture
+
+## What this is for
+
+One person runs several coding agents across more than one provider and
+machine. The goal is to hand over a task in ordinary words and get back a
+change that has been built, checked by someone other than its author, and left
+ready to merge, without paying for more process or more tokens than the task
+deserves.
+
+## Four layers
+
+```mermaid
+flowchart TD
+  subgraph L0["Layer 0: Manager"]
+    F[factory]
+  end
+  subgraph L1["Layer 1: Front door"]
+    I[improve]
+  end
+  subgraph L2["Layer 2: Seats"]
+    J[junior]
+    M[mid]
+    S[senior]
+    X[10x]
+  end
+  subgraph L3["Layer 3: Procedures"]
+    SP[spec]
+    TK[tickets]
+    D[dispatch]
+    B[build]
+    R[review]
+    SH[ship]
+    H[handoff]
+    RL[runlog]
+  end
+  F --> I
+  F --> L2
+  L2 --> L3
+```
+
+| Layer | Answers the question | Typed by you |
+|---|---|---|
+| 0 Manager | How much process does this task need, and is the result real? | `/factory` |
+| 1 Front door | What is actually being asked, in this project, today? | `/improve` |
+| 2 Seats | Who does the work, and what may they decide alone? | `/junior` `/mid` `/senior` `/10x` |
+| 3 Procedures | How is one step done properly? | no, loaded by seats |
+
+**The layer rule.** A skill may load only skills in a layer below it.
+Procedures may also use each other. Nothing points up. This is what makes the
+set a tree rather than a web, and `scripts/validate.mjs` fails the build if an
+edge breaks it.
+
+## The tree and its subtrees
+
+`factory` is the root. Each seat is a subtree: the seat's contract at the top,
+and under it only the procedures that seat is allowed to run.
+
+```mermaid
+flowchart TD
+  F[factory] --> I[improve]
+  F --> J[junior] & M[mid] & S[senior] & X[10x]
+  J --> J1[build] & J2[ship: PR and checks only] & J3[handoff]
+  M --> M1[tickets] & M2[build] & M3[review] & M4[ship] & M5[dispatch: junior leaves] & M6[handoff]
+  S --> S1[spec] & S2[tickets] & S3[dispatch] & S4[review] & S5[ship: owns the gate] & S6[runlog] & S7[handoff]
+  X --> X1[spec] & X2[dispatch: read-only workers] & X3[review] & X4[handoff]
+```
+
+Three things follow from this shape.
+
+1. **You can enter at any node.** `/factory` walks the whole tree. `/mid`
+   starts at one subtree. `/improve` is a single leaf. Each still works alone.
+2. **A subtree shows what a seat is for.** `junior` lists no `dispatch` and
+   no `review`, so starting workers and approving are simply not among its
+   steps. This is guidance by structure, not a lock: nothing prevents an agent
+   from reading another file. `validation.md` says which rules are enforced.
+3. **Loading is lazy.** A seat reads a procedure when its step starts, never
+   up front. A `junior` run on a small ticket loads three procedures.
+
+A second, optional subtree hangs under each seat: third-party **extras**,
+listed in `skills/<seat>/extras.md`. They are pinned in `upstream.lock.json`,
+they are never needed for the core loop, and they cannot override a rule here.
+
+## The flow
+
+```mermaid
+sequenceDiagram
+  participant O as Owner
+  participant F as factory (manager)
+  participant W as Worker (a seat)
+  participant R as Reviewer (not the author)
+  O->>F: task, any wording
+  F->>F: improve: brief, size, risk
+  alt open question, high risk, or project size
+    F->>O: brief and questions
+    O->>F: answers, go
+  end
+  F->>W: worker brief (pointers, boundaries, done-when)
+  W->>F: report: status code and evidence
+  F->>R: ticket, spec section, diff
+  R->>F: findings and verdict
+  loop up to the round cap
+    F->>W: findings
+    W->>F: fixes and evidence
+  end
+  F->>F: ship: PR at the merge gate
+  F->>F: runlog: row and lesson
+  F->>O: what was done, proof, what is open, cost
+```
+
+## The contracts between stages
+
+Each stage hands the next one a fixed artifact. The format has exactly one
+owner.
+
+| Artifact | From, to | Owned by |
+|---|---|---|
+| Agent brief | improve to factory or a seat | `skills/improve/brief-format.md` |
+| Size and risk | improve to factory | `skills/improve/sizing.md` |
+| Spec | senior to tickets | `skills/spec/SKILL.md` |
+| Ticket and its Technical Dependencies block | mid to a builder | `skills/tickets/ticket-format.md` |
+| Worker brief | manager to worker | `skills/dispatch/SKILL.md` |
+| Worker report and status code | worker to manager | `skills/dispatch/report-format.md` |
+| Findings and verdict | reviewer to manager | `skills/review/SKILL.md` |
+| Merge gate | ship to owner | `skills/ship/SKILL.md` |
+| Handoff note | one session to the next | `skills/handoff/SKILL.md` |
+| Run row | every run to the log | `skills/runlog/SKILL.md` |
+| Repo profile | a project to every skill | `templates/factory.md` |
+
+## Design rules
+
+1. **Scale the process to the task.** The sizing table is the first decision.
+   A trivial task runs no seat at all.
+2. **Everything is called by name.** No skill sits in the context waiting to
+   be triggered. This came from a measured audit, in `research/findings.md`.
+3. **Few doors.** Six typed skills. The other eight are reached through them.
+4. **One copy of each rule.** A format or a number lives in one file. Other
+   files link to it.
+5. **Prose is not a mechanism.** A rule that must hold every time gets a
+   script or a checkable condition. `validation.md` lists which rule has which.
+6. **Ask before guessing.** A missing fact that changes the design stops the
+   work. A flagged guess that is acted on is still a guess.
+7. **Pass pointers, not content.** Workers get links and paths.
+8. **The author never approves.** Review is by a different agent with a clean
+   context.
+9. **Evidence, not assertion.** A report quotes output that was seen.
+10. **Stop cleanly when blocked.** Leave the PR open and say why.
+
+## Decisions
+
+| # | Decision | Why | What would change it |
+|---|---|---|---|
+| 1 | Own core, third-party extras pinned by commit | The core must work from a fresh clone and must not change when someone else pushes | An extra used in most runs should be rewritten into the core |
+| 2 | Two typed entry points, `factory` and `improve` | Sometimes the whole loop is wanted, sometimes only a better prompt | If `improve` is never used alone, fold it into `factory` |
+| 3 | Seats are named `junior`, `mid`, `senior`, `10x` | Different from the older `*-dev` skills, so both sets can be installed side by side during the trial | After migration the old ones are removed |
+| 4 | `client-brief` is folded into `improve` | Client words are one kind of rough input. One front door, one brief format | If client-facing work needs its own output, split it back out |
+| 5 | Subagent or own thread is decided by where the result lands | A testable rule replaces "how related is it", which was never defined | Pilot data showing the rule picks badly |
+| 6 | One quota floor, 15 percent | Three different numbers were in use (5, 10, 15) | Run log data |
+| 7 | Tiers are classes, not model names | Model names go stale in months | n/a |
+| 8 | Dependencies live in each skill's `metadata` | The graph is generated from the same file the agent reads, so it cannot drift | n/a |
+| 9 | Review verdict is a comment line naming the commit | One GitHub account cannot approve its own PR, so a GitHub approval is not available to a solo owner | A second reviewer account, or a bot identity |
+| 10 | Nothing installs itself | The existing skills keep working until the owner switches | n/a |
+
+## Open questions
+
+- Does the sizing table route correctly on real tasks? Only the pilot can say.
+- Is three review rounds the right cap? It is borrowed, not measured here.
+- High-risk review asks for a second provider. On a machine with only one
+  provider that condition can only be waived by the owner. Is that too strict?
+- A solo owner has one GitHub account, so the review verdict is a comment and
+  not a GitHub approval. A second reviewer identity would close that gap.
+- Should the run log be filled by a hook instead of by the manager? A hook
+  would be a mechanism. Today it is an instruction backed by a script.
+- Can a worker on the second machine be started by an agent? Not until that
+  machine is linked in the harness.

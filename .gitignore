@@ -1,0 +1,5 @@
+upstream/
+skills/*/local.md
+.factory/
+node_modules/
+*.stackdump

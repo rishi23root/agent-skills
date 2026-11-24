@@ -1,0 +1,72 @@
+{
+  "note": "Third-party skills this repo can use as optional extras. Each source is pinned to a commit that was in use and working on 2026-11-24. scripts/sync-upstream.mjs clones them into ./upstream (not in git). scripts/validate.mjs generates skills/<seat>/extras.md from this file.",
+  "sources": {
+    "mattpocock": {
+      "repo": "https://github.com/mattpocock/skills.git",
+      "commit": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "license": "MIT",
+      "skillsDir": "skills"
+    },
+    "tstack": {
+      "repo": "https://github.com/t3dotgg/tstack.git",
+      "commit": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a",
+      "license": "MIT",
+      "skillsDir": "skills"
+    },
+    "ponytail": {
+      "repo": "https://github.com/DietrichGebert/ponytail.git",
+      "commit": "96608e078b2d5ea607c5c3b8b5a54d1c1fba6846",
+      "license": "MIT",
+      "skillsDir": "skills"
+    },
+    "caveman": {
+      "repo": "https://github.com/JuliusBrussee/caveman.git",
+      "commit": "a192894723a8f47e7f504c7b5041967ff1f18e55",
+      "license": "See LICENSING.md in the repo (Apache-2.0 and MIT parts)",
+      "skillsDir": "skills"
+    }
+  },
+  "extras": [
+    { "source": "caveman", "path": "surgical-patch", "seats": ["junior"], "when": "A narrow bug fix: reproduce, patch the owning layer, add one regression test" },
+    { "source": "caveman", "path": "verify-and-stop", "seats": ["junior"], "when": "Choosing the smallest set of checks that proves a change" },
+    { "source": "mattpocock", "path": "engineering/tdd", "seats": ["junior", "mid"], "when": "A longer red, green, refactor loop at the ticket's seam" },
+    { "source": "tstack", "path": "file-pr", "seats": ["junior", "mid"], "when": "Writing the PR description" },
+    { "source": "tstack", "path": "babysit-pr", "seats": ["junior", "mid"], "when": "Watching CI and review bots on an open PR" },
+    { "source": "tstack", "path": "leaving-pr-comments", "seats": ["junior", "mid", "senior"], "when": "Formatting a comment on an issue or PR" },
+
+    { "source": "mattpocock", "path": "engineering/setup-matt-pocock-skills", "seats": ["mid"], "when": "Once per repository: set up the tracker, labels and agent docs" },
+    { "source": "mattpocock", "path": "engineering/triage", "seats": ["mid"], "when": "Working through a queue of existing issues" },
+    { "source": "mattpocock", "path": "engineering/to-tickets", "seats": ["mid", "senior", "10x"], "when": "Publishing tickets with native blocking links on the tracker" },
+    { "source": "mattpocock", "path": "engineering/diagnosing-bugs", "seats": ["mid", "10x"], "when": "A hard bug: reproduce, minimise, hypothesise, instrument, fix" },
+    { "source": "caveman", "path": "investigate-first", "seats": ["mid"], "when": "The cause is unknown and code must not be touched yet" },
+    { "source": "caveman", "path": "lean-build", "seats": ["mid"], "when": "A new slice that is at risk of being overbuilt" },
+    { "source": "caveman", "path": "safe-refactor", "seats": ["mid"], "when": "A restructuring that must not change behaviour" },
+    { "source": "tstack", "path": "modernize", "seats": ["mid"], "when": "Deciding whether a stale PR is rebased, reworked or closed" },
+    { "source": "tstack", "path": "takeover", "seats": ["mid"], "when": "Finishing another author's branch or PR while keeping their credit" },
+    { "source": "ponytail", "path": "ponytail-review", "seats": ["mid", "senior"], "when": "A second review pass focused on bugs, security, load and lean code" },
+    { "source": "mattpocock", "path": "engineering/code-review", "seats": ["mid", "senior"], "when": "Two parallel fresh reviewers, one per axis" },
+
+    { "source": "mattpocock", "path": "engineering/grill-with-docs", "seats": ["senior"], "when": "Interviewing the owner to close open questions and sharpen the glossary" },
+    { "source": "mattpocock", "path": "engineering/to-spec", "seats": ["senior"], "when": "Publishing a spec to the tracker" },
+    { "source": "mattpocock", "path": "engineering/domain-modeling", "seats": ["senior"], "when": "Fuzzy or duplicate terms in the spec or glossary" },
+    { "source": "mattpocock", "path": "engineering/codebase-design", "seats": ["senior", "10x"], "when": "Judging module depth, interfaces and seams" },
+    { "source": "mattpocock", "path": "engineering/implement-spec", "seats": ["senior"], "when": "Running a whole ticket graph on one integration branch" },
+    { "source": "tstack", "path": "sol-loop", "seats": ["senior"], "when": "A review loop with a model from a second provider" },
+    { "source": "tstack", "path": "full-stop", "seats": ["senior"], "when": "Taking a proven change to a PR that waits at the merge gate" },
+    { "source": "tstack", "path": "full-send", "seats": ["senior"], "when": "Only when the owner says to merge: through the gate to a merged PR" },
+    { "source": "ponytail", "path": "ponytail-audit", "seats": ["senior"], "when": "A ranked health audit of a whole repository" },
+    { "source": "ponytail", "path": "ponytail-debt", "seats": ["senior"], "when": "Collecting the shortcuts that were marked in code" },
+    { "source": "caveman", "path": "migration", "seats": ["senior", "10x"], "when": "A schema, API or config change that needs expand, migrate, contract" },
+    { "source": "mattpocock", "path": "engineering/retro", "seats": ["senior"], "when": "After a project: what in the harness or tests should change" },
+
+    { "source": "tstack", "path": "council", "seats": ["10x"], "when": "Three models from three providers on one decision or review" },
+    { "source": "mattpocock", "path": "engineering/wayfinder", "seats": ["10x"], "when": "Scope too unclear for one spec: chart it as decision tickets" },
+    { "source": "mattpocock", "path": "engineering/research", "seats": ["10x"], "when": "Primary-source research by read-only scouts" },
+    { "source": "mattpocock", "path": "engineering/prototype", "seats": ["10x"], "when": "A throwaway prototype to settle one design question" },
+    { "source": "mattpocock", "path": "engineering/improve-codebase-architecture", "seats": ["10x"], "when": "Scanning a repository for shallow modules to deepen" },
+
+    { "source": "mattpocock", "path": "productivity/handoff", "seats": ["junior", "mid", "senior", "10x"], "when": "A longer handoff summary than the core note" },
+    { "source": "ponytail", "path": "ponytail", "seats": ["junior", "mid", "senior", "10x"], "when": "Stricter lean-code rules while building" },
+    { "source": "caveman", "path": "caveman", "seats": ["junior", "mid"], "when": "Terse output to save tokens in a long build session" }
+  ]
+}
