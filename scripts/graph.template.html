@@ -27,7 +27,18 @@
     grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
     padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line);
   }
-  h1 { font-size: 16px; margin: 0 6px 0 0; }
+  h1 { font-size: 16px; margin: 0; }
+  .brand { display: flex; flex-direction: column; line-height: 1.25; margin-right: 6px; }
+  .brand span { font-size: 12px; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; background: transparent; padding: 4px 11px; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button.on { background: var(--text); color: var(--bg); }
+  ol.steps { margin: 6px 0; padding-left: 20px; }
+  ol.steps li { margin: 4px 0; }
+  .key { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .key svg { width: 38px; height: 10px; flex: none; cursor: default; }
+  .key line { stroke: var(--edge-hi); stroke-width: 1.6; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip {
     display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px;
@@ -86,14 +97,15 @@
 </head>
 <body>
 <header>
-  <h1>Skill graph</h1>
+  <div class="brand"><h1>Skill graph</h1><span class="muted">How a task becomes a reviewed pull request</span></div>
+  <div class="seg" id="views" role="group" aria-label="View"></div>
   <div class="chips" id="kinds"></div>
   <input type="search" id="q" placeholder="Search nodes" aria-label="Search nodes">
-  <label class="chip" id="lblchip"><input type="checkbox" id="labels" checked>Edge labels</label>
+  <label class="chip off" id="lblchip"><input type="checkbox" id="labels">Edge labels</label>
   <button id="fit" type="button">Fit</button>
 </header>
 <div id="stage">
-  <svg id="svg" role="img" aria-label="Graph of skills, extras, provider repos and plan tickets">
+  <svg id="svg" class="nolabels" role="img" aria-label="Graph of skills, extras, provider repos and plan tickets">
     <defs>
       <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z"/></marker>
       <marker id="arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z"/></marker>
@@ -150,7 +162,7 @@ function wrap(label, max) {
 }
 
 var svg = document.getElementById('svg'), view = document.getElementById('view');
-var byId = {}, shown = {}, selected = null, query = '';
+var byId = {}, shown = {}, selected = null, hover = null, query = '';
 var nodes = D.nodes.map(function (n, i) {
   var k = KINDS[n.kind], a = i * 2.39996, rad = 34 * Math.sqrt(i + 1);
   n.r = k.r; n.x = Math.cos(a) * rad; n.y = Math.sin(a) * rad; n.vx = 0; n.vy = 0; n.deg = 0;
@@ -174,11 +186,13 @@ edges.forEach(function (e) {
 nodes.forEach(function (n) {
   n.g = el('g', { 'class': 'node' }, document.getElementById('nodes'));
   el('circle', { r: n.r, fill: KINDS[n.kind].color }, n.g);
-  var lines = wrap(n.label, Math.floor(n.r * 2 / 5.6));
+  var lines = wrap(n.label, Math.floor(n.r * 2 / 5.8));
   lines.forEach(function (l, i) {
     el('text', { y: (i - (lines.length - 1) / 2) * 11 + 3.3 }, n.g).textContent = l;
   });
   el('title', {}, n.g).textContent = n.label + (n.title ? ': ' + n.title : '');
+  n.g.addEventListener('pointerenter', function () { if (!drag) { hover = n; refresh(); } });
+  n.g.addEventListener('pointerleave', function () { if (hover === n) { hover = null; refresh(); } });
 });
 
 function visible(n) { return shown[n.kind]; }
@@ -198,6 +212,8 @@ function tick() {
       a.vx -= dx * f; a.vy -= dy * f; b.vx += dx * f; b.vy += dy * f;
     }
     a.vx -= a.x * 0.03 * alpha; a.vy -= a.y * 0.03 * alpha;
+    // Skills settle in rows by layer: manager on top, procedures at the bottom.
+    if (a.layer != null) a.vy += ((a.layer - 1.5) * 170 - a.y) * 0.45 * alpha;
   }
   edges.forEach(function (e) {
     if (!edgeVisible(e)) return;
@@ -231,6 +247,11 @@ function draw() {
 function loop() {
   tick(); draw();
   raf = alpha > 0.005 ? requestAnimationFrame(loop) : 0;
+}
+function settle() {
+  alpha = 1;
+  for (var i = 0; i < 300; i++) tick();
+  alpha = 0; draw(); fit();
 }
 function reheat(a) { alpha = Math.max(alpha, a); if (!raf) raf = requestAnimationFrame(loop); }
 
@@ -291,20 +312,20 @@ svg.addEventListener('pointercancel', endDrag);
 
 // Selection, search and filters all end in one pass over the classes.
 function refresh() {
-  var near = {};
-  if (selected) {
-    near[selected.id] = true;
-    selected.out.forEach(function (e) { near[e.t.id] = true; });
-    selected.inn.forEach(function (e) { near[e.s.id] = true; });
+  var near = {}, focus = selected || hover;
+  if (focus) {
+    near[focus.id] = true;
+    focus.out.forEach(function (e) { near[e.t.id] = true; });
+    focus.inn.forEach(function (e) { near[e.s.id] = true; });
   }
   nodes.forEach(function (n) {
     var hit = !query || (n.label + ' ' + (n.title || '') + ' ' + (n.desc || '')).toLowerCase().indexOf(query) >= 0;
-    var dim = selected ? !near[n.id] : !hit;
+    var dim = focus ? !near[n.id] : !hit;
     n.g.setAttribute('class', 'node' + (visible(n) ? '' : ' hidden') + (dim ? ' dim' : '') + (n === selected ? ' sel' : ''));
   });
   edges.forEach(function (e) {
-    var hi = selected && (e.s === selected || e.t === selected);
-    var dim = selected ? !hi : (query && e.s.g.getAttribute('class').indexOf('dim') >= 0 && e.t.g.getAttribute('class').indexOf('dim') >= 0);
+    var hi = focus && (e.s === focus || e.t === focus);
+    var dim = focus ? !hi : (query && e.s.g.getAttribute('class').indexOf('dim') >= 0 && e.t.g.getAttribute('class').indexOf('dim') >= 0);
     var base = e.g.getAttribute('class').indexOf('dashed') >= 0 ? 'edge dashed' : 'edge';
     e.g.setAttribute('class', base + (edgeVisible(e) ? '' : ' hidden') + (hi ? ' hi' : '') + (dim ? ' dim' : ''));
     e.line.setAttribute('marker-end', hi ? 'url(#arrow-hi)' : 'url(#arrow)');
@@ -323,8 +344,17 @@ function group(title, list) {
 function overview() {
   var count = {};
   nodes.forEach(function (n) { count[n.kind] = (count[n.kind] || 0) + 1; });
-  var h = '<h2>Who calls whom</h2><p class="muted">' + nodes.length + ' nodes and ' + edges.length +
-    ' links, generated from the skills, <code>upstream.lock.json</code> and the newest plan. Click a node to see what it loads and what loads it.</p>';
+  var h = '<h2>Who calls whom</h2><p>A small set of agent skills that work like a software team. You give a task in plain words and get back a reviewed pull request that waits for your word to merge.</p>';
+  h += '<h3>How it works</h3><ol class="steps">' +
+    '<li>You type <b>/factory</b> and a task. It is the manager.</li>' +
+    '<li><b>improve</b> turns the task into a clear brief and decides how big it is.</li>' +
+    '<li>A <b>seat</b> (junior, mid, senior or 10x) does the work. It loads a procedure only when a step needs it.</li>' +
+    '<li><b>review</b> checks the change, never by its author. <b>ship</b> takes it to the merge gate and <b>runlog</b> records the run.</li></ol>';
+  h += '<h3>Reading the graph</h3>' +
+    '<div class="key"><svg><line x1="0" y1="5" x2="38" y2="5"/></svg><span>A loads B when a step needs it</span></div>' +
+    '<div class="key"><svg><line x1="0" y1="5" x2="38" y2="5" stroke-dasharray="5 4"/></svg><span>Optional extra, or a seat handing a problem up</span></div>' +
+    '<p class="muted">Hover a circle to see its links. Click it for details. The buttons at the top add the third-party extras and the plan. ' +
+    nodes.length + ' nodes and ' + edges.length + ' links, generated from the repository. <a href="' + esc(D.repo) + '" target="_blank" rel="noopener">View on GitHub</a></p>';
   h += '<h3>Entry points</h3><ul>' + nodes.filter(function (n) { return n.typed; }).map(function (n) { return item(n, 'typed by you'); }).join('') + '</ul>';
   h += group('Provider repos', nodes.filter(function (n) { return n.kind === 'source'; }));
   if (D.plan) {
@@ -369,12 +399,35 @@ panel.addEventListener('click', function (ev) {
 });
 
 var chips = {};
-function setKind(kind, on) {
-  shown[kind] = on;
-  chips[kind].className = 'chip' + (on ? '' : ' off');
-  chips[kind].querySelector('input').checked = on;
-  refresh(); reheat(0.6);
+var CORE = ['manager', 'front', 'seat', 'procedure'];
+var VIEWS = {
+  core:   { label: 'Core skills', kinds: CORE },
+  extras: { label: '+ Extras', kinds: CORE.concat(['extra', 'source']) },
+  plan:   { label: '+ Plan', kinds: CORE.concat(['ticket']) },
+  all:    { label: 'Everything', kinds: Object.keys(KINDS) }
+};
+var viewButtons = {};
+function syncChips(view) {
+  Object.keys(KINDS).forEach(function (kind) {
+    chips[kind].className = 'chip' + (shown[kind] ? '' : ' off');
+    chips[kind].querySelector('input').checked = shown[kind];
+  });
+  Object.keys(VIEWS).forEach(function (v) { viewButtons[v].className = v === view ? 'on' : ''; });
+  refresh(); settle();
 }
+function setKind(kind, on) { shown[kind] = on; syncChips(null); }
+function setView(view) {
+  Object.keys(KINDS).forEach(function (kind) { shown[kind] = VIEWS[view].kinds.indexOf(kind) >= 0; });
+  if (selected && !shown[selected.kind]) { selected = null; panel.innerHTML = overview(); }
+  syncChips(view);
+}
+Object.keys(VIEWS).forEach(function (view) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.textContent = VIEWS[view].label;
+  b.addEventListener('click', function () { setView(view); });
+  viewButtons[view] = b;
+  document.getElementById('views').appendChild(b);
+});
 Object.keys(KINDS).forEach(function (kind) {
   var c = document.createElement('label');
   c.className = 'chip';
@@ -390,9 +443,7 @@ document.getElementById('labels').addEventListener('change', function (ev) {
 });
 document.getElementById('fit').addEventListener('click', fit);
 
-for (var warm = 0; warm < 400; warm++) tick();
-alpha = 0.05;
-draw(); select(null); fit(); reheat(0.05);
+select(null); setView('core');
 window.addEventListener('resize', fit);
 </script>
 </body>
