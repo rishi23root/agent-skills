@@ -23,7 +23,7 @@ const edge = (from, to, type) => edges.push({ from, to, type });
 const skills = loadSkills().filter((s) => !s.missing);
 for (const s of skills) {
   const refs = fs.readdirSync(path.join(SKILLS, s.dir))
-    .filter((f) => f.endsWith('.md') && f !== 'SKILL.md').sort();
+    .filter((f) => f.endsWith('.md') && f !== 'SKILL.md' && f !== 'local.md').sort();
   nodes.push({
     id: s.name, kind: KIND[s.role] || 'procedure', label: s.name,
     desc: s.description, layer: s.layer,
