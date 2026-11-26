@@ -25,6 +25,7 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | Finishing another author's branch or PR while keeping their credit | `<upstream>/tstack/skills/takeover/SKILL.md` | tstack |
 | A second review pass focused on bugs, security, load and lean code | `<upstream>/ponytail/skills/ponytail-review/SKILL.md` | ponytail |
 | Two parallel fresh reviewers, one per axis | `<upstream>/mattpocock/skills/engineering/code-review/SKILL.md` | mattpocock |
+| Called by grill-with-docs, triage, wayfinder and improve-codebase-architecture: one round of questions, each with a recommended answer | `<upstream>/mattpocock/skills/productivity/grilling/SKILL.md` | mattpocock |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |
 | Terse output to save tokens in a long build session | `<upstream>/caveman/skills/caveman/SKILL.md` | caveman |

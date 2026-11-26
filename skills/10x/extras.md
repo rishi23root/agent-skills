@@ -19,5 +19,7 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | Primary-source research by read-only scouts | `<upstream>/mattpocock/skills/engineering/research/SKILL.md` | mattpocock |
 | A throwaway prototype to settle one design question | `<upstream>/mattpocock/skills/engineering/prototype/SKILL.md` | mattpocock |
 | Scanning a repository for shallow modules to deepen | `<upstream>/mattpocock/skills/engineering/improve-codebase-architecture/SKILL.md` | mattpocock |
+| Called by grill-with-docs, triage, wayfinder and improve-codebase-architecture: one round of questions, each with a recommended answer | `<upstream>/mattpocock/skills/productivity/grilling/SKILL.md` | mattpocock |
+| Called by retro; also when writing or pruning a skill, AGENTS.md or CLAUDE.md | `<upstream>/mattpocock/skills/productivity/writing-for-agents/SKILL.md` | mattpocock |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |

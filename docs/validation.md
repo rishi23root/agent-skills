@@ -73,6 +73,7 @@ which is which.
 | Skill names, layers, links, sizes, no upward edges, no cycles | `scripts/validate.mjs`, run in CI on every push | **Mechanism** |
 | The dependency graph matches the skills | Generated from metadata, CI fails if stale | **Mechanism** |
 | Every extra names a full commit | `upstream.lock.json`, checked by the validator | **Mechanism** |
+| Every pinned extra exists, and any skill it calls from its own library is pinned too (or listed in `ignoredCalls` with a reason) | `validate.mjs --upstream`, run in CI after fetching the pinned commits | **Mechanism**. Calls are found by pattern (Skill tool, `../name/`, `name/SKILL.md`); a bare mention is only a warning |
 | The clones on a machine are at those commits | `scripts/sync-upstream.mjs --status` | Mechanism, once it is run |
 | Install never overwrites other skills | `scripts/install.mjs` refuses | **Mechanism** |
 | Run rows have valid fields | `scripts/runlog.mjs` rejects bad values | **Mechanism**, once it is called |

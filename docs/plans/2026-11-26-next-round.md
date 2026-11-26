@@ -25,7 +25,7 @@ Sources read for this plan:
 - The 39 upstream skills that are on disk but not pinned.
 - *T3 Code: Building Multi-Agent Workflows* (Nov 2026 working note).
 
-## Phase 0: fix (do now)
+## Phase 0: fix (done 2026-11-26)
 
 | # | Ticket | Seat | Touches | Done when |
 |---|---|---|---|---|

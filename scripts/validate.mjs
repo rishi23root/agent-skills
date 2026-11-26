@@ -7,7 +7,7 @@
 //   node scripts/validate.mjs --upstream <dir>   also check that pinned extras exist there
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, SKILLS, loadSkills, loadLock, parseArgs } from './lib.mjs';
+import { ROOT, SKILLS, posix, loadSkills, loadLock, parseArgs } from './lib.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const LIMITS = { descChars: 300, commandDescTotal: 1500, lines: 170, bytes: 9000 };
@@ -111,7 +111,54 @@ if (upstreamDir) {
   for (const x of lock.extras) {
     if (!fs.existsSync(path.join(upstreamDir, extraPath(x)))) errors.push(`upstream.lock.json: ${extraPath(x)} not found under ${upstreamDir}`);
   }
+  checkSiblingCalls(upstreamDir);
 } else warn.push('no upstream folder: pinned extras were not checked on disk (run scripts/sync-upstream.mjs, or pass --upstream <dir>)');
+
+// A pinned extra that calls another skill from its own library needs that
+// skill pinned too. A call (Skill tool, ../name/, name/SKILL.md) is an error.
+// A bare `name` or /name mention is only a warning: it is often an alternative
+// the user may pick, not a step the extra runs.
+function checkSiblingCalls(dir) {
+  const mdFiles = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? mdFiles(path.join(d, e.name)) : e.name.endsWith('.md') ? [path.join(d, e.name)] : []);
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+  const ignored = lock.ignoredCalls || [];
+  const used = new Set();
+  const isIgnored = (srcId, from, to) => {
+    const i = ignored.findIndex((g) => g.source === srcId && g.from === from && g.to === to);
+    if (i >= 0) used.add(i);
+    return i >= 0;
+  };
+  for (const [srcId, src] of Object.entries(lock.sources)) {
+    const root = path.join(dir, srcId, src.skillsDir);
+    if (!fs.existsSync(root)) continue;
+    const all = mdFiles(root).filter((f) => path.basename(f) === 'SKILL.md')
+      .map((f) => posix(path.relative(root, path.dirname(f))));
+    const pinned = new Set(lock.extras.filter((x) => x.source === srcId).map((x) => x.path));
+    const unpinned = all.filter((p) => !pinned.has(p));
+    for (const x of lock.extras.filter((e) => e.source === srcId)) {
+      const xdir = path.join(root, x.path);
+      if (!fs.existsSync(xdir)) continue;
+      const lines = mdFiles(xdir).flatMap((f) => fs.readFileSync(f, 'utf8').split(/\r?\n/));
+      for (const p of unpinned) {
+        if (isIgnored(srcId, x.path, p)) continue;
+        const n = esc(p.split('/').pop());
+        const call = new RegExp(`(\\.\\./${n}/|\\b${n}/SKILL\\.md)`);
+        const skillTool = new RegExp(`["\`]${n}["\`]`);
+        const mention = new RegExp(`(\`/?${n}\`|(^|\\s)/${n}\\b)`);
+        if (lines.some((l) => call.test(l) || (/Skill tool/i.test(l) && skillTool.test(l)))) {
+          errors.push(`upstream.lock.json: extra ${srcId}/${x.path} calls ${p}, which is not pinned`);
+        } else if (lines.some((l) => mention.test(l))) {
+          warn.push(`upstream.lock.json: extra ${srcId}/${x.path} mentions ${p}, which is not pinned`);
+        }
+      }
+    }
+  }
+  ignored.forEach((g, i) => {
+    if (!g.why) errors.push(`upstream.lock.json: ignoredCalls ${g.from} -> ${g.to} has no "why"`);
+    if (!used.has(i)) errors.push(`upstream.lock.json: ignoredCalls ${g.from} -> ${g.to} no longer matches an unpinned skill; remove it`);
+  });
+}
 
 // ---- generated files --------------------------------------------------------
 const id = (n) => 's_' + n.replace(/[^a-z0-9]/g, '_');

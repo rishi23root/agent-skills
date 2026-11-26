@@ -65,8 +65,15 @@
     { "source": "mattpocock", "path": "engineering/prototype", "seats": ["10x"], "when": "A throwaway prototype to settle one design question" },
     { "source": "mattpocock", "path": "engineering/improve-codebase-architecture", "seats": ["10x"], "when": "Scanning a repository for shallow modules to deepen" },
 
+    { "source": "mattpocock", "path": "productivity/grilling", "seats": ["mid", "senior", "10x"], "when": "Called by grill-with-docs, triage, wayfinder and improve-codebase-architecture: one round of questions, each with a recommended answer" },
+    { "source": "mattpocock", "path": "productivity/writing-for-agents", "seats": ["senior", "10x"], "when": "Called by retro; also when writing or pruning a skill, AGENTS.md or CLAUDE.md" },
+
     { "source": "mattpocock", "path": "productivity/handoff", "seats": ["junior", "mid", "senior", "10x"], "when": "A longer handoff summary than the core note" },
     { "source": "ponytail", "path": "ponytail", "seats": ["junior", "mid", "senior", "10x"], "when": "Stricter lean-code rules while building" },
     { "source": "caveman", "path": "caveman", "seats": ["junior", "mid"], "when": "Terse output to save tokens in a long build session" }
+  ],
+  "ignoredCalls": [
+    { "source": "caveman", "from": "caveman", "to": "ultracave", "why": "Output mode reached only by /caveman ultra. Not pinned on purpose." },
+    { "source": "caveman", "from": "caveman", "to": "megacave", "why": "Classical Chinese output mode reached only by /caveman wenyan. Not pinned on purpose." }
   ]
 }
