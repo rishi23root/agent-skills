@@ -26,6 +26,13 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | A second review pass focused on bugs, security, load and lean code | `<upstream>/ponytail/skills/ponytail-review/SKILL.md` | ponytail |
 | Two parallel fresh reviewers, one per axis | `<upstream>/mattpocock/skills/engineering/code-review/SKILL.md` | mattpocock |
 | Called by grill-with-docs, triage, wayfinder and improve-codebase-architecture: one round of questions, each with a recommended answer | `<upstream>/mattpocock/skills/productivity/grilling/SKILL.md` | mattpocock |
+| Once per Node repository, when the owner asks: type check and tests on every commit | `<upstream>/mattpocock/skills/misc/setup-pre-commit/SKILL.md` | mattpocock |
+| Reviewing a small diff that looks risky: find the one fact it is safe because of, and prove it by a run | `<upstream>/pstack/pstack/skills/blast-radius/SKILL.md` | pstack |
+| Before changing code whose reason is unclear: answer from commits and PRs | `<upstream>/pstack/pstack/skills/why/SKILL.md` | pstack |
+| Tightening prose for the owner: a PR body, a report, a doc | `<upstream>/pstack/pstack/skills/unslop/SKILL.md` | pstack |
+| Any TypeScript work | `<upstream>/pstack/pstack/skills/typescript-best-practices/SKILL.md` | pstack |
+| Called by typescript-best-practices | `<upstream>/pstack/pstack/skills/principle-type-system-discipline/SKILL.md` | pstack |
+| Called by typescript-best-practices | `<upstream>/pstack/pstack/skills/principle-boundary-discipline/SKILL.md` | pstack |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |
 | Terse output to save tokens in a long build session | `<upstream>/caveman/skills/caveman/SKILL.md` | caveman |

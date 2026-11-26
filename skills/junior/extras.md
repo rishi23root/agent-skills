@@ -16,6 +16,9 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | Writing the PR description | `<upstream>/tstack/skills/file-pr/SKILL.md` | tstack |
 | Watching CI and review bots on an open PR | `<upstream>/tstack/skills/babysit-pr/SKILL.md` | tstack |
 | Formatting a comment on an issue or PR | `<upstream>/tstack/skills/leaving-pr-comments/SKILL.md` | tstack |
+| Any TypeScript work | `<upstream>/pstack/pstack/skills/typescript-best-practices/SKILL.md` | pstack |
+| Called by typescript-best-practices | `<upstream>/pstack/pstack/skills/principle-type-system-discipline/SKILL.md` | pstack |
+| Called by typescript-best-practices | `<upstream>/pstack/pstack/skills/principle-boundary-discipline/SKILL.md` | pstack |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |
 | Terse output to save tokens in a long build session | `<upstream>/caveman/skills/caveman/SKILL.md` | caveman |

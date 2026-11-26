@@ -15,6 +15,8 @@ This repository holds agent skills and the research behind them. Read
    - `escalates`: for seats, the seat it hands problems up to.
 3. Do not add a skill when a section or a reference file will do. A new typed
    skill needs a reason written in `docs/architecture.md` under Decisions.
+4. A rule that a second skill needs is moved to `skills/principles/<name>.md`
+   and cited from both. Do not restate it.
 
 ## After you change a skill
 
@@ -25,6 +27,16 @@ node scripts/validate.mjs --write
 It checks names, layers, links and sizes, and regenerates
 `docs/skill-graph.md` and `skills/<seat>/extras.md`. Commit the regenerated
 files with your change. CI fails if they are stale.
+
+If you changed `upstream.lock.json`, also run it against the clones:
+
+```
+node scripts/sync-upstream.mjs
+node scripts/validate.mjs --upstream upstream
+```
+
+It fails when a pinned extra calls a skill from its own library that is not
+pinned.
 
 If you changed behaviour, add or update a row in `evals/scenarios.md`.
 

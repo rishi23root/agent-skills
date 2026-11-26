@@ -21,5 +21,8 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | Scanning a repository for shallow modules to deepen | `<upstream>/mattpocock/skills/engineering/improve-codebase-architecture/SKILL.md` | mattpocock |
 | Called by grill-with-docs, triage, wayfinder and improve-codebase-architecture: one round of questions, each with a recommended answer | `<upstream>/mattpocock/skills/productivity/grilling/SKILL.md` | mattpocock |
 | Called by retro; also when writing or pruning a skill, AGENTS.md or CLAUDE.md | `<upstream>/mattpocock/skills/productivity/writing-for-agents/SKILL.md` | mattpocock |
+| A manual procedure only a person can do (credentials, CI secrets, a cutover): write it as numbered steps | `<upstream>/mattpocock/skills/engineering/wizard/SKILL.md` | mattpocock |
+| The answers sit with a third party, not the owner: turn the open questions into a form to send | `<upstream>/mattpocock/skills/productivity/to-questionnaire/SKILL.md` | mattpocock |
+| Before reporting any measured speed-up or regression | `<upstream>/pstack/pstack/skills/benchmark-checklist/SKILL.md` | pstack |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |

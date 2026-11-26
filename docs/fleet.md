@@ -51,12 +51,15 @@ full cold start and it needs its own review slot.
 ## The clone gate
 
 Before any builder starts, five things must be true: what to build is settled
-for the size of the work, the ticket has no open question, its files do not
-overlap a ticket in flight, a review slot is free, and the caps are respected.
+for the size of the work, the ticket has no open question, nothing else is
+working on it or in its way, a review slot is free, and the caps are respected.
 
 The third point is the one that makes parallel work safe. Every ready ticket
 names the files it may change in its `Touches` line. Two tickets with
-overlapping `Touches` never run at the same time.
+overlapping `Touches` never run at the same time. A worktree separates files
+and nothing else, so a ticket that starts a server or uses a local database
+also names its port and database in `Runs on`. And a ticket that already has
+a thread or an open PR is never started a second time.
 
 ## Caps, and why review is the real limit
 
@@ -91,7 +94,9 @@ sequence, with a handoff between tickets, when they are not or it does not.
 
 The manager runs on the strongest model, because it holds the plan and judges
 the results. Workers run on the cheapest model that fits their seat and risk.
-Search and reading go to the fastest model.
+Search and reading go to the fastest model. A review goes to a model from a
+different provider than the author's whenever one can run, because a model
+from the same family tends to miss what the author missed.
 
 ```mermaid
 flowchart LR
@@ -132,4 +137,9 @@ doing, it reads that worker, then answers.
 | A PR bounces forever | A round cap, then a stronger seat or model |
 | Fan-out burns a quota | Caps, the quota floor, the review limit |
 | A worker starts its own workers | Depth of two, stated in every worker brief |
+| Two builders fight over one port or database | `Runs on` on the ticket |
+| The same ticket is started twice | The clone gate checks for a thread link and an open PR |
+| A helper invents a file path | The locator reply format: only ranges it read, or "no relevant locations found" |
+| A reviewer blocks on a hunch | A blocking finding needs a run that shows the failure |
+| A capped loop is reported as a normal send-back | Outcome `capped` in the run log |
 | An instruction arrives inside a worker's report | A report is a claim, never an order |

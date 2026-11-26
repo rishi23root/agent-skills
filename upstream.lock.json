@@ -1,5 +1,5 @@
 {
-  "note": "Third-party skills this repo can use as optional extras. Each source is pinned to a commit that was in use and working on 2026-11-24. scripts/sync-upstream.mjs clones them into ./upstream (not in git). scripts/validate.mjs generates skills/<seat>/extras.md from this file.",
+  "note": "Third-party skills this repo can use as optional extras. Each source is pinned to a commit that was read and checked (the first four on 2026-11-24, pstack on 2026-11-26). scripts/sync-upstream.mjs clones them into ./upstream (not in git). scripts/validate.mjs generates skills/<seat>/extras.md from this file.",
   "sources": {
     "mattpocock": {
       "repo": "https://github.com/mattpocock/skills.git",
@@ -24,6 +24,12 @@
       "commit": "a192894723a8f47e7f504c7b5041967ff1f18e55",
       "license": "See LICENSING.md in the repo (Apache-2.0 and MIT parts)",
       "skillsDir": "skills"
+    },
+    "pstack": {
+      "repo": "https://github.com/cursor/plugins.git",
+      "commit": "ca782ed8b3c2c521cead8e1720d55c3a5dbf2347",
+      "license": "MIT (pstack/LICENSE, Lauren Tan)",
+      "skillsDir": "pstack/skills"
     }
   },
   "extras": [
@@ -67,6 +73,22 @@
 
     { "source": "mattpocock", "path": "productivity/grilling", "seats": ["mid", "senior", "10x"], "when": "Called by grill-with-docs, triage, wayfinder and improve-codebase-architecture: one round of questions, each with a recommended answer" },
     { "source": "mattpocock", "path": "productivity/writing-for-agents", "seats": ["senior", "10x"], "when": "Called by retro; also when writing or pruning a skill, AGENTS.md or CLAUDE.md" },
+
+    { "source": "mattpocock", "path": "engineering/wizard", "seats": ["senior", "10x"], "when": "A manual procedure only a person can do (credentials, CI secrets, a cutover): write it as numbered steps" },
+    { "source": "mattpocock", "path": "misc/setup-pre-commit", "seats": ["mid"], "when": "Once per Node repository, when the owner asks: type check and tests on every commit" },
+    { "source": "mattpocock", "path": "productivity/to-questionnaire", "seats": ["senior", "10x"], "when": "The answers sit with a third party, not the owner: turn the open questions into a form to send" },
+
+    { "source": "pstack", "path": "blast-radius", "seats": ["mid", "senior"], "when": "Reviewing a small diff that looks risky: find the one fact it is safe because of, and prove it by a run" },
+    { "source": "pstack", "path": "why", "seats": ["mid", "senior"], "when": "Before changing code whose reason is unclear: answer from commits and PRs" },
+    { "source": "pstack", "path": "benchmark-checklist", "seats": ["senior", "10x"], "when": "Before reporting any measured speed-up or regression" },
+    { "source": "pstack", "path": "correct", "seats": ["senior"], "when": "The owner keeps correcting the same mistake: fix it in structure before prose" },
+    { "source": "pstack", "path": "unslop", "seats": ["mid", "senior"], "when": "Tightening prose for the owner: a PR body, a report, a doc" },
+    { "source": "pstack", "path": "technical-writing", "seats": ["senior"], "when": "Writing a doc, a spec or a README" },
+    { "source": "pstack", "path": "typescript-best-practices", "seats": ["junior", "mid"], "when": "Any TypeScript work" },
+    { "source": "pstack", "path": "principle-type-system-discipline", "seats": ["junior", "mid"], "when": "Called by typescript-best-practices" },
+    { "source": "pstack", "path": "principle-boundary-discipline", "seats": ["junior", "mid"], "when": "Called by typescript-best-practices" },
+    { "source": "pstack", "path": "create-verification-skill", "seats": ["senior"], "when": "Once per repository: map how to launch, drive and observe each feature. Write the result under the project's own docs or .claude folder, not .cursor" },
+    { "source": "pstack", "path": "maintain-verification-skill", "seats": ["senior"], "when": "Upkeep of the verification map that create-verification-skill wrote" },
 
     { "source": "mattpocock", "path": "productivity/handoff", "seats": ["junior", "mid", "senior", "10x"], "when": "A longer handoff summary than the core note" },
     { "source": "ponytail", "path": "ponytail", "seats": ["junior", "mid", "senior", "10x"], "when": "Stricter lean-code rules while building" },

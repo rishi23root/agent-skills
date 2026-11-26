@@ -61,10 +61,22 @@ flowchart LR
 | | `review` | no | Independent review on two axes, capped fix loop |
 | | `ship` | no | PR, checks, merge gate |
 | | `handoff` | no | The note that lets a fresh session continue |
-| | `runlog` | no | One row per run, and the lesson |
+| | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
+| | `principles` | no | Six rules that several skills share, one short file each |
 
 Six skills are typed by you. Their descriptions total about 1,000 characters.
 Every skill is called by name only, so none of them is loaded until you ask.
+
+### Cost at a glance
+
+| You type | Reads at once | Upper bound if it loaded everything |
+|---|---|---|
+| `/improve` | about 2,200 tokens | about 2,200 |
+| `/junior` | about 600, plus the procedures it uses | about 5,600 |
+| `/factory` | about 1,500, plus one stage at a time | about 17,800 |
+
+Standing cost is zero. These are bytes divided by 4, not measurements; the
+full table is generated into [docs/skill-graph.md](docs/skill-graph.md).
 
 The full dependency graph, generated from the skills themselves, is in
 [docs/skill-graph.md](docs/skill-graph.md).
@@ -81,6 +93,8 @@ The full dependency graph, generated from the skills themselves, is in
 | [docs/research/industry-patterns.md](docs/research/industry-patterns.md) | What Matt Pocock, Theo Browne and others publish, and what was taken from each |
 | [docs/research/upstream-skills.md](docs/research/upstream-skills.md) | A close reading of the four third-party skill repos |
 | [docs/research/findings.md](docs/research/findings.md) | What was tried and measured here, and the rule each finding produced |
+| [docs/research/pstack.md](docs/research/pstack.md) | Lauren Tan's pstack and the T3 multi-agent note: what was taken, what was not, and why |
+| [docs/plans/2026-11-26-next-round.md](docs/plans/2026-11-26-next-round.md) | The second round of changes, ticket by ticket, with its status |
 | [evals/scenarios.md](evals/scenarios.md) | The cases the skills must get right |
 
 ## Try it
@@ -112,6 +126,10 @@ node scripts/sync-upstream.mjs        # clones into ./upstream, which is not in 
 Per-project settings (tracker, labels, test commands) go in the project as
 `docs/agents/factory.md`. Copy [templates/factory.md](templates/factory.md).
 
+Rules of your own that a reviewer should apply to every diff go in the
+project as `checks/`, one plain-English rule per file. Copy
+[templates/checks](templates/checks).
+
 Requirements: Node 20 or later. The GitHub CLI for the gate script.
 
 ## Scripts
@@ -121,8 +139,9 @@ Requirements: Node 20 or later. The GitHub CLI for the gate script.
 | `scripts/validate.mjs` | Checks every skill against the rules. Regenerates the graph and the per-seat extras lists with `--write`. Runs in CI |
 | `scripts/install.mjs` | Links or copies the skills into a skills folder you name. Refuses to overwrite anything it did not install |
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
-| `scripts/runlog.mjs` | Adds, closes and summarises run log rows |
+| `scripts/runlog.mjs` | Adds, closes, summarises and audits run log rows. The log is append-only |
 | `scripts/gate.mjs` | Reads a PR's real state and checks the merge gate. Never merges |
+| `scripts/call-graph.mjs` | Builds an interactive page of which skill calls which, across the core and every pinned library |
 
 ## What is proven and what is not
 
@@ -133,7 +152,10 @@ Requirements: Node 20 or later. The GitHub CLI for the gate script.
 | A workhorse model can follow `improve` and `factory` on five sample requests | Tried once on 2026-11-24, see `evals/scenarios.md` |
 | Rules written only as prose are not followed reliably | Observed, and the reason for the scripts here |
 | The skills are internally consistent (names, layers, links, sizes) | Checked by `validate.mjs` on every push |
-| The run log, install and gate scripts work | Run log and install were exercised locally. The gate script was run once against a real, already merged PR and correctly reported the gate as not met. It has not yet passed a PR |
+| The run log, install and gate scripts work | Run log and install were exercised locally. The gate script was run once against a real, already merged PR and correctly reported the gate as not met. It has not yet passed a PR, and its patch-id path has only been tested on its parts |
+| A pinned extra never calls a skill that is not pinned | Checked by `validate.mjs --upstream` in CI. It found five broken calls on 2026-11-26 |
+| A reviewer from another provider catches more | Reported by others (see `docs/research/pstack.md`). Not measured here |
+| Proof-by-run, project checks and the reflect loop change outcomes | **Not yet tested.** Scenarios F1 to F14 in `evals/scenarios.md` |
 | The whole loop produces a good PR from a rough task | **Not yet tested.** The pilot is the next step |
 | The sizing table sends tasks to the right seat | **Not yet tested.** See `evals/scenarios.md` |
 
@@ -142,6 +164,7 @@ Requirements: Node 20 or later. The GitHub CLI for the gate script.
 The core is written here, in its own words. The ideas come from people who
 published theirs: Matt Pocock (`mattpocock/skills`), Theo Browne
 (`t3dotgg/tstack`), Dietrich Gebert (`ponytail`), Julius Brussee (`caveman`),
+Lauren Tan (`pstack`, in `cursor/plugins`),
 Jesse Vincent (`obra/superpowers`) and Anthropic's engineering posts. The
 research documents say which idea came from where. Their repositories are not
 copied into this one. They are referenced by pinned commit in

@@ -28,6 +28,18 @@ decides what to do next.
 | `NEEDS_CONTEXT` | A fact is missing. Work is paused, not failed | Answer, then resume the same worker |
 | `BLOCKED` | Cannot finish as briefed | Change the ticket, seat or model |
 
+## Locator replies
+
+A read-only worker that was asked only to find code replies with this and
+nothing else:
+
+```
+<path>:<first line>-<last line>  <why this range matters, in a few words>
+```
+
+One line per place. Cite only ranges you opened and read. If nothing fits,
+reply `no relevant locations found`. Do not guess a path.
+
 ## Rules
 
 - Evidence is output the worker saw. Quote it. Do not summarise it as "tests

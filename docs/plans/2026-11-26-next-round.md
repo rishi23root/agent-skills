@@ -1,7 +1,7 @@
 # Plan: next round of skills (2026-11-26)
 
-Status: proposed. Nothing below is built yet. Written by the `10x` seat; each
-ticket is handed to the seat named on it.
+Status: **built on 2026-11-26**, all four phases, except the two parts that
+need a real project (see "Still open"). Written by the `10x` seat.
 
 ## The decision
 
@@ -32,7 +32,7 @@ Sources read for this plan:
 | T1 | Pin mattpocock `productivity/grilling` (needed by `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`) and `productivity/writing-for-agents` (needed by `retro`) | mid | `upstream.lock.json`, generated `extras.md` | `validate.mjs --write` passes; both appear in the seats that hold the calling extras |
 | T2 | Validator: with `--upstream`, warn when a pinned extra names another skill from its own library that is not pinned | mid | `scripts/validate.mjs` | Removing `grilling` from the lock makes the check fail with the four callers named |
 
-## Phase 1: verification (before the pilot)
+## Phase 1: verification (done)
 
 Each is a few lines in one core skill. Keep every skill under the 170-line
 and 9,000-byte limits.
@@ -48,7 +48,7 @@ and 9,000-byte limits.
 | T9 | **Capped runs are visible.** Add outcome `capped` (hit the round cap) to the run log | junior | `scripts/runlog.mjs`, `skills/runlog/SKILL.md` | T3 paper, "silent caps" |
 | T10 | **Duplicate-run guard.** Before dispatch, check the ledger and open PRs for the same ticket | mid | `skills/dispatch/SKILL.md` | mattpocock `software-factory` |
 
-## Phase 2: front door and extras (alongside the pilot)
+## Phase 2: front door and extras (done)
 
 | # | Ticket | Seat | Touches | Source |
 |---|---|---|---|---|
@@ -59,20 +59,31 @@ and 9,000-byte limits.
 | T15 | Add mattpocock extras: `wizard` (senior, 10x), `setup-pre-commit` (mid, once per Node repo), `to-questionnaire` (senior, 10x) | mid | `upstream.lock.json` | mattpocock |
 | T16 | Cost at a glance: generate context cost per entry point into `docs/skill-graph.md`, a short README section, and the interactive call graph script under `scripts/` | mid | `scripts/validate.mjs`, `README.md` | other thread, 2026-11-24 |
 
-## Phase 3: per-project checks and principles (after the pilot)
+## Phase 3: per-project checks and principles (done, except the first real project)
 
 | # | Ticket | Seat | Touches |
 |---|---|---|---|
 | T17 | **Plain-English checks.** A project keeps `checks/*.md`, one PASS/FAIL rule per file with failing examples. `review` runs every file and reports each verdict. `create-verification-skill`'s feature-map layout is the model. Start with one project | senior | `skills/review/SKILL.md`, `templates/`, one pilot repo |
 | T18 | **Principles folder.** `principles/<name>.md`, our own words, one rule and one "applies when" line each, under 600 bytes. Core skills cite them by name instead of restating; the validator fails on a missing name. First set: laziness ladder, prove it works, fix root causes, attack the premise (new), test behaviour not implementation (new). Expect the core skills to get shorter | senior | new `principles/`, `skills/build`, `skills/review`, `scripts/validate.mjs` |
 
-## Phase 4: learning loop (needs 10+ run-log rows)
+## Phase 4: learning loop (built; it starts working once the log has rows)
 
 | # | Ticket | Seat | Touches |
 |---|---|---|---|
 | T19 | **Reflect.** After a run, propose skill edits from the transcript and run log. Keep a finding only if it would still hold in six months, would change what a future agent does, and maps to a skill that run used. Output Accepted / Rejected / Backlog and wait for the owner. Anything a lint could enforce goes to backlog | senior | `skills/runlog/SKILL.md` |
 | T20 | **Blind tests for skill changes.** An organic prompt with no hint it is a test, a judge from another provider, grading from what the transcript shows was opened. Extends `evals/scenarios.md` | senior | `evals/` |
 | T21 | **Audit rows.** Run-log rows are never edited, only superseded; a different-provider agent flags weak evidence | mid | `scripts/runlog.mjs` |
+
+## Still open
+
+- **T17, first real project.** The checks template and the review step exist.
+  No project has a `checks/` folder yet. Pick one and write its first two or
+  three checks from review comments you have made twice.
+- **T19 to T21 need data.** Reflect, the blind tests and the audit are built.
+  They have nothing to work on until the pilot fills the run log.
+- **Built differently from the plan:** principles live in a `principles`
+  skill, not a top-level folder (decision 11 in `docs/architecture.md`). The
+  first set has six files, not five.
 
 ## Owner decisions (only you can make these)
 

@@ -33,6 +33,7 @@ flowchart TD
     SH[ship]
     H[handoff]
     RL[runlog]
+    PR[principles]
   end
   F --> I
   F --> L2
@@ -125,6 +126,9 @@ owner.
 | Merge gate | ship to owner | `skills/ship/SKILL.md` |
 | Handoff note | one session to the next | `skills/handoff/SKILL.md` |
 | Run row | every run to the log | `skills/runlog/SKILL.md` |
+| A rule shared by several skills | any skill to its reader | one file in `skills/principles/` |
+| Project check | a project to every reviewer | the project's `checks/` folder, from `templates/checks` |
+| Proposed skill change | a retro to the owner | `skills/runlog/reflect.md` |
 | Repo profile | a project to every skill | `templates/factory.md` |
 
 ## Design rules
@@ -133,9 +137,10 @@ owner.
    A trivial task runs no seat at all.
 2. **Everything is called by name.** No skill sits in the context waiting to
    be triggered. This came from a measured audit, in `research/findings.md`.
-3. **Few doors.** Six typed skills. The other eight are reached through them.
+3. **Few doors.** Six typed skills. The other nine are reached through them.
 4. **One copy of each rule.** A format or a number lives in one file. Other
-   files link to it.
+   files link to it. A rule that two or more skills rely on is a file in
+   `skills/principles/`, and the validator fails on one that nothing cites.
 5. **Prose is not a mechanism.** A rule that must hold every time gets a
    script or a checkable condition. `validation.md` lists which rule has which.
 6. **Ask before guessing.** A missing fact that changes the design stops the
@@ -160,6 +165,11 @@ owner.
 | 8 | Dependencies live in each skill's `metadata` | The graph is generated from the same file the agent reads, so it cannot drift | n/a |
 | 9 | Review verdict is a comment line naming the commit | One GitHub account cannot approve its own PR, so a GitHub approval is not available to a solo owner | A second reviewer account, or a bot identity |
 | 10 | Nothing installs itself | The existing skills keep working until the owner switches | n/a |
+| 11 | Shared rules are files inside a `principles` skill, not a new top-level folder | The installer, the link check and the graph already understand a skill folder, so no new mechanism was needed. Six files, each under 600 bytes | A principle cited by only one skill goes back into that skill |
+| 12 | pstack is a source of ideas and a few pinned extras, not a runtime | Its router loads about 11 KB every session, lets workers start workers, and rejects planning, review rounds and asking the owner. Each of those is the opposite of a rule here | n/a |
+| 13 | A blocking review finding needs a run that shows the failure | A reviewer asked to find something always finds something. A command and its output can be checked by the author and the owner | Run log data showing real defects were waved through as suspicions |
+| 14 | A review verdict covers a patch id as well as a commit | A rebase changes the commit and not the change, and used to void every approval | n/a |
+| 15 | The run log is append-only | A row that can be rewritten cannot be audited | n/a |
 
 ## Open questions
 
@@ -167,6 +177,10 @@ owner.
 - Is three review rounds the right cap? It is borrowed, not measured here.
 - High-risk review asks for a second provider. On a machine with only one
   provider that condition can only be waived by the owner. Is that too strict?
+- Does proof-by-run let real defects through as suspicions? A reviewer that
+  cannot run the product can prove little. Watch the suspicion counts.
+- Project checks cost reviewer tokens on every PR. How many files before the
+  cost outweighs the catch?
 - A solo owner has one GitHub account, so the review verdict is a comment and
   not a GitHub approval. A second reviewer identity would close that gap.
 - Should the run log be filled by a hook instead of by the manager? A hook

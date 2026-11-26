@@ -9,7 +9,7 @@ metadata:
   layer: "3"
   role: procedure
   requires: ""
-  reads: "dispatch"
+  reads: "dispatch principles"
 ---
 
 # build
@@ -39,19 +39,15 @@ One ticket, one branch, one small change, proven.
 ## The loop
 
 1. **Red.** Write the check that shows the behaviour is missing, at the
-   ticket's `Seam to test`. For a bug, this is the reproduction. Run it and
-   watch it fail for the right reason.
-2. **Green.** Make the smallest change that passes. Before adding code, go
-   down this ladder and stop at the first rung that works:
-   1. Delete something.
-   2. Reuse a helper that is already in the repository.
-   3. Use the standard library.
-   4. Use a dependency that is already installed.
-   5. Write new code.
-
-   No options, flags, wrappers or config that the ticket did not ask for.
+   ticket's `Seam to test` (`../principles/test-behaviour.md`). For a bug,
+   this is the reproduction. Run it and watch it fail for the right reason.
+2. **Green.** Make the smallest change that passes, by the ladder in
+   `../principles/smallest-change.md`.
 3. **Refactor** only what you touched, and only while the checks stay green.
 4. Repeat for the next acceptance check.
+
+While you work, run the type check and the one test file often. Run the full
+suite once, at the end.
 
 ## Bugs with an unknown cause
 
@@ -60,6 +56,10 @@ can, list the possible causes in order of likelihood, and test the cheapest one
 to rule out first. Fix it in the layer that owns the cause. Leave the
 reproduction behind as a regression test.
 
+Prove the fix on the same surface where the bug was reproduced. A bug seen in
+the running app is not proven fixed by a unit test alone. Paste the failing
+output and then the passing output. A run that was inconclusive is not a pass.
+
 ## Prove it
 
 Run the smallest set of checks that covers your diff: the new checks, the
@@ -67,12 +67,8 @@ module's tests, the type check and the linter. Run the whole suite when the
 change touches shared code. Use the commands in the repo profile
 (`docs/agents/factory.md`) when it exists.
 
-You must have seen the output. Each check is one of three things, and you
-report which:
-
-- **passed**: you ran it and saw it pass.
-- **failed**: you ran it and it failed. Say how.
-- **not run**: say why. A check you could not run is not a pass.
+You must have seen the output. Report each check as passed, failed or not
+run, as `../principles/evidence.md` defines them.
 
 For a change a user can see, run the product and look at it. A passing unit
 test with everything mocked is not proof that the feature works.
@@ -92,7 +88,8 @@ Stop and report, with status `NEEDS_CONTEXT` or `BLOCKED`, when:
 
 - A needed fact is missing.
 - The work needs a file outside `Touches`.
-- The same check has failed three times after three different attempts.
+- The same check has failed three times after three different attempts. After
+  the second, test the belief first (`../principles/attack-the-premise.md`).
 - You find the ticket or the spec is wrong.
 
 ## Report

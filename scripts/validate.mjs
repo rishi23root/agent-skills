@@ -93,9 +93,24 @@ for (const n of byName.keys()) visit(n, []);
 
 // Every procedure must be reachable from the manager.
 const reach = new Set();
-const walk = (n) => { if (reach.has(n)) return; reach.add(n); for (const d of byName.get(n)?.requires || []) walk(d); };
+const walk = (n) => { if (reach.has(n)) return; reach.add(n); const s = byName.get(n); for (const d of [...(s?.requires || []), ...(s?.reads || [])]) walk(d); };
 walk('factory');
 for (const s of byName.values()) if (!reach.has(s.dir)) err(s.dir, 'is not reachable from factory');
+
+// ---- principles: one rule per file, written once ----------------------------
+const PRINCIPLE_BYTES = 600;
+const pdir = path.join(SKILLS, 'principles');
+if (fs.existsSync(pdir)) {
+  const index = byName.get('principles')?.body || '';
+  for (const f of fs.readdirSync(pdir).filter((x) => x.endsWith('.md') && x !== 'SKILL.md')) {
+    const text = fs.readFileSync(path.join(pdir, f), 'utf8').replace(/\r\n/g, '\n');
+    const bytes = Buffer.byteLength(text);
+    if (bytes > PRINCIPLE_BYTES) err('principles', `${f} is ${bytes} bytes (limit ${PRINCIPLE_BYTES}); a principle is one rule`);
+    if (!text.includes('**Applies when:**')) err('principles', `${f} has no "**Applies when:**" line`);
+    if (!index.includes(`(${f})`)) err('principles', `${f} is not listed in the index in SKILL.md`);
+    if (!skills.some((s) => s.dir !== 'principles' && s.body?.includes(`../principles/${f}`))) err('principles', `${f} is cited by no skill; cite it or delete it`);
+  }
+}
 
 // ---- lockfile checks --------------------------------------------------------
 for (const [id, src] of Object.entries(lock.sources)) {
@@ -115,7 +130,8 @@ if (upstreamDir) {
 } else warn.push('no upstream folder: pinned extras were not checked on disk (run scripts/sync-upstream.mjs, or pass --upstream <dir>)');
 
 // A pinned extra that calls another skill from its own library needs that
-// skill pinned too. A call (Skill tool, ../name/, name/SKILL.md) is an error.
+// skill pinned too. A call (Skill tool, ../name/, name/SKILL.md, or a bold
+// name followed by "skill") is an error.
 // A bare `name` or /name mention is only a warning: it is often an alternative
 // the user may pick, not a step the extra runs.
 function checkSiblingCalls(dir) {
@@ -143,7 +159,7 @@ function checkSiblingCalls(dir) {
       for (const p of unpinned) {
         if (isIgnored(srcId, x.path, p)) continue;
         const n = esc(p.split('/').pop());
-        const call = new RegExp(`(\\.\\./${n}/|\\b${n}/SKILL\\.md)`);
+        const call = new RegExp(`(\\.\\./${n}/|\\b${n}/SKILL\\.md|[*]{2}${n}[*]{2} skill)`);
         const skillTool = new RegExp(`["\`]${n}["\`]`);
         const mention = new RegExp(`(\`/?${n}\`|(^|\\s)/${n}\\b)`);
         if (lines.some((l) => call.test(l) || (/Skill tool/i.test(l) && skillTool.test(l)))) {
@@ -195,6 +211,25 @@ function graphDoc() {
   }
   out.push(`| **Total** | | **${tb}** | **${tc}** |`, '');
   out.push(`Descriptions of the ${skills.filter((s) => s.layer < 3).length} skills you can type: ${commandTotal} chars.`, '');
+
+  // Context cost. Bytes divided by 4 is a rough token estimate, not a measurement.
+  const refBytes = (s) => fs.readdirSync(path.join(SKILLS, s.dir))
+    .filter((f) => f.endsWith('.md') && !['SKILL.md', 'local.md', 'extras.md'].includes(f))
+    .reduce((n, f) => n + fs.statSync(path.join(SKILLS, s.dir, f)).size, 0);
+  const tok = (b) => Math.round(b / 4 / 100) * 100;
+  const closure = (n, seen = new Set()) => { if (seen.has(n)) return seen; seen.add(n); for (const d of byName.get(n).requires) closure(d, seen); return seen; };
+  out.push('## Context cost', '',
+    'What a session reads when you call a skill. **Standing cost is zero**: every skill sets `disable-model-invocation: true`, so nothing sits in the model\'s context until it is called. Tokens are bytes divided by 4, rounded to 100. That is an estimate. The run log holds measured numbers.', '',
+    '| You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |', '|---|---|---|---|');
+  for (const s of skills.filter((x) => x.layer < 3)) {
+    const own = Buffer.byteLength(s.text);
+    const loaded = closure(s.dir);
+    const readOnly = new Set([...loaded].flatMap((n) => byName.get(n).reads).filter((n) => !loaded.has(n)));
+    const all = [...loaded].map((n) => byName.get(n)).reduce((n, x) => n + Buffer.byteLength(x.text) + refBytes(x), 0)
+      + [...readOnly].reduce((n, x) => n + refBytes(byName.get(x)), 0);
+    out.push(`| \`/${s.dir}\` | ~${tok(own)} | ~${tok(own + refBytes(s))} | ~${tok(all)} |`);
+  }
+  out.push('', 'The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager\'s.', '');
   return out.join('\n');
 }
 

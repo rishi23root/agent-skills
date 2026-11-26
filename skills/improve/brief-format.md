@@ -36,7 +36,10 @@ These are places to look. They are not instructions to edit those files.
 
 ## Open questions
 
-- A question whose answer would change the design. Or "None."
+- A question whose answer would change the design.
+  **Recommended:** the answer you would pick, and why. "Yes" accepts it.
+- Or: **Settle by prototype:** a question a quick experiment can answer.
+- Or "None."
 
 ## Next step
 
@@ -51,4 +54,6 @@ Seat and stage this should go to, from the sizing table.
   brief for `small`. Pointers are not `Touches`.
 - Anything you cannot make checkable without a missing fact is an open
   question, not an acceptance check.
+- A recommended answer is not an assumption. Nothing is built on it until the
+  owner says yes.
 - A builder receives this brief. It never receives the raw transcript.
