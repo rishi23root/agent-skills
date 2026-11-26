@@ -73,7 +73,7 @@ Every skill is called by name only, so none of them is loaded until you ask.
 |---|---|---|
 | `/improve` | about 2,200 tokens | about 2,200 |
 | `/junior` | about 600, plus the procedures it uses | about 5,600 |
-| `/factory` | about 1,500, plus one stage at a time | about 17,800 |
+| `/factory` | about 1,500, plus one stage at a time | about 18,200 |
 
 Standing cost is zero. These are bytes divided by 4, not measurements; the
 full table is generated into [docs/skill-graph.md](docs/skill-graph.md).
