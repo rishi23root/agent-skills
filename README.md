@@ -67,7 +67,8 @@ Six skills are typed by you. Their descriptions total about 1,000 characters.
 Every skill is called by name only, so none of them is loaded until you ask.
 
 The full dependency graph, generated from the skills themselves, is in
-[docs/skill-graph.md](docs/skill-graph.md).
+[docs/skill-graph.md](docs/skill-graph.md). An interactive version you can
+drag, filter and click through is `docs/skill-graph.html`: open it in a browser.
 
 ## Read next
 
@@ -119,6 +120,7 @@ Requirements: Node 20 or later. The GitHub CLI for the gate script.
 | Script | What it does |
 |---|---|
 | `scripts/validate.mjs` | Checks every skill against the rules. Regenerates the graph and the per-seat extras lists with `--write`. Runs in CI |
+| `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. Open the file in a browser |
 | `scripts/install.mjs` | Links or copies the skills into a skills folder you name. Refuses to overwrite anything it did not install |
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
 | `scripts/runlog.mjs` | Adds, closes and summarises run log rows |
