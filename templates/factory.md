@@ -16,6 +16,7 @@
 - **Glossary:** path, or none
 - **Decision records:** path, or none
 - **Notes outside the repo:** path to a hub or notes folder, or none
+- **Checks folder:** path to the plain-English review checks, or none (default `checks/`)
 
 ## Tracker
 
@@ -41,6 +42,7 @@
 | One test file | |
 | Full suite | |
 | Run the app | |
+| Run the app on another port | |
 | Build | |
 
 ## Rules for this repository
@@ -54,4 +56,5 @@
 
 - **Mode:** pilot | steady. Leave it as pilot until one ticket has gone the whole way. Only the owner changes this line
 - **Machines that may run workers:**
+- **Ports and local databases:** what one builder uses by default, and how a second builder gets its own
 - **Council models**, if a council is used:

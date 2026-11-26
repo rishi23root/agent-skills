@@ -26,7 +26,7 @@ the same session during a trial.
 | The `prompt` field of the allocator's run record | Dropped. The row links the ticket, and the worker brief is built from the ticket | Keeps the log small and free of pasted content |
 | `skill-refs`, `profile.json`, `link-skills.ps1` | `scripts/install.mjs`, `scripts/sync-upstream.mjs`, `upstream.lock.json` | Cross-platform. Extras are pinned by commit |
 | No manager skill (the manager was a role of `senior-dev`) | `factory` | New. One command that runs the whole loop |
-| About 60 third-party playbooks loaded by `D:\` path | 8 core procedures, plus 37 pinned extras | The core no longer depends on another repo being present at a fixed path |
+| About 60 third-party playbooks loaded by `D:\` path | 9 core procedures, plus 53 pinned extras from five libraries | The core no longer depends on another repo being present at a fixed path |
 
 ## Names
 

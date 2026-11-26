@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill Call Graph</title>
+<style>
+  :root {
+    --fg: var(--foreground, #e7e7e7);
+    --mut: var(--muted-foreground, #9a9a9a);
+    --bd: var(--border, #2e2e2e);
+    --cd: var(--card, #141414);
+    --c-0: var(--chart-1, #3b82f6);
+    --c-1: var(--chart-2, #22c55e);
+    --c-2: var(--chart-3, #f59e0b);
+    --c-3: var(--chart-4, #a855f7);
+    --c-4: var(--chart-5, #ec4899);
+    --c-5: var(--chart-6, #14b8a6);
+    --c-6: var(--warning, #eab308);
+    --c-7: var(--info, #38bdf8);
+  }
+  body { margin: 0; color: var(--fg); font-family: var(--font-sans, system-ui, sans-serif); font-size: 13px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .stat { border: 1px solid var(--bd); border-radius: var(--radius, 8px); padding: 8px 10px; }
+  .stat b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--mut); font-size: 12px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+  .chip { border: 1px solid var(--bd); background: transparent; color: var(--fg); border-radius: 999px; padding: 4px 10px; font: inherit; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--secondary, #262626); border-color: var(--ring, #555); }
+  .chip i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+  input[type=search] { flex: 1; min-width: 140px; border: 1px solid var(--bd); background: transparent; color: var(--fg); border-radius: 6px; padding: 5px 8px; font: inherit; }
+  label.tog { color: var(--mut); display: flex; gap: 5px; align-items: center; cursor: pointer; }
+  #wrap { position: relative; border: 1px solid var(--bd); border-radius: var(--radius, 8px); overflow: hidden; }
+  svg { display: block; width: 100%; height: 760px; cursor: grab; }
+  svg:active { cursor: grabbing; }
+  .link { fill: none; stroke-opacity: .55; }
+  .node circle { stroke-width: 1.5px; cursor: pointer; }
+  .node text { pointer-events: none; fill: var(--fg); font-size: 10px; text-anchor: middle; paint-order: stroke; stroke: var(--background, #0b0b0b); stroke-width: 3px; stroke-linejoin: round; }
+  .faded { opacity: .08; }
+  .hint { position: absolute; left: 10px; bottom: 8px; color: var(--mut); font-size: 11px; pointer-events: none; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--mut); font-size: 12px; margin: 8px 0 4px; }
+  .legend svg { width: 34px; height: 10px; vertical-align: middle; cursor: default; }
+  #panel { border: 1px solid var(--bd); border-radius: var(--radius, 8px); padding: 12px 14px; margin-top: 10px; min-height: 60px; }
+  #panel h3 { margin: 0 0 2px; font-size: 15px; }
+  #panel .meta { color: var(--mut); font-size: 12px; margin-bottom: 8px; word-break: break-all; }
+  #panel .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { #panel .cols { grid-template-columns: 1fr; } svg { height: 520px; } }
+  #panel h4 { margin: 6px 0 4px; font-size: 12px; color: var(--mut); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  #panel ul { margin: 0; padding-left: 0; list-style: none; }
+  #panel li { padding: 2px 0; }
+  #panel li a { color: var(--fg); cursor: pointer; text-decoration: underline dotted; }
+  #panel li small { color: var(--mut); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+</style>
+</head>
+<body>
+<div class="stats" id="stats"></div>
+<div class="bar" id="views"></div>
+<div class="bar">
+  <input type="search" id="q" placeholder="Find a skill (e.g. to-tickets, sol-loop)…">
+  <label class="tog"><input type="checkbox" id="unused"> show upstream skills nothing outside their library calls</label>
+  <label class="tog"><input type="checkbox" id="internal" checked> upstream → upstream edges</label>
+</div>
+<div class="legend" id="legend"></div>
+<div class="legend" id="gen"></div>
+<div id="wrap"><svg id="g"></svg><div class="hint">Drag to move · scroll to zoom · hover to isolate · click for exact calls</div></div>
+<div id="panel"><span style="color:var(--mut)">Click a node to list exactly what it calls and what calls it.</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = __DATA__;
+// Your own sets sit on the left, the libraries on an arc to the right.
+const GROUPS = {};
+{
+  const keys = Object.keys(DATA.groups);
+  const mine = keys.filter((k) => k === 'core' || k === 'live');
+  const libs = keys.filter((k) => !mine.includes(k));
+  mine.forEach((k, i) => { GROUPS[k] = { label: DATA.groups[k], anchor: [-0.34, mine.length === 1 ? 0 : (i ? 0.24 : -0.22)] }; });
+  libs.forEach((k, i) => {
+    const t = libs.length === 1 ? 0 : -1.25 + (2.5 * i) / (libs.length - 1);
+    GROUPS[k] = { label: DATA.groups[k], anchor: [0.02 + 0.34 * Math.cos(t), 0.38 * Math.sin(t)] };
+  });
+  Object.keys(GROUPS).forEach((k, i) => { GROUPS[k].index = i; });
+}
+const EDGE = {
+  loads: { label: 'loads', dash: null, w: 1.4 },
+  extra: { label: 'optional extra (lockfile)', dash: '5 3', w: 1.1 },
+  names: { label: 'names it (inside a library)', dash: '1.5 3', w: 1 },
+  escalates: { label: 'escalates to', dash: '7 3 1 3', w: 1.1 },
+  reads: { label: 'reads a reference file', dash: '2 2', w: 1 },
+};
+const col = (g) => getComputedStyle(document.documentElement).getPropertyValue('--c-' + (GROUPS[g].index % 8)).trim() || '#888';
+const byId = new Map(DATA.nodes.map((n) => [n.id, n]));
+
+// stats
+const n0 = () => Object.keys(GROUPS).filter((k) => k === 'core' || k === 'live').length;
+const n = (f) => DATA.nodes.filter(f).length;
+const stats = [
+  ...Object.keys(GROUPS).filter((k) => k === 'core' || k === 'live').map((k) => [n((x) => x.group === k), GROUPS[k].label]),
+  [n((x) => x.set === 'upstream'), 'upstream skills in ' + (Object.keys(GROUPS).length - n0()) + ' libraries'],
+  [n((x) => x.set === 'upstream' && x.used), 'upstream skills called from outside'],
+  [DATA.edges.length, 'edges'],
+];
+document.getElementById('stats').innerHTML = stats.map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
+
+// legend
+const lg = document.getElementById('legend');
+lg.innerHTML = Object.entries(GROUPS).map(([k, g]) => `<span><i class="dot" style="background:${col(k)}"></i>${g.label}</span>`).join('') +
+  Object.entries(EDGE).filter(([, e]) => e.label).map(([k, e]) => `<span><svg><line x1="0" y1="5" x2="34" y2="5" stroke="currentColor" stroke-width="1.5" ${e.dash ? `stroke-dasharray="${e.dash}"` : ''}/></svg> ${e.label}</span>`).join('');
+
+document.getElementById('gen').textContent = 'Generated ' + DATA.generated + ' by scripts/call-graph.mjs. Edges inside a library are matched by name and may miss or over-count.';
+
+// views
+const VIEWS = [['all', 'Everything'],
+  ...Object.keys(GROUPS).filter((k) => k === 'core' || k === 'live').map((k) => ['from:' + k, GROUPS[k].label + ' \u2192 upstream']),
+  ...Object.keys(GROUPS).filter((k) => k !== 'core' && k !== 'live').map((k) => ['lib:' + k, k + ' only'])];
+let view = 'all';
+const vb = document.getElementById('views');
+vb.innerHTML = VIEWS.map(([k, l]) => `<button class="chip" data-v="${k}" aria-pressed="${k === view}">${l}</button>`).join('');
+vb.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; view = b.dataset.v; vb.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b)); render(); };
+document.getElementById('unused').onchange = render;
+document.getElementById('internal').onchange = render;
+
+const svg = d3.select('#g');
+const defs = svg.append('defs');
+const root = svg.append('g');
+svg.call(d3.zoom().scaleExtent([0.2, 4]).on('zoom', (e) => root.attr('transform', e.transform)));
+let sim;
+
+function visible() {
+  const showUnused = document.getElementById('unused').checked;
+  const internal = document.getElementById('internal').checked;
+  const [mode, key] = view.split(':');
+  let edges = DATA.edges.filter((e) => {
+    const src = byId.get(e.s);
+    if (mode === 'from') return src.group === key;
+    if (mode === 'lib') return src.group === key && byId.get(e.t).group === key;
+    return true;
+  });
+  if (!internal && mode !== 'lib') edges = edges.filter((e) => byId.get(e.s).set !== 'upstream');
+  const ids = new Set();
+  edges.forEach((e) => { ids.add(e.s); ids.add(e.t); });
+  if (mode === 'all') DATA.nodes.filter((x) => x.set !== 'upstream').forEach((x) => ids.add(x.id));
+  if (mode === 'from' || mode === 'lib') DATA.nodes.filter((x) => x.group === key).forEach((x) => ids.add(x.id));
+  if (showUnused && mode !== 'lib') DATA.nodes.filter((x) => x.set === 'upstream').forEach((x) => ids.add(x.id));
+  if (!showUnused && mode !== 'lib') {
+    for (const id of [...ids]) { const x = byId.get(id); if (x.set === 'upstream' && !x.used) ids.delete(id); }
+    edges = edges.filter((e) => ids.has(e.s) && ids.has(e.t));
+  }
+  return { nodes: [...ids].map((id) => ({ ...byId.get(id) })), edges: edges.map((e) => ({ ...e, source: e.s, target: e.t })) };
+}
+
+function render() {
+  if (sim) sim.stop();
+  root.selectAll('*').remove(); defs.selectAll('*').remove();
+  const { nodes, edges } = visible();
+  const W = svg.node().clientWidth, H = svg.node().clientHeight;
+  nodes.forEach((d, i) => { const a = GROUPS[d.group].anchor; d.x = W / 2 + a[0] * W + (Math.random() - .5) * 80; d.y = H / 2 + a[1] * H + (Math.random() - .5) * 80; });
+  const r = (d) => (d.set === 'upstream' ? 7 : 11) + Math.sqrt(d.in) * 2.2;
+  for (const g of Object.keys(GROUPS)) {
+    defs.append('marker').attr('id', 'm-' + g).attr('viewBox', '0 -4 8 8').attr('refX', 8).attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto')
+      .append('path').attr('d', 'M0,-4L8,0L0,4').attr('fill', col(g));
+  }
+  const link = root.append('g').selectAll('path').data(edges).join('path').attr('class', 'link')
+    .attr('stroke', (d) => col(byId.get(d.s).group)).attr('stroke-width', (d) => EDGE[d.kind].w)
+    .attr('stroke-dasharray', (d) => EDGE[d.kind].dash).attr('marker-end', (d) => `url(#m-${byId.get(d.s).group})`);
+  const node = root.append('g').selectAll('g').data(nodes, (d) => d.id).join('g').attr('class', 'node')
+    .call(d3.drag().on('start', (e, d) => { if (!e.active) sim.alphaTarget(0.2).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; }).on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
+  node.append('circle').attr('r', r).attr('fill', (d) => col(d.group)).attr('fill-opacity', (d) => d.set === 'upstream' && !d.used ? .25 : .85)
+    .attr('stroke', (d) => col(d.group));
+  node.append('text').attr('dy', (d) => r(d) + 11).text((d) => d.name);
+  node.append('title').text((d) => `${d.name} — ${d.owner}\n${d.desc}`);
+
+  const adj = new Map(nodes.map((x) => [x.id, new Set([x.id])]));
+  edges.forEach((e) => { adj.get(e.s).add(e.t); adj.get(e.t).add(e.s); });
+  const focus = (id) => {
+    node.classed('faded', (d) => id && !adj.get(id).has(d.id));
+    link.classed('faded', (d) => id && d.s !== id && d.t !== id);
+  };
+  node.on('mouseenter', (e, d) => focus(d.id)).on('mouseleave', () => focus(null)).on('click', (e, d) => show(d.id));
+
+  sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(edges).id((d) => d.id).distance((d) => d.kind === 'names' ? 45 : 90).strength(0.25))
+    .force('charge', d3.forceManyBody().strength(-210))
+    .force('collide', d3.forceCollide().radius((d) => r(d) + 6))
+    .force('x', d3.forceX((d) => W / 2 + GROUPS[d.group].anchor[0] * W).strength(0.12))
+    .force('y', d3.forceY((d) => H / 2 + GROUPS[d.group].anchor[1] * H).strength(0.14))
+    .stop();
+  for (let i = 0; i < 320; i++) sim.tick();
+  const draw = () => {
+      nodes.forEach((d) => { d.x = Math.max(30, Math.min(W - 30, d.x)); d.y = Math.max(20, Math.min(H - 30, d.y)); });
+      link.attr('d', (d) => {
+        const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y, len = Math.hypot(dx, dy) || 1;
+        const tr = r(d.target) + 2;
+        return `M${d.source.x},${d.source.y}L${d.target.x - dx / len * tr},${d.target.y - dy / len * tr}`;
+      });
+      node.attr('transform', (d) => `translate(${d.x},${d.y})`);
+    };
+  draw();
+  sim.on('tick', draw);
+}
+
+function show(id) {
+  const d = byId.get(id);
+  const out = DATA.edges.filter((e) => e.s === id), inc = DATA.edges.filter((e) => e.t === id);
+  const li = (oid, e) => { const o = byId.get(oid); return `<li><i class="dot" style="background:${col(o.group)}"></i><a data-id="${o.id}">${o.name}</a> <small>${e.kind} · ${o.owner}</small></li>`; };
+  document.getElementById('panel').innerHTML = `<h3><i class="dot" style="background:${col(d.group)}"></i>${d.name}</h3>
+    <div class="meta">${d.owner} · ${d.path} · ${d.bytes.toLocaleString()} bytes</div>
+    <div style="margin-bottom:8px">${d.desc ? d.desc + (d.desc.length >= 240 ? '…' : '') : ''}</div>
+    <div class="cols"><div><h4>Calls (${out.length})</h4><ul>${out.map((e) => li(e.t, e)).join('') || '<li><small>nothing</small></li>'}</ul></div>
+    <div><h4>Called by (${inc.length})</h4><ul>${inc.map((e) => li(e.s, e)).join('') || '<li><small>nothing</small></li>'}</ul></div></div>`;
+}
+document.getElementById('panel').onclick = (e) => { const a = e.target.closest('a[data-id]'); if (a) { show(a.dataset.id); focus2(a.dataset.id); } };
+function focus2(id) { root.selectAll('.node').filter((d) => d.id === id).dispatch('mouseenter'); }
+document.getElementById('q').oninput = (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  root.selectAll('.node').classed('faded', (d) => q && !d.name.toLowerCase().includes(q));
+  root.selectAll('.link').classed('faded', !!q);
+  const hit = q && DATA.nodes.find((x) => x.name.toLowerCase() === q);
+  if (hit) show(hit.id);
+};
+render();
+show(DATA.nodes.find((x) => x.id === 'core:factory') ? 'core:factory' : DATA.nodes[0].id);
+</script>
+</body>
+</html>

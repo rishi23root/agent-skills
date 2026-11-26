@@ -10,7 +10,8 @@ import { spawnSync } from 'node:child_process';
 
 const pr = process.argv[2];
 if (!pr) { console.error('usage: gate.mjs <PR number or URL>'); process.exit(2); }
-const gh = (...a) => spawnSync('gh', a, { encoding: 'utf8' });
+const BIG = 256 * 1024 * 1024;
+const gh = (...a) => spawnSync('gh', a, { encoding: 'utf8', maxBuffer: BIG });
 const json = (r) => { try { return JSON.parse(r.stdout); } catch { return null; } };
 
 const fields = 'number,url,isDraft,state,author,headRefOid,mergeable,mergeStateStatus,reviewDecision,reviews,latestReviews,statusCheckRollup,comments';
@@ -43,20 +44,33 @@ if (Array.isArray(required) && required.length) {
 // 3. An independent review approved this commit.
 // GitHub does not let an account approve its own PR, so when author and
 // reviewer share one account the review skill records its verdict as a
-// comment line: `Factory-Review: APPROVE <head commit>`. Only a comment from
-// someone with write access to the repository counts.
+// comment line: `Factory-Review: APPROVE <head commit> patch <patch id>`. Only
+// a comment from someone with write access to the repository counts.
+// A verdict covers a patch, not a commit. If the head moved (a rebase) but
+// `gh pr diff | git patch-id --stable` still gives the id in the verdict, the
+// verdict stands. Checks are still read on the new head by condition 2.
 const TRUSTED = ['OWNER', 'MEMBER', 'COLLABORATOR'];
 const approval = (d.reviews || []).find((r) => r.state === 'APPROVED' && r.author?.login !== author && r.commit?.oid === head);
 const verdicts = (d.comments || [])
   .filter((c) => TRUSTED.includes(c.authorAssociation))
-  .map((c) => (c.body || '').match(/^Factory-Review:\s*(APPROVE|SEND-BACK|COMMENT)\s+([0-9a-f]{7,40})\s*$/m))
+  .map((c) => (c.body || '').match(/^Factory-Review:\s*(APPROVE|SEND-BACK|COMMENT)\s+([0-9a-f]{7,40})(?:\s+patch\s+([0-9a-f]{40,64}))?\s*$/m))
   .filter(Boolean);
 const last = verdicts[verdicts.length - 1];
 const markerOk = !!last && last[1] === 'APPROVE' && head.startsWith(last[2]);
-check(3, 'independent approval of this commit', !!approval || markerOk,
+let patchOk = false;
+let patchNote = '';
+if (!approval && !markerOk && last && last[1] === 'APPROVE' && last[3]) {
+  const diff = gh('pr', 'diff', pr);
+  const id = diff.status === 0 ? (spawnSync('git', ['patch-id', '--stable'], { input: diff.stdout, encoding: 'utf8', maxBuffer: BIG }).stdout || '').split(/\s+/)[0] : '';
+  patchOk = !!id && id === last[3];
+  patchNote = id ? ', and the patch id differs' : ', and the current patch id could not be computed';
+}
+const SAME = 'from an account with write access. GitHub cannot show that the reviewer was a different agent from the author';
+check(3, 'independent approval of this commit', !!approval || markerOk || patchOk,
   approval ? `approved on GitHub by ${approval.author.login}`
-    : markerOk ? 'verdict comment for this commit, from an account with write access. GitHub cannot show that the reviewer was a different agent from the author'
-      : last ? `last verdict is ${last[1]} for ${last[2]}, head is ${head.slice(0, 10)}` : 'no approval for the head commit');
+    : markerOk ? `verdict comment for this commit, ${SAME}`
+      : patchOk ? `verdict was for ${last[2].slice(0, 10)}; the head moved but the patch id is unchanged, ${SAME}`
+        : last ? `last verdict is ${last[1]} for ${last[2]}, head is ${head.slice(0, 10)}${patchNote}` : 'no approval for the head commit');
 
 // 5. No person has requested changes.
 const blocking = (d.latestReviews || []).filter((r) => r.state === 'CHANGES_REQUESTED');

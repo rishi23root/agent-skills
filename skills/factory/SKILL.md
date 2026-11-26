@@ -9,6 +9,7 @@ metadata:
   layer: "0"
   role: manager
   requires: "improve junior mid senior 10x dispatch review ship runlog"
+  reads: "principles"
 ---
 
 # factory
@@ -41,8 +42,9 @@ Sibling skills are in the folders next to this one. Load one by reading its
    Show the brief and wait for a yes. A run that stops here has built nothing,
    so it writes no log row.
 
-   Otherwise say in one line what you understood and which stages you will
-   run, then continue. Do not make the owner approve a small, clear task.
+   Otherwise say in one line what you understood, which stages you will run,
+   and the check that will tell you it is done. Then continue. Do not make
+   the owner approve a small, clear task.
 
 3. **Route** by `../improve/sizing.md`, after its risk adjustment:
    - `trivial`: answer it, or make the change in this session and leave it as
@@ -68,6 +70,10 @@ Sibling skills are in the folders next to this one. Load one by reading its
    The top session is the only one that dispatches, whichever seat it is
    working as. A worker never starts workers of its own.
 
+   Either way, check first that nothing else is already working on the
+   ticket: no thread link on it and no open PR for it. If something is, read
+   that work. Do not start it again.
+
 5. **Check what comes back.** A worker's "done" is a claim. Read the status
    code and the evidence in its report (`../dispatch/report-format.md`). Then
    get a review from someone who is not the author, using
@@ -85,7 +91,9 @@ Sibling skills are in the folders next to this one. Load one by reading its
 8. **Report.** Tell the owner, in plain words and in this order: what was
    done, the proof, what is still open and who has to act on it, and what it
    cost (workers, models, rough tokens or time). No stage names and no
-   internal labels.
+   internal labels. List every decision that only the owner can make, each
+   with its link, the evidence, the risk and your recommendation, so they can
+   decide from this message alone.
 
 ## The ledger
 
@@ -116,9 +124,9 @@ write in the ledger goes in your report to the owner instead.
   get the cheapest model that fits their ticket. `dispatch` has the table.
 - **Pass pointers, not content.** A worker gets the brief, the ticket and
   paths. It does not get your conversation or a pasted folder.
-- **Evidence or it did not happen.** Observed command output, a failing test
-  that now passes, CI state. Not a sentence saying it works.
+- **Evidence or it did not happen.** `../principles/evidence.md`.
 - **The author never approves or merges their own work.**
+  `../principles/independent-review.md`.
 - **One copy of each rule.** If you need a rule, read the skill that owns it.
   Do not restate it in a brief from memory.
 - **When blocked, stop cleanly.** Leave any PR open, write down where things

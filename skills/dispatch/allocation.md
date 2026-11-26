@@ -22,7 +22,10 @@ harness what is available today and place each model in a tier.
 | `junior`: one ready ticket | workhorse | medium. Use fast for a purely mechanical ticket |
 | Read-only search or locating code | fast | low |
 | Review, risk normal | at least the author's tier | medium |
-| Review, risk high | frontier, from a different provider than the author's | high |
+| Review, risk high | frontier | high |
+
+Which provider reviews is decided by the review procedure, not here. This
+table only sets the tier.
 
 ## Before choosing
 

@@ -77,6 +77,15 @@ which is which.
 | The clones on a machine are at those commits | `scripts/sync-upstream.mjs --status` | Mechanism, once it is run |
 | Install never overwrites other skills | `scripts/install.mjs` refuses | **Mechanism** |
 | Run rows have valid fields | `scripts/runlog.mjs` rejects bad values | **Mechanism**, once it is called |
+| A logged row is never rewritten | `runlog.mjs close` appends a closing line | **Mechanism**, once it is called |
+| Rows with weak evidence are visible | `runlog.mjs audit` lists them and exits non-zero | **Mechanism**, once it is called |
+| A run that hit the round cap is counted as such | Outcome `capped`, shown by `runlog.mjs summary` | **Mechanism**, once it is logged that way |
+| A shared rule exists once, is short, and is cited | `validate.mjs` checks every file in `skills/principles/` | **Mechanism** |
+| An approval survives a rebase only if the change is identical | `gate.mjs` compares the patch id in the verdict with the PR's current diff | **Mechanism**, once it is called |
+| A blocking finding comes with a command and its output | `skills/review/SKILL.md`. The author and owner can rerun the command | Prose, but checkable by anyone |
+| The reviewer is from another provider when one can run | `skills/review/SKILL.md`, `allocation.md` | Prose. Required only for high risk |
+| Project rules are applied to every diff | The project's `checks/` folder, read by the reviewer | Prose, with a fixed PASS or FAIL output |
+| A skill is changed only after three matching lessons and the owner's yes | `skills/runlog/reflect.md` | Prose |
 | Required checks green, approval on the head commit, no changes requested, no conflicts | `scripts/gate.mjs` reads the PR | **Mechanism**, once it is called. Weak where a repository requires no checks, and where author and reviewer share one account |
 | A junior does not dispatch or approve | Its seat lists no `dispatch` or `review`. Nothing stops an agent reading the file anyway | Prose |
 | Builders stay inside `Touches` | Reviewer checks the diff against the ticket | Prose, checked by a second agent |

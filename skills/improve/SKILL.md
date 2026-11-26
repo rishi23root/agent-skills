@@ -65,27 +65,37 @@ Called on its own (`/improve`), you show the brief and stop. Called by
    project does not have, and flag it. If the request conflicts with the spec
    or an ADR, say so. Do not widen scope to make the pieces fit.
 
-6. **Size it and rate the risk** using [sizing.md](sizing.md). State the size,
+6. **Deepen it. Do not widen it.** Ask two things. What would someone expert
+   in this area check that the request did not mention? And what, other than
+   the builder's word or yours, would show the result is right? Use the
+   answers to sharpen the acceptance checks. Anything that would add work goes
+   under Out of scope or Open questions. It never goes into the goal.
+
+7. **Size it and rate the risk** using [sizing.md](sizing.md). State the size,
    the risk, and the seat the table points to. This is a recommendation.
    `factory` or the owner decides.
 
-7. **Leave holes open.** A missing fact that would change the design goes
-   under Open questions. Do not answer it yourself, and do not borrow a likely
-   default from other products. A missing fact that would not change the design
-   goes under Assumptions with the choice you made.
+8. **Leave holes open.** A missing fact that would change the design goes
+   under Open questions. Give each question a recommended answer, drawn from
+   this project and not from other products, and worded so that "yes" accepts
+   it. The question stays open until the owner answers: do not act on your own
+   recommendation. When a quick experiment could settle a question, say so
+   instead of asking for an opinion. A missing fact that would not change the
+   design goes under Assumptions with the choice you made.
 
    When the open questions leave the goal itself unknown, say so. Mark the
    size as provisional, leave the acceptance checks empty, and do not pad the
    brief with guesses.
 
-8. **Show the brief and stop.** On a correction, issue the whole brief again so
+9. **Show the brief and stop.** On a correction, issue the whole brief again so
    there is one current version.
 
 ## What good looks like
 
 - A stranger with the repo and this brief could start, and could tell when
   they are done.
-- Every acceptance check is something that can be run or observed.
+- Every acceptance check is something that can be run or observed, and at
+  least one does not depend on the builder's own say-so.
 - The brief is shorter than the context you read. It points to files. It does
   not paste them.
 - Nothing in it was invented to fill a gap.

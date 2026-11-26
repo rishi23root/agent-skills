@@ -6,6 +6,9 @@
 //        [--tokens N] [--minutes N] [--rounds N] [--outcome pending] [--lesson "..."]
 //   node scripts/runlog.mjs close --ticket <link> --outcome merged [--rounds N]
 //   node scripts/runlog.mjs summary
+//   node scripts/runlog.mjs audit
+//
+// The file is append-only. `close` adds a closing line; it never rewrites a row.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -18,16 +21,30 @@ const ENUMS = {
   seat: ['junior', 'mid', 'senior', '10x', 'manager'],
   placement: ['here', 'subagent', 'thread'],
   status: ['DONE', 'DONE_WITH_CONCERNS', 'NEEDS_CONTEXT', 'BLOCKED'],
-  outcome: ['pending', 'merged', 'sent-back', 'abandoned'],
+  outcome: ['pending', 'merged', 'sent-back', 'capped', 'abandoned'],
 };
 const REQUIRED = ['type', 'size', 'seat', 'placement', 'provider', 'model', 'effort', 'status'];
 const [cmd, ...rest] = process.argv.slice(2);
 const a = parseArgs(rest);
 const die = (m) => { console.error(m); process.exit(1); };
 const num = (v, k) => { if (v === undefined) return null; const n = Number(v); if (!Number.isFinite(n) || n < 0) die(`--${k} must be a number`); return n; };
-const read = () => fs.existsSync(FILE)
+const readLines = () => fs.existsSync(FILE)
   ? fs.readFileSync(FILE, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)
   : [];
+// Run rows, with every closing line applied in order to the rows before it
+// that were still pending for the same ticket.
+const read = () => {
+  const rows = [];
+  for (const r of readLines()) {
+    if (r.kind !== 'close') { rows.push({ ...r }); continue; }
+    for (const row of rows) {
+      if (row.ticket !== r.ticket || row.outcome !== 'pending') continue;
+      row.outcome = r.outcome; row.closed = r.t;
+      if (r.rounds != null) row.rounds = r.rounds;
+    }
+  }
+  return rows;
+};
 const checkEnum = (k, v) => { if (!ENUMS[k].includes(v)) die(`--${k} must be one of: ${ENUMS[k].join(', ')}`); };
 
 if (cmd === 'add') {
@@ -49,22 +66,12 @@ if (cmd === 'add') {
   if (typeof a.ticket !== 'string') die('missing --ticket');
   checkEnum('outcome', a.outcome);
   if (!fs.existsSync(FILE)) die('no log file at ' + FILE);
-  const rounds = a.rounds !== undefined ? num(a.rounds, 'rounds') : undefined;
-  let n = 0;
-  // Rewrite line by line. A line that is not valid JSON is kept exactly as it is.
-  const lines = fs.readFileSync(FILE, 'utf8').split('\n').filter((l) => l.trim()).map((line) => {
-    let r;
-    try { r = JSON.parse(line); } catch { return line; }
-    if (r.ticket !== a.ticket || r.outcome !== 'pending') return line;
-    r.outcome = a.outcome;
-    if (rounds !== undefined) r.rounds = rounds;
-    n++;
-    return JSON.stringify(r);
-  });
+  if (a.outcome === 'pending') die('--outcome must be a final outcome, not pending');
+  const rounds = a.rounds !== undefined ? num(a.rounds, 'rounds') : null;
+  const n = read().filter((r) => r.ticket === a.ticket && r.outcome === 'pending').length;
   if (!n) die('no pending row for that ticket');
-  const tmp = FILE + '.tmp-' + process.pid;
-  fs.writeFileSync(tmp, lines.join('\n') + '\n');
-  fs.renameSync(tmp, FILE);
+  // Append a closing line. Earlier lines are never rewritten.
+  fs.appendFileSync(FILE, JSON.stringify({ t: new Date().toISOString(), kind: 'close', ticket: a.ticket, outcome: a.outcome, rounds }) + '\n');
   console.log(`closed ${n} row(s) as ${a.outcome}`);
 } else if (cmd === 'summary') {
   const rows = read();
@@ -75,10 +82,28 @@ if (cmd === 'add') {
   console.log('type | model | runs | finished | merged first time | median tokens | note');
   for (const [k, g] of [...groups].sort()) {
     const done = g.filter((r) => r.outcome !== 'pending');
-    const clean = done.filter((r) => r.outcome === 'merged' && (r.rounds ?? 1) <= 1).length;
+    // A merged row with no rounds recorded is not counted as a first-time merge.
+    const clean = done.filter((r) => r.outcome === 'merged' && r.rounds != null && r.rounds <= 1).length;
     const share = done.length ? Math.round((100 * clean) / done.length) + '%' : '-';
-    console.log(`${k} | ${g.length} | ${done.length} | ${share} | ${median(g.map((r) => r.tokens).filter((x) => x != null))} | ${done.length < 10 ? 'too few to act on' : ''}`);
+    const capped = g.filter((r) => r.outcome === 'capped').length;
+    const note = [capped ? `${capped} hit the round cap` : '', done.length < 10 ? 'too few to act on' : ''].filter(Boolean).join('; ');
+    console.log(`${k} | ${g.length} | ${done.length} | ${share} | ${median(g.map((r) => r.tokens).filter((x) => x != null))} | ${note}`);
   }
   const lessons = rows.filter((r) => r.lesson).slice(-10);
   if (lessons.length) { console.log('\nLast lessons:'); for (const r of lessons) console.log(`- ${r.t.slice(0, 10)} ${r.type}/${r.seat}: ${r.lesson}`); }
-} else die('usage: runlog.mjs add | close | summary   (see the header of this file)');
+} else if (cmd === 'audit') {
+  const rows = read();
+  const old = Date.now() - 14 * 86400000;
+  const problems = [];
+  rows.forEach((r, i) => {
+    const why = [];
+    if (!r.ticket) why.push('no ticket');
+    if (r.status === 'DONE' && r.tokens == null && r.minutes == null) why.push('DONE with no tokens or minutes');
+    if (r.outcome === 'pending' && Date.parse(r.t) < old) why.push('pending for more than 14 days');
+    if (['merged', 'sent-back', 'capped'].includes(r.outcome) && r.rounds == null) why.push(`${r.outcome} with no review rounds`);
+    if (why.length) problems.push(`run ${i + 1}  ${String(r.t).slice(0, 10)}  ${r.type}/${r.seat}  ${r.ticket || '-'}: ${why.join('; ')}`);
+  });
+  console.log(`${rows.length} run row(s) in ${FILE}, ${problems.length} with weak evidence`);
+  for (const p of problems) console.log('- ' + p);
+  process.exit(problems.length ? 1 : 0);
+} else die('usage: runlog.mjs add | close | summary | audit   (see the header of this file)');

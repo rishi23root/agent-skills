@@ -58,7 +58,7 @@ one JSON object with the same fields by hand.
 | `placement` | `here`, `subagent`, `thread` |
 | `provider`, `model`, `effort` | what actually ran |
 | `status` | the worker's own status code |
-| `outcome` | `pending`, `merged`, `sent-back`, `abandoned` |
+| `outcome` | `pending`, `merged`, `sent-back`, `capped` (hit the review round cap), `abandoned` |
 | `rounds` | review rounds used |
 | `tokens`, `minutes` | from the harness. Leave empty when it does not report them. Do not estimate |
 | `ticket` | link |
@@ -69,12 +69,17 @@ one JSON object with the same fields by hand.
 
 `status` is what the worker said. `outcome` is what happened: did the change
 merge, was it sent back, was it dropped. Set `outcome` from the review and the
-merge, never from the worker's own report. A row starts as `pending`. Update it
+merge, never from the worker's own report. A row starts as `pending`. Close it
 when the PR closes:
 
 ```
 node <repo>/scripts/runlog.mjs close --ticket <link> --outcome merged --rounds 1
 ```
+
+The log is append-only. `close` adds a closing line. It never rewrites a row,
+so a number that was once logged can always be traced. To correct a row, add a
+new one and say so in its lesson. `capped` is its own outcome on purpose: a
+run that hit the round cap must not look like an ordinary send-back.
 
 ## Reading it
 
@@ -86,9 +91,17 @@ It prints, for each task type and model, the number of runs, the share that
 merged without being sent back, and the median tokens. Ten rows is the minimum
 before a number changes a rule.
 
+```
+node <repo>/scripts/runlog.mjs audit
+```
+
+It lists rows that cannot be trusted as they stand: no ticket, a `DONE` with
+no tokens or minutes, a row left `pending` for more than 14 days.
+
 ## The lesson field
 
 This is the improvement loop. At the end of each run, ask what made it cost
 more than it should have: a ticket missing a fact, a worker reading too much,
 a review that found what a check could have caught. Write one sentence. When
-the same lesson shows up three times, change the skill that owns the rule.
+the same lesson shows up three times, change the skill that owns the rule,
+following [reflect.md](reflect.md). A skill is never edited from one run.

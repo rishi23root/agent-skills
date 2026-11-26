@@ -41,6 +41,7 @@ A ticket is not ready if any of these is true:
 
 - It has no `Touches` or no `Seam to test`.
 - Its `Touches` overlaps a ticket that is being built now.
+- It starts a server or uses a local database and has no `Runs on` line.
 - A ticket that blocks it is still open and it does not name that ticket's
   branch as its base.
 - It contains a question.

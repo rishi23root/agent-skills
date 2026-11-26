@@ -3,3 +3,4 @@ skills/*/local.md
 .factory/
 node_modules/
 *.stackdump
+call-graph.html
