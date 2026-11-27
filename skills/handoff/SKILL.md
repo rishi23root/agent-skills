@@ -1,8 +1,6 @@
 ---
 name: handoff
-description: >-
-  Procedure. Writes the note that lets a fresh session continue the work, when
-  context is filling up, a seat changes, or a review bounces.
+description: Writes the note that lets a fresh session continue the work.
 disable-model-invocation: true
 metadata:
   layer: "2"

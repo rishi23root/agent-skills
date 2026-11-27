@@ -1,9 +1,6 @@
 ---
 name: 10x
-description: >-
-  Staff seat. Enters only when the team is blocked or the leverage is large:
-  unclear scope, a design choice between different kinds of answer, a
-  multi-model council, a wide refactor, or a rescue. Frames it and leaves.
+description: Staff seat. Frames fog, big design choices, wide refactors, rescues.
 disable-model-invocation: true
 metadata:
   layer: "1"

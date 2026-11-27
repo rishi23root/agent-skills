@@ -1,9 +1,6 @@
 ---
 name: senior
-description: >-
-  Senior seat and fleet manager. Owns the spec gate, decides when work may run
-  in parallel, dispatches mid and junior workers, reviews mid PRs, and
-  owns the merge gate.
+description: Senior seat. Owns the spec gate, parallel workers and the merge gate.
 disable-model-invocation: true
 metadata:
   layer: "1"

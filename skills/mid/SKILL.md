@@ -1,9 +1,6 @@
 ---
 name: mid
-description: >-
-  Mid seat. Owns a feature end to end: slices it into tickets with file
-  ownership, builds or hands leaf tickets to junior, diagnoses bugs, and
-  reviews junior PRs.
+description: Mid seat. Owns a feature, slices tickets, builds, reviews junior PRs.
 disable-model-invocation: true
 metadata:
   layer: "1"

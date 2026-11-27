@@ -1,9 +1,6 @@
 ---
 name: factory
-description: >-
-  Manager for the whole software factory. Takes a task in any wording, improves
-  it into a brief, sizes it, routes it to the right seat, checks the result,
-  and reports. Start here when unsure.
+description: Manager. Turns any task into a reviewed result. Start here if unsure.
 disable-model-invocation: true
 metadata:
   layer: "0"
