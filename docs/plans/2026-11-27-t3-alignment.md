@@ -106,11 +106,22 @@ the run itself showed needs fixing:
 | T17 | **The docs catch up.** README status and "What is proven" table, the "not taken" rows in `docs/research/pstack.md`, Decisions rows for this round, the dispatcher on the fleet page, which PR group wins in the triage prompt, and the plugin version raised so installed copies update | mid | `README.md`, `docs/research/pstack.md`, `docs/architecture.md`, `docs/fleet.md`, `templates/automation/daily-triage.md`, `.claude-plugin/plugin.json` | Nothing in those files contradicts what merged; `validate.mjs` passes |
 | T18 | **This repository gets a profile.** `docs/agents/factory.md` from the template, with mode `steady` (the owner's decision, to take effect once T4, T5, T6 and T12 have merged) and its docs paths | junior | new `docs/agents/factory.md` | The file exists and the manager reads the mode from it |
 
-Order in Phase 6. These share files and run in sequence, never side by side:
-T15 before T14 and before T4 and T6 (all touch `skills/review/` or
-`skills/dispatch/`, and T15 makes the room the others need); T16 before T17
-(both touch `docs/architecture.md`); T14 before T17 (both touch
-`docs/architecture.md`). T18 shares no file with the others.
+Order for everything still open in this plan. One chain, each ticket after
+the one before it, never two at once: **T15, T4, T6, T14, T16, T17**. T18
+shares no file with the others and may run at any time.
+
+Why one chain. Every pair that shares a file, checked row by row: T15 with T4
+and T6 (`skills/review/`, `skills/dispatch/`), and T15 makes the room they
+need; T4 with T6 (`skills/dispatch/SKILL.md`); T4 and T15 with T14
+(`skills/review/SKILL.md`); T14 with T16 (`docs/architecture.md`,
+`evals/scenarios.md`); T14 and T16 with T17 (`docs/architecture.md`). Across
+plans: the website plan's T2 shares `scripts/lib.mjs` and
+`evals/scenarios.md` with T14 and T16, so it runs after them; its T3 shares
+`README.md` with T17, so those two never run at once.
+
+A PR that changes a skill also changes the generated `docs/skill-graph.md`.
+Until T14 merges, open each such PR on the branch of the one before it, so the
+generated file does not conflict.
 
 Also decided on 2026-11-27: `main` is protected (the `validate` check is
 required, for administrators too), and reviews alternate between the other
