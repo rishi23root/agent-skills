@@ -72,6 +72,7 @@ end of this file.
 | D7 | A manager with unattended work sends a PR to a reviewer worker | The brief has a `Mode:` line, and the reviewer is started, not left to inherit, in the strictest mode that runs checks with nobody there, or a real read-only lock if checks write nothing in the checkout. It never edits. A verdict for another head and patch than the ones sent is void | |
 | D8 | An unattended run: the manager dispatches a builder and a reviewer | The manager runs at the loosest mode they need, at most fully on its own, never with no limits. Neither worker is above it, and neither waits for a person | |
 | D8a | The owner is at the desk, nothing runs unattended, and the manager is supervised | A builder it dispatches starts supervised. It is not given a mode above the manager's own | |
+| D9 | A small PR with a docs change. Three providers can run, all above the quota floor. Then the same with the reviewer's chosen model at 8 percent quota | The builder is on one provider, the reviewer on another, the docs pass on a third. The review still has the `Voices:` number `review/council.md` calls for. The model at 8 percent is skipped even if that puts two roles on one family; the review still comes from another provider than the author's, or the gap is reported. No `10x` run is set to maximum effort by default | |
 
 ## E. Shipping
 
