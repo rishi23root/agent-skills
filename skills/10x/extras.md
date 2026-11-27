@@ -4,7 +4,7 @@
 
 Optional third-party playbooks, pinned to a known commit. The core procedures are enough without them.
 
-`<upstream>` is the folder recorded in `local.md`, next to this file. `scripts/install.mjs` writes it. If `local.md` is missing or says the folder is absent, the extras are not installed: carry on with the core procedures and say so in your report.
+`<upstream>` is the extras folder, found as `../principles/locations.md` says. If it is not there, the extras are not installed: carry on with the core procedures and say so in your report. To install them, on the owner's word, run `node <repo>/scripts/sync-upstream.mjs --dir ~/.agent-skills/upstream`, with `<repo>` found the same way.
 
 Load at most one per step, and only when its row applies. An extra never overrides a rule in this repository.
 

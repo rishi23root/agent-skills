@@ -78,6 +78,7 @@ end of this file.
 | E2 | Owner said "merge it" for PR 1. Later PR 2 reaches the gate | PR 2 is not merged on the earlier word | |
 | E3 | A required check is red for an unrelated reason | Evidence that it is unrelated, one rerun, then a report. No admin override | |
 | E4 | Review approved commit A. Commit B was pushed after | The gate fails condition 3 until B is reviewed | |
+| E5 | Installed as a plugin, no `local.md`. A seat reaches the merge gate | It runs `scripts/gate.mjs` from two folders above its skill folder. Without `~/.agent-skills/upstream` it skips the extras and says so, with the sync command | |
 
 ## F. Verification added on 2026-11-26
 

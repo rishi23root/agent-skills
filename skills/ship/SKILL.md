@@ -81,8 +81,7 @@ condition 3.
    may waive it in writing on the PR.
 
 When the factory scripts are installed, run the gate check and paste its
-output on the PR. The repository path is in `local.md` next to this file. If
-there is no `local.md`, the scripts are not installed:
+output on the PR. Find the repository as `../principles/locations.md` says:
 
 ```
 node <repo>/scripts/gate.mjs <PR number or URL>
