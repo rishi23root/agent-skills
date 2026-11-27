@@ -4,9 +4,8 @@ description: >-
   Procedure. Opens the PR, watches checks and review bots, and brings the
   change to the merge gate. Merges only on the owner's word.
 disable-model-invocation: true
-user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
   requires: ""
   reads: "dispatch principles"
@@ -17,6 +16,13 @@ metadata:
 Ship takes a proven branch to a PR that is ready at the merge gate. By default
 it stops there. Merging is a separate act that needs the owner's word for this
 change.
+
+## Typed by the owner, with no ticket
+
+Ship the current branch. Stop if it is the default branch, has uncommitted
+changes, or has no proof you can run now: say which. In the description,
+write "No ticket" where the link would go, and take the problem from the
+owner's words and the diff. The proof and the merge gate are unchanged.
 
 ## 1. Open the PR
 
@@ -31,7 +37,10 @@ The description, in this order:
    the pass after. For something visible: a screenshot or the steps to see it.
 4. **Merge danger.** What this could break, what is hard to undo, and how to
    roll it back. "None" is an answer only after you have thought about it.
-5. **Not included.** What a reader might expect and will not find.
+5. **Try before merging.** What the owner should try by hand before they merge.
+   After a send-back, add what changed since the last review round and what is
+   risky in that change, so the owner knows where to look again.
+6. **Not included.** What a reader might expect and will not find.
 
 One ticket, one PR. Aim for 100 to 200 changed lines. A larger PR needs a
 reason in the description.
@@ -68,13 +77,14 @@ condition 3.
 5. No person has requested changes.
 6. The branch has no conflicts with its base, and is up to date wherever the
    repository requires that.
-7. For risk `high`: `senior` reviewed, and so did a model from a different
-   provider than the author's. If no second provider could run, this
-   condition is unmet. Tell the owner, who may waive it in writing on the PR.
+7. A model from a different provider than the author's reviewed, and so did
+   every voice the review's `Voices:` line called for. For risk `high`,
+   `senior` reviewed as well. If no other provider could run, or fewer voices
+   ran than the line called for, this condition is unmet. Tell the owner, who
+   may waive it in writing on the PR.
 
 When the factory scripts are installed, run the gate check and paste its
-output on the PR. The repository path is in `local.md` next to this file. If
-there is no `local.md`, the scripts are not installed:
+output on the PR. Find the repository as `../principles/locations.md` says:
 
 ```
 node <repo>/scripts/gate.mjs <PR number or URL>

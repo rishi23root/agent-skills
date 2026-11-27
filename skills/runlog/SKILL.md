@@ -6,9 +6,10 @@ description: >-
 disable-model-invocation: true
 user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
   requires: ""
+  reads: "principles"
 ---
 
 # runlog
@@ -33,8 +34,8 @@ A JSON Lines file. The default is `~/agent-logs/task-stats.jsonl`. Set
 
 ## How
 
-When the factory scripts are installed (the repository path is in `local.md`
-next to this file; no `local.md` means they are not installed):
+When the factory scripts are installed (find them as
+`../principles/locations.md` says):
 
 ```
 node <repo>/scripts/runlog.mjs add --type feature --size small --seat junior \
@@ -58,7 +59,7 @@ one JSON object with the same fields by hand.
 | `placement` | `here`, `subagent`, `thread` |
 | `provider`, `model`, `effort` | what actually ran |
 | `status` | the worker's own status code |
-| `outcome` | `pending`, `merged`, `sent-back`, `capped` (hit the review round cap), `abandoned` |
+| `outcome` | `pending`, `merged`, `sent-back`, `capped` (hit the review round cap), `abandoned`. After a merge only: `reverted`, `defect-after-merge` |
 | `rounds` | review rounds used |
 | `tokens`, `minutes` | from the harness. Leave empty when it does not report them. Do not estimate |
 | `ticket` | link |
@@ -76,6 +77,18 @@ when the PR closes:
 node <repo>/scripts/runlog.mjs close --ticket <link> --outcome merged --rounds 1
 ```
 
+A merge is not the end of the story. When a merged change is later reverted, or
+a defect is traced to it, close the same ticket again:
+
+```
+node <repo>/scripts/runlog.mjs close --ticket <link> --outcome reverted
+```
+
+Use `reverted` when the change was taken out, and `defect-after-merge` when it
+stayed in and a defect in it was found. The script accepts both only on a
+ticket with rows already closed as `merged`, and changes only those rows. It
+takes no `--rounds`, since the review is over.
+
 The log is append-only. `close` adds a closing line. It never rewrites a row,
 so a number that was once logged can always be traced. To correct a row, add a
 new one and say so in its lesson. `capped` is its own outcome on purpose: a
@@ -88,8 +101,12 @@ node <repo>/scripts/runlog.mjs summary
 ```
 
 It prints, for each task type and model, the number of runs, the share that
-merged without being sent back, and the median tokens. Ten rows is the minimum
-before a number changes a rule.
+merged without being sent back, the share of merged PRs that stayed good, and
+the median tokens. Ten rows is the minimum before a number changes a rule.
+
+`stayed good` counts each ticket once and shows the counts, as `80% (8/10)`. A
+PR counts as good until a row says otherwise, so the number is only as true as
+the care taken to log reverts and defects.
 
 ```
 node <repo>/scripts/runlog.mjs audit

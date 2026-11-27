@@ -44,6 +44,9 @@ pinned.
 
 If you changed behaviour, add or update a row in `evals/scenarios.md`.
 
+To release, raise `version` in `.claude-plugin/plugin.json`. Installed plugin
+copies update only when it changes.
+
 ## Writing style for skills
 
 - Second person, present tense, short sentences.

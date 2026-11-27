@@ -95,8 +95,9 @@ sequence, with a handoff between tickets, when they are not or it does not.
 The manager runs on the strongest model, because it holds the plan and judges
 the results. Workers run on the cheapest model that fits their seat and risk.
 Search and reading go to the fastest model. A review goes to a model from a
-different provider than the author's whenever one can run, because a model
-from the same family tends to miss what the author missed.
+different provider than the author's every time, because a model from the
+same family tends to miss what the author missed. With no other provider
+available, only the owner can waive that, PR by PR.
 
 ```mermaid
 flowchart LR
@@ -119,6 +120,24 @@ A second machine helps only if an agent can start work on it. In T3 Code that
 requires the machine to be **linked**, not just paired. Until then the second
 machine is used by hand. A machine with less than 16 GB of memory runs at most
 two active workers.
+
+## Operations
+
+Running the fleet day to day.
+
+- Put long runs on the always-on machine, not on a laptop. A laptop is only a
+  window onto them.
+- Every parallel agent loads its own copy of every MCP server, so keep that
+  list short. Where a command-line tool exists, such as `gh`, prefer it. It
+  costs nothing while it is not running.
+- New T3 Code threads start with full access. Lower that default on day one.
+  [dispatch](../skills/dispatch/SKILL.md) sets the mode each role runs in.
+- In T3 Code, set three things:
+  - a fallback model on another subscription,
+  - auto-resume after a usage limit,
+  - the cheapest model for text generation.
+- A scheduled run uses the same permission mode as a thread. Approve its
+  recurring prompts once while you are at the desk, or it stalls overnight.
 
 ## What the manager keeps
 

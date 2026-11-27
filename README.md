@@ -12,7 +12,7 @@ has to pass its pilot. See [What is proven and what is not](#what-is-proven-and-
 
 ## The idea
 
-You type one of two commands.
+You usually type one of two commands.
 
 - **`/improve <task>`** is the front door only. It works out what you are
   asking, checks it against the project as it is today, and writes a clear
@@ -23,8 +23,9 @@ You type one of two commands.
   reports back.
 
 Behind those are four **seats** you can also call directly (`/junior`, `/mid`,
-`/senior`, `/10x`) and eight **procedures** that the seats load one at a time,
-only when a step needs them.
+`/senior`, `/10x`) and ten **procedures** that the seats load one at a time,
+only when a step needs them. `improve` is one of the ten: a seat loads it
+when you hand it rough words.
 
 ```mermaid
 flowchart LR
@@ -49,38 +50,43 @@ flowchart LR
 | Layer | Skill | You type it | What it is |
 |---|---|---|---|
 | 0 Manager | `factory` | yes | Runs the whole loop and owns the ledger |
-| 1 Front door | `improve` | yes | Rough words in, agent brief out. Stops |
-| 2 Seats | `junior` | yes | One ready ticket, one small PR |
+| 1 Seats | `junior` | yes | One ready ticket, one small PR |
 | | `mid` | yes | Owns a feature: tickets, build, junior review |
 | | `senior` | yes | Spec gate, fan-out, risky review, merge gate |
 | | `10x` | yes | Unblocks: fog, design forks, council, rescue |
-| 3 Procedures | `spec` | no | The spec and its gate |
+| 2 Procedures | `improve` | yes | The front door. Rough words in, agent brief out. Stops |
+| | `spec` | yes | The spec and its gate |
 | | `tickets` | no | Vertical slices with file ownership |
 | | `dispatch` | no | The orchestration layer: caps, placement, models, worker brief |
 | | `build` | no | One ticket, failing check first, observed proof |
-| | `review` | no | Independent review on two axes, capped fix loop |
-| | `ship` | no | PR, checks, merge gate |
-| | `handoff` | no | The note that lets a fresh session continue |
+| | `review` | yes | Independent review on two axes, capped fix loop, and the council |
+| | `ship` | yes | PR, checks, merge gate |
+| | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
 | | `principles` | no | Six rules that several skills share, one short file each |
 
-Six skills are typed by you. Their descriptions total about 1,000 characters.
+Ten skills are typed by you. Their descriptions total about 1,600 characters.
 Every skill is called by name only, so none of them is loaded until you ask.
 
 ### Cost at a glance
 
 | You type | Reads at once | Upper bound if it loaded everything |
 |---|---|---|
-| `/improve` | about 2,200 tokens | about 2,200 |
-| `/junior` | about 600, plus the procedures it uses | about 5,600 |
-| `/factory` | about 1,500, plus one stage at a time | about 18,200 |
+| `/improve` | about 2,300 tokens | about 2,300 |
+| `/junior` | about 600, plus the procedures it uses | about 8,100 |
+| `/factory` | about 1,600, plus one stage at a time | about 19,500 |
 
 Standing cost is zero. These are bytes divided by 4, not measurements; the
 full table is generated into [docs/skill-graph.md](docs/skill-graph.md).
+`claude plugin details` reports an always-on cost for these skills, but it
+counts every description and ignores `disable-model-invocation`. To see the
+real cost, run `/context` in a session.
 
 The full dependency graph, generated from the skills themselves, is in
 [docs/skill-graph.md](docs/skill-graph.md). An interactive version you can
-drag, filter and click through is `docs/skill-graph.html`: open it in a browser.
+drag, filter and click through is
+[online](https://rishi23root.github.io/agent-skills/skill-graph.html), built
+from `docs/skill-graph.html` on `main`.
 
 ## Read next
 
@@ -98,7 +104,40 @@ drag, filter and click through is `docs/skill-graph.html`: open it in a browser.
 | [docs/plans/2026-11-26-next-round.md](docs/plans/2026-11-26-next-round.md) | The second round of changes, ticket by ticket, with its status |
 | [evals/scenarios.md](evals/scenarios.md) | The cases the skills must get right |
 
-## Try it
+## Install
+
+One command per agent. Each one installs every skill and the scripts, and
+updates itself when a new version is released.
+
+**Claude Code** (2.1.275 or later):
+
+```
+claude plugin install agent-skills --marketplace rishi23root/agent-skills
+```
+
+**Codex:**
+
+```
+codex plugin marketplace add rishi23root/agent-skills
+codex plugin add agent-skills@rishi23root
+```
+
+These install for your user, in every project. To try it in one project first,
+add `--scope project` to the Claude Code command. Restart the agent session,
+then type `/factory` or `/improve` followed by a task.
+
+To run checks and reviews when nobody is at the desk, see the prompts in
+[templates/automation](templates/automation/README.md).
+
+The optional third-party extras are a second step. Ask the agent to set up
+the extras, or run the command printed in any seat's `extras.md`. They go in
+`~/.agent-skills/upstream`, outside the plugin, so an update does not wipe
+them.
+
+Requirements: Node 20 or later, git, and an authenticated GitHub CLI (`gh`).
+Python 3 for tstack's `babysit-pr` extra.
+
+## Install from a clone (for working on the skills)
 
 Nothing here installs itself. Start with one test project so it cannot affect
 the skills you already use.
@@ -135,7 +174,8 @@ Windsurf do not document it, so there the model may load a skill from its
 description. And an agent that reads both folders (Cursor) may list each skill
 twice.
 
-Optional third-party extras, pinned to known commits:
+Optional third-party extras, pinned to known commits. Fetch them before you
+install, so `local.md` records the folder:
 
 ```
 node scripts/sync-upstream.mjs        # clones into ./upstream, which is not in git
@@ -148,14 +188,12 @@ Rules of your own that a reviewer should apply to every diff go in the
 project as `checks/`, one plain-English rule per file. Copy
 [templates/checks](templates/checks).
 
-Requirements: Node 20 or later. The GitHub CLI for the gate script.
-
 ## Scripts
 
 | Script | What it does |
 |---|---|
 | `scripts/validate.mjs` | Checks every skill against the rules. Regenerates the graph and the per-seat extras lists with `--write`. Runs in CI |
-| `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. Open the file in a browser |
+| `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. [Published here](https://rishi23root.github.io/agent-skills/skill-graph.html) from `main` |
 | `scripts/install.mjs` | Links or copies the skills into a skills folder you name. Refuses to overwrite anything it did not install |
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
 | `scripts/runlog.mjs` | Adds, closes, summarises and audits run log rows. The log is append-only |

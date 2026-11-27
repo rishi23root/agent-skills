@@ -52,6 +52,7 @@ export function loadSkills() {
         description: fm?.data.description || '',
         layer: Number(meta.layer),
         role: meta.role,
+        typed: fm?.data['user-invocable'] !== 'false',
         requires: list(meta.requires),
         reads: list(meta.reads),
         escalates: list(meta.escalates),

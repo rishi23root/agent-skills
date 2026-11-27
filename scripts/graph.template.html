@@ -174,7 +174,7 @@ var KINDS = {
   source:    { label: 'Provider repo', color: '#DA7194', edge: '#B84D72', r: 34 },
   ticket:    { label: 'Plan ticket',   color: '#B4BAC5', edge: '#8A92A1', r: 19 }
 };
-var ROWS = ['Manager', 'Front door', 'Seats', 'Procedures'];
+var ROWS = ['Manager', 'Seats', 'Procedures'];
 var REL = {
   LOADS:           { out: 'Loads',               inn: 'Loaded by' },
   READS_FILE_FROM: { out: 'Reads a file from',   inn: 'Has a file read by' },
@@ -209,7 +209,7 @@ function wrap(label, max) {
   if (lines.length > 2) lines = [lines[0], lines.slice(1).join('')];
   return lines.map(function (l) { return l.length > max ? l.slice(0, max - 1) + '…' : l; });
 }
-function rowY(layer) { return (layer - 1.5) * 170; }
+function rowY(layer) { return (layer - 1) * 200; }
 // Where a node drifts to: skills in the middle, extras on the right, the plan on the left.
 function homeX(n) { return n.kind === 'extra' || n.kind === 'source' ? 720 : n.kind === 'ticket' ? -600 : 0; }
 

@@ -88,5 +88,5 @@ for (const s of skills) {
 }
 say(`${skills.length} skills ${args.copy ? 'copied' : 'linked'} into ${target}`);
 }
-say('Typed by you: ' + skills.filter((s) => s.layer < 3).map((s) => '/' + s.dir).join(' '));
+say('Typed by you: ' + skills.filter((s) => s.typed).map((s) => '/' + s.dir).join(' '));
 say('Restart the agent session so it sees them.');

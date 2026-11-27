@@ -5,7 +5,7 @@ description: >-
   agent brief grounded in the current project, then stops. Does not code.
 disable-model-invocation: true
 metadata:
-  layer: "1"
+  layer: "2"
   role: front-door
   requires: ""
 ---
@@ -18,7 +18,9 @@ write the brief the next agent will build from. You do not design the diff, open
 issues, start workers, or edit the product.
 
 Called on its own (`/improve`), you show the brief and stop. Called by
-`factory`, you return the brief to it.
+`factory`, a seat or `spec`, you return the brief to it. The caller does not build
+past an open question: a top session asks the owner, a worker reports the
+question and stops.
 
 ## Steps
 
@@ -73,7 +75,9 @@ Called on its own (`/improve`), you show the brief and stop. Called by
 
 7. **Size it and rate the risk** using [sizing.md](sizing.md). State the size,
    the risk, and the seat the table points to. This is a recommendation.
-   `factory` or the owner decides.
+   `factory` or the owner decides. A seat that called you builds the brief
+   only when the table points at that seat or a smaller one. Otherwise it
+   escalates with the brief attached.
 
 8. **Leave holes open.** A missing fact that would change the design goes
    under Open questions. Give each question a recommended answer, drawn from

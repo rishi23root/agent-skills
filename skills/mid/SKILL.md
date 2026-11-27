@@ -6,9 +6,9 @@ description: >-
   reviews junior PRs.
 disable-model-invocation: true
 metadata:
-  layer: "2"
+  layer: "1"
   role: seat
-  requires: "spec tickets build review ship dispatch handoff"
+  requires: "improve spec tickets build review ship dispatch handoff"
   escalates: "senior"
 ---
 
@@ -59,6 +59,7 @@ owner's call, so "at the gate" is a finished state for you.
 
 | Step | Read |
 |---|---|
+| The task is rough words, not a ticket or a brief | `../improve/SKILL.md` |
 | Write the Interfaces and Seams for the feature on its parent ticket | `../spec/SKILL.md` |
 | Slice the brief into tickets and mark them ready | `../tickets/SKILL.md` |
 | Build a ticket yourself | `../build/SKILL.md` |
