@@ -17,7 +17,7 @@ harness what is available today and place each model in a tier.
 |---|---|---|
 | Manager (`factory`, `senior` when dispatching) | frontier | high |
 | `10x`: framing, council voice, rescue | frontier | high |
-| `senior`: spec, review of `mid` PRs | frontier | high |
+| `senior`: spec | frontier | high |
 | `mid`: feature build, diagnosis, ticket slicing | workhorse | medium, or high when risk is high |
 | `junior`: one ready ticket | workhorse | medium. Use fast for a purely mechanical ticket |
 | Read-only search or locating code | fast | low |
