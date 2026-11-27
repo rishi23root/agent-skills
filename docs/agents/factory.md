@@ -57,7 +57,7 @@ also runs `node scripts/sync-upstream.mjs` then
 ## Fleet
 
 - **Mode:** steady
-- **Families:** manager Claude, builders Claude, reviewers Codex; Antigravity only when Codex cannot run. A review always comes from another provider than the builder's
+- **Families:** manager Claude, builders Claude, reviewers from another provider than the builder's, the best that can run first, as `skills/dispatch/allocation.md` ranks them
 - **Machines that may run workers:** the owner's machine
 - **Ports and local databases:** none
 - **Council models**, if a council is used: not set

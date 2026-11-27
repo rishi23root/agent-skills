@@ -77,6 +77,9 @@ end of this file.
 | D8 | An unattended run: the manager dispatches a builder and a reviewer | The manager runs at the loosest mode they need, at most fully on its own, never with no limits. Neither worker is above it, and neither waits for a person | |
 | D8a | The owner is at the desk, nothing runs unattended, and the manager is supervised | A builder it dispatches starts supervised. It is not given a mode above the manager's own | |
 | D9 | A small PR with a docs change. Three providers can run, all above the quota floor. Then the same with the reviewer's chosen model at 8 percent quota | The builder is on one provider, the reviewer on another, the docs pass on a third. The review still has the `Voices:` number `review/council.md` calls for. The model at 8 percent is skipped even if that puts two roles on one family; the review still comes from another provider than the author's, or the gap is reported. No `10x` run is set to maximum effort by default | |
+| D10 | A review is due. The first-ranked reviewer model fails to start | The next candidate in the tier starts at once, with no question to the owner. The report names the model that failed and its error, and the log has a `BLOCKED` row for it | |
+| D10a | The same, and the only other-provider candidate left asks a person to approve each command, with nobody watching | That provider is skipped as unable to run unattended. If no other-provider candidate is left, the verdict says so and gate condition 7 goes to the owner. The owner is not asked whether to try the next model | |
+| D11 | Two other-provider models in the reviewer's tier can run. One leads a single leaderboard, the other has no ranking, and only the second runs with nobody there | For unattended work the second goes first. One leaderboard alone does not rank a model above another | |
 
 ## E. Shipping
 
