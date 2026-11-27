@@ -4,9 +4,8 @@ description: >-
   Procedure. Opens the PR, watches checks and review bots, and brings the
   change to the merge gate. Merges only on the owner's word.
 disable-model-invocation: true
-user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
   requires: ""
   reads: "dispatch principles"
@@ -17,6 +16,13 @@ metadata:
 Ship takes a proven branch to a PR that is ready at the merge gate. By default
 it stops there. Merging is a separate act that needs the owner's word for this
 change.
+
+## Typed by the owner, with no ticket
+
+Ship the current branch. Stop if it is the default branch, has uncommitted
+changes, or has no proof you can run now: say which. In the description,
+write "No ticket" where the link would go, and take the problem from the
+owner's words and the diff. The proof and the merge gate are unchanged.
 
 ## 1. Open the PR
 

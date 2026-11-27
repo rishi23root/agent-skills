@@ -27,7 +27,7 @@ for (const s of skills) {
   nodes.push({
     id: s.name, kind: KIND[s.role] || 'procedure', label: s.name,
     desc: s.description, layer: s.layer,
-    typed: s.fm.data['user-invocable'] !== 'false',
+    typed: s.typed,
     refs, url: `${REPO}/blob/main/skills/${s.dir}/SKILL.md`,
   });
   for (const r of s.requires) edge(s.name, r, 'LOADS');

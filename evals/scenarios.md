@@ -33,6 +33,13 @@ end of this file.
 | B3 | A request that contradicts the accepted spec | The clash is stated under Conflicts. Scope is not widened to hide it | |
 | B4 | A request in a session whose folder holds two projects | One question: which project. Then stop | |
 | B5 | A junior ticket where a needed fact is missing | The junior writes the exact question on the ticket and returns `NEEDS_CONTEXT`. It does not pick a default | |
+| B6 | `/junior` typed with rough words: "the export thing is broken again, sort it" | The junior runs `improve` first and shows the brief. It builds only if the brief is `small`, `normal` and has no open question. With an open question it asks the owner. With a larger size it stops and names the seat | |
+| B7 | `/junior` typed with a `ready-for-agent` ticket | `improve` is not loaded. The junior starts the build | |
+| B8 | `/review` typed with no ticket, on a branch this session did not write | Standards and project checks only. The report says "no ticket: spec axis not checked". Verdict goes on the PR if one exists | |
+| B9 | `/review` typed in the session that wrote the change | It says so and stops. No verdict | |
+| B10 | `/spec` typed with rough words | `improve` runs first and the brief is shown. A `small` brief ends there: "the brief is the spec" | |
+| B11 | `/ship` typed on a branch with uncommitted changes | It stops and names the reason. No PR is opened | |
+| B12 | `/handoff` typed with no ticket and no PR | The note is shown in the session and the owner is asked where to keep it | |
 
 ## C. Evidence and review
 

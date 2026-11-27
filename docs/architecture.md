@@ -8,23 +8,21 @@ change that has been built, checked by someone other than its author, and left
 ready to merge, without paying for more process or more tokens than the task
 deserves.
 
-## Four layers
+## Three layers
 
 ```mermaid
 flowchart TD
   subgraph L0["Layer 0: Manager"]
     F[factory]
   end
-  subgraph L1["Layer 1: Front door"]
-    I[improve]
-  end
-  subgraph L2["Layer 2: Seats"]
+  subgraph L1["Layer 1: Seats"]
     J[junior]
     M[mid]
     S[senior]
     X[10x]
   end
-  subgraph L3["Layer 3: Procedures"]
+  subgraph L2["Layer 2: Procedures"]
+    I[improve]
     SP[spec]
     TK[tickets]
     D[dispatch]
@@ -36,16 +34,21 @@ flowchart TD
     PR[principles]
   end
   F --> I
-  F --> L2
-  L2 --> L3
+  F --> L1
+  L1 --> L2
 ```
 
 | Layer | Answers the question | Typed by you |
 |---|---|---|
 | 0 Manager | How much process does this task need, and is the result real? | `/factory` |
-| 1 Front door | What is actually being asked, in this project, today? | `/improve` |
-| 2 Seats | Who does the work, and what may they decide alone? | `/junior` `/mid` `/senior` `/10x` |
-| 3 Procedures | How is one step done properly? | no, loaded by seats |
+| 1 Seats | Who does the work, and what may they decide alone? | `/junior` `/mid` `/senior` `/10x` |
+| 2 Procedures | How is one step done properly? | five of ten: `/improve` `/review` `/spec` `/ship` `/handoff`. The rest are loaded only |
+
+`improve` is the front door: the procedure that answers "what is actually
+being asked, in this project, today?". `factory` and every seat load it when a
+task arrives as rough words. `review`, `spec`, `ship` and `handoff` can be
+typed too, for one step on work that has no ticket. Each says what it does in
+that case under "Typed by the owner, with no ticket".
 
 **The layer rule.** A skill may load only skills in a layer below it.
 Procedures may also use each other. Nothing points up. This is what makes the
@@ -61,10 +64,10 @@ and under it only the procedures that seat is allowed to run.
 flowchart TD
   F[factory] --> I[improve]
   F --> J[junior] & M[mid] & S[senior] & X[10x]
-  J --> J1[build] & J2[ship: PR and checks only] & J3[handoff]
-  M --> M1[tickets] & M2[build] & M3[review] & M4[ship] & M5[dispatch: junior leaves] & M6[handoff]
-  S --> S1[spec] & S2[tickets] & S3[dispatch] & S4[review] & S5[ship: owns the gate] & S6[runlog] & S7[handoff]
-  X --> X1[spec] & X2[dispatch: read-only workers] & X3[review] & X4[handoff]
+  J --> J0[improve] & J1[build] & J2[ship: PR and checks only] & J3[handoff]
+  M --> M0[improve] & M1[tickets] & M2[build] & M3[review] & M4[ship] & M5[dispatch: junior leaves] & M6[handoff]
+  S --> S0[improve] & S1[spec] & S2[tickets] & S3[dispatch] & S4[review] & S5[ship: owns the gate] & S6[runlog] & S7[handoff]
+  X --> X0[improve] & X1[spec] & X2[dispatch: read-only workers] & X3[review] & X4[handoff]
 ```
 
 Three things follow from this shape.
@@ -116,7 +119,7 @@ owner.
 
 | Artifact | From, to | Owned by |
 |---|---|---|
-| Agent brief | improve to factory or a seat | `skills/improve/brief-format.md` |
+| Agent brief | improve to factory, a seat or spec | `skills/improve/brief-format.md` |
 | Size and risk | improve to factory | `skills/improve/sizing.md` |
 | Spec | senior to tickets | `skills/spec/SKILL.md` |
 | Ticket and its Technical Dependencies block | mid to a builder | `skills/tickets/ticket-format.md` |
@@ -137,7 +140,9 @@ owner.
    A trivial task runs no seat at all.
 2. **Everything is called by name.** No skill sits in the context waiting to
    be triggered. This came from a measured audit, in `research/findings.md`.
-3. **Few doors.** Six typed skills. The other nine are reached through them.
+3. **Few doors.** Ten typed skills: the manager, four seats and five
+   procedures that make sense as a single step. The other five are reached
+   through them.
 4. **One copy of each rule.** A format or a number lives in one file. Other
    files link to it. A rule that two or more skills rely on is a file in
    `skills/principles/`, and the validator fails on one that nothing cites.
@@ -156,7 +161,7 @@ owner.
 | # | Decision | Why | What would change it |
 |---|---|---|---|
 | 1 | Own core, third-party extras pinned by commit | The core must work from a fresh clone and must not change when someone else pushes | An extra used in most runs should be rewritten into the core |
-| 2 | Two typed entry points, `factory` and `improve` | Sometimes the whole loop is wanted, sometimes only a better prompt | If `improve` is never used alone, fold it into `factory` |
+| 2 | Two main entry points, `factory` and `improve` | Sometimes the whole loop is wanted, sometimes only a better prompt | If `improve` is never used alone, fold it into `factory` |
 | 3 | Seats are named `junior`, `mid`, `senior`, `10x` | Different from the older `*-dev` skills, so both sets can be installed side by side during the trial | After migration the old ones are removed |
 | 4 | `client-brief` is folded into `improve` | Client words are one kind of rough input. One front door, one brief format | If client-facing work needs its own output, split it back out |
 | 5 | Subagent or own thread is decided by where the result lands | A testable rule replaces "how related is it", which was never defined | Pilot data showing the rule picks badly |
@@ -170,6 +175,8 @@ owner.
 | 13 | A blocking review finding needs a run that shows the failure | A reviewer asked to find something always finds something. A command and its output can be checked by the author and the owner | Run log data showing real defects were waved through as suspicions |
 | 14 | A review verdict covers a patch id as well as a commit | A rebase changes the commit and not the change, and used to void every approval | n/a |
 | 15 | The run log is append-only | A row that can be rewritten cannot be audited | n/a |
+| 16 | `improve` is a procedure that stays typeable (2026-11-27) | A seat typed directly with rough words had no way to get a brief: the layer rule stopped it loading a skill above it. As a procedure every seat may load it, and it stays typeable | n/a |
+| 17 | `review`, `spec`, `ship` and `handoff` are typeable; `tickets`, `dispatch`, `build`, `runlog` and `principles` are not (2026-11-27) | Each of the four is a whole step the owner sometimes wants alone, on work with no ticket. The five hidden ones need a ticket, a ledger or a caller to mean anything. The list is one constant in `scripts/validate.mjs` | Run log showing a typed procedure is never typed, or a hidden one is wanted alone |
 
 ## Open questions
 

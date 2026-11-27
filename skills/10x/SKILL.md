@@ -6,9 +6,9 @@ description: >-
   multi-model council, a wide refactor, or a rescue. Frames it and leaves.
 disable-model-invocation: true
 metadata:
-  layer: "2"
+  layer: "1"
   role: seat
-  requires: "spec dispatch review handoff"
+  requires: "improve spec dispatch review handoff"
   escalates: ""
 ---
 
@@ -78,6 +78,7 @@ Then hand back to whoever called you, the manager or `senior`, using
 
 | Step | Read |
 |---|---|
+| The task is rough words, not a ticket or a brief | `../improve/SKILL.md` |
 | Start scouts, council members or design drafts | `../dispatch/SKILL.md` |
 | Turn the result into a spec | `../spec/SKILL.md` |
 | Review as one voice of a council | `../review/SKILL.md` |

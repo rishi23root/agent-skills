@@ -4,9 +4,8 @@ description: >-
   Procedure. Independent review of a change on two axes, spec and standards,
   with severity, a verdict, and a capped fix loop.
 disable-model-invocation: true
-user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
   requires: ""
   reads: "dispatch principles"
@@ -17,6 +16,15 @@ metadata:
 A review is only worth something when the reviewer is independent
 (`../principles/independent-review.md`). The reviewer gets the ticket, the
 spec section and the diff. Nothing else.
+
+## Typed by the owner, with no ticket
+
+Review the PR the owner names, else the current branch against its base. With
+no ticket there is nothing to check the Spec axis against: review Standards
+and the project checks only, and say "no ticket: spec axis not checked". If
+this session wrote the change, say so and stop: a fresh session reviews it.
+Record the verdict on the PR when there is one. Otherwise report it to the
+owner.
 
 ## Who reviews
 

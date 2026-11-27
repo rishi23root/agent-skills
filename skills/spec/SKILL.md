@@ -4,11 +4,10 @@ description: >-
   Procedure. Writes a spec from an accepted brief and takes it through the
   spec gate: no open design questions, named seams, checkable acceptance.
 disable-model-invocation: true
-user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
-  requires: ""
+  requires: "improve"
 ---
 
 # spec
@@ -17,6 +16,13 @@ The spec is the contract between the person who asked and everyone who builds.
 The spec gate is the rule that no build starts until that contract is Accepted.
 The gate exists because a builder who meets a hole in the spec fills it with a
 guess, and guesses compound.
+
+## Typed by the owner, with no ticket
+
+A spec starts from a brief. With no accepted brief, read
+`../improve/SKILL.md`, write the brief and show it. Go on only when the owner
+accepts it and the table below says this size needs a spec. For `trivial` or
+`small`, say that the brief is the spec and stop.
 
 ## When a full spec is needed
 
