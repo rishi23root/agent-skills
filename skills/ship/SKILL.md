@@ -24,6 +24,34 @@ changes, or has no proof you can run now: say which. In the description,
 write "No ticket" where the link would go, and take the problem from the
 owner's words and the diff. The proof and the merge gate are unchanged.
 
+## Docs pass
+
+A change that alters what a user sees or how they use the project reaches the
+gate with its words already updated: the README, the changelog and the text a
+user reads. For any other change, write "no docs pass: nothing user-facing
+changed" in the PR description and skip this section.
+
+**When.** On the finished diff, after the build's proof and before the review
+that gates the merge. A verdict covers only the diff it saw (`review`,
+"Recording the verdict"), so a docs edit after an approval voids it. When a
+send-back fix changes behaviour, run the pass again before the recheck.
+
+**Who.** When the manager dispatches, a separate worker does it: the cheapest
+model that fits, from another provider than the builder's when one can run
+(`../dispatch/allocation.md`). A seat working alone in the top session does it
+itself. A worker never starts it. It reports that a docs pass is due. The docs
+worker's brief points to this section and to the finished diff.
+
+**What it may edit.** Only the docs paths in the repository's profile
+(`docs/agents/factory.md`). With no profile, or no docs paths line in it: the
+README, a changelog if the repository has one, and nothing else. It never
+edits code, tests or skills, even inside a docs path. Report wrong or missing
+words that it may not edit.
+
+**What it writes.** Write from the finished diff, not from the plan, which can
+differ from what was built. Say what changed and why a user should care, in
+short sentences with no hype. A changelog entry is three lines or fewer.
+
 ## 1. Open the PR
 
 Open a real PR, not a draft, so checks and review bots run.
