@@ -30,7 +30,9 @@ juniors send back.
 
 Every ticket under the feature is in one of three states: merged, waiting at
 the merge gate with the owner told, or parked with a reason. Merging is the
-owner's call, so "at the gate" is a finished state for you.
+owner's call, so "at the gate" is a finished state for you. Every PR you
+opened has its review started, or reported as due when you are a worker
+(`../ship/SKILL.md`, "Start the review"). Started is not approved.
 
 ## What only you do at this level
 
