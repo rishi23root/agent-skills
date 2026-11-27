@@ -382,7 +382,7 @@
     </tbody>
   </table>
   </div>
-  <p class="small"><span class="sk m">factory</span> also loads the four seats. Procedures may use each other: <span class="sk p">dispatch</span> loads <span class="sk p">runlog</span>; <span class="sk p">review</span> loads <span class="sk p">dispatch</span>; <span class="sk p">spec</span> loads <span class="sk f">improve</span> and <span class="sk p">dispatch</span>. Nothing loads <span class="sk p">principles</span> whole. Eight skills read single files from it. Nothing loads <span class="sk p">setup</span> whole.</p>
+  <p class="small"><span class="sk m">factory</span> also loads the four seats. Procedures may use each other: <span class="sk p">dispatch</span> loads <span class="sk p">runlog</span>; <span class="sk p">review</span> loads <span class="sk p">dispatch</span>; <span class="sk p">ship</span> loads <span class="sk p">review</span>; <span class="sk p">spec</span> loads <span class="sk f">improve</span> and <span class="sk p">dispatch</span>. Nothing loads <span class="sk p">principles</span> whole. Eight skills read single files from it. Nothing loads <span class="sk p">setup</span> whole.</p>
 
   <h3 style="margin-top:var(--s5)">What each procedure does</h3>
   <dl class="defs">
@@ -394,7 +394,7 @@
     <div><dt><span class="sk p">review</span></dt><dd>Independent review of a change on two axes, spec and standards, with severity, a verdict, and a capped fix loop.</dd></div>
     <div><dt><span class="sk p">runlog</span></dt><dd>Records one row per worker run (task type, seat, model, cost, outcome, lesson) so later model choice and process changes rest on data.</dd></div>
     <div><dt><span class="sk p">setup</span></dt><dd>Checks a machine and a project for what a factory run needs, asks only for what it cannot detect, writes on a yes, and ends with one table of what is ready and the fix for what is not.</dd></div>
-    <div><dt><span class="sk p">ship</span></dt><dd>Opens the PR, watches checks and review bots, and brings the change to the merge gate. Merges only on the owner's word.</dd></div>
+    <div><dt><span class="sk p">ship</span></dt><dd>Opens the PR, watches checks and review bots, starts the independent review, and brings the change to the merge gate. Merges only on the owner's word.</dd></div>
     <div><dt><span class="sk p">spec</span></dt><dd>Writes a spec from an accepted brief and takes it through the spec gate: no open design questions, named seams, checkable acceptance.</dd></div>
     <div><dt><span class="sk p">tickets</span></dt><dd>Slices a brief or spec into small vertical tickets with blocking edges and file ownership, and marks them ready for an agent.</dd></div>
   </dl>

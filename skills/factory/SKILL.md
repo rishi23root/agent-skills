@@ -76,9 +76,11 @@ Sibling skills are in the folders next to this one. Load one by reading its
 
 5. **Check what comes back.** A worker's "done" is a claim. Read the status
    code and the evidence in its report (`../dispatch/report-format.md`). Then
-   get a review from someone who is not the author, using
-   `../review/SKILL.md`. If the review sends it back, the fix loop and its
-   round cap are in that skill.
+   the review starts, by someone who is not the author. You start it without
+   asking the owner: `../ship/SKILL.md`, "Start the review", says when it is
+   due, for a worker's PR and for your own. `../review/SKILL.md` says how. If
+   the review sends it back, the fix loop and its round cap are in that
+   skill, and the pushed fix starts the recheck the same way.
 
 6. **Ship.** Read `../ship/SKILL.md`. It takes the change to a PR that sits
    ready at the merge gate. You merge only when the owner has said to merge

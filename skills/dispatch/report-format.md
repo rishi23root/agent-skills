@@ -6,6 +6,7 @@ decides what to do next.
 ```markdown
 **Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
 **Ticket:** <link>   **Branch / PR:** <name or URL, with the head commit>
+**Review:** due on <PR URL> at <head commit> | none: <why>
 
 **What changed:** <files, one line each>
 
@@ -23,8 +24,8 @@ decides what to do next.
 
 | Code | Meaning | Manager's next move |
 |---|---|---|
-| `DONE` | Acceptance checks met, with evidence | Send to review |
-| `DONE_WITH_CONCERNS` | Built, but the worker doubts something | Read the concerns, then review |
+| `DONE` | Acceptance checks met, with evidence | Start the review, without asking the owner |
+| `DONE_WITH_CONCERNS` | Built, but the worker doubts something | Read the concerns, then start the review |
 | `NEEDS_CONTEXT` | A fact is missing. Work is paused, not failed | Answer, then resume the same worker |
 | `BLOCKED` | Cannot finish as briefed | Change the ticket, seat or model |
 
@@ -48,3 +49,7 @@ reply `no relevant locations found`. Do not guess a path.
 - A long report goes in a file or on the PR. The reply carries the status and
   the path.
 - Never report `DONE` with an open question.
+- A worker never starts the review of its own PR. It writes `Review: due`
+  with the PR and its head commit, after every push that changes the diff,
+  and the top session starts it. `../ship/SKILL.md`, "Start the review", owns
+  that rule. Write `none` when there is no PR, or the work was read-only.

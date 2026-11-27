@@ -66,7 +66,7 @@ and under it only the procedures that seat is allowed to run.
 flowchart TD
   F[factory] --> I[improve]
   F --> J[junior] & M[mid] & S[senior] & X[10x]
-  J --> J0[improve] & J1[build] & J2[ship: PR and checks only] & J3[handoff]
+  J --> J0[improve] & J1[build] & J2[ship: PR, checks, start the review] & J3[handoff]
   M --> M0[improve] & M1[tickets] & M2[build] & M3[review] & M4[ship] & M5[dispatch: junior leaves] & M6[handoff]
   S --> S0[improve] & S1[spec] & S2[tickets] & S3[dispatch] & S4[review] & S5[ship: owns the gate] & S6[runlog] & S7[handoff]
   X --> X0[improve] & X1[spec] & X2[dispatch: read-only workers] & X3[review] & X4[handoff]
@@ -77,9 +77,11 @@ Three things follow from this shape.
 1. **You can enter at any node.** `/factory` walks the whole tree. `/mid`
    starts at one subtree. `/improve` is a single leaf. Each still works alone.
 2. **A subtree shows what a seat is for.** `junior` lists no `dispatch` and
-   no `review`, so starting workers and approving are simply not among its
-   steps. This is guidance by structure, not a lock: nothing prevents an agent
-   from reading another file. `validation.md` says which rules are enforced.
+   no `review`, so starting builders and approving are simply not among its
+   steps. The one worker a typed `junior` starts is the reviewer that `ship`
+   calls for. This is guidance by structure, not a lock: nothing prevents an
+   agent from reading another file. `validation.md` says which rules are
+   enforced.
 3. **Loading is lazy.** A seat reads a procedure when its step starts, never
    up front. A `junior` run on a small ticket loads three procedures.
 
@@ -130,6 +132,7 @@ owner.
 | Worker brief | manager to worker | `skills/dispatch/SKILL.md` |
 | Worker report and status code | worker to manager | `skills/dispatch/report-format.md` |
 | Findings and verdict | reviewer to manager | `skills/review/SKILL.md` |
+| When a review starts, and who starts it | an open PR to the top session | `skills/ship/SKILL.md`, "Start the review" |
 | Merge gate | ship to owner | `skills/ship/SKILL.md` |
 | Handoff note | one session to the next | `skills/handoff/SKILL.md` |
 | Run row | every run to the log | `skills/runlog/SKILL.md` |
