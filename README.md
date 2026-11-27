@@ -66,7 +66,7 @@ flowchart LR
 | | `ship` | yes | PR, checks, review start, merge gate |
 | | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
-| | `principles` | no | Six rules that several skills share, one short file each |
+| | `principles` | no | Short rules that several skills share, one file each |
 
 Ten skills are typed by you. Their descriptions total about 1,600 characters.
 Every skill is called by name only, so none of them is loaded until you ask.

@@ -92,7 +92,7 @@
 
     { "source": "mattpocock", "path": "productivity/handoff", "seats": ["junior", "mid", "senior", "10x"], "when": "A longer handoff summary than the core note" },
     { "source": "ponytail", "path": "ponytail", "seats": ["junior", "mid", "senior", "10x"], "when": "Stricter lean-code rules while building" },
-    { "source": "caveman", "path": "caveman", "seats": ["junior", "mid"], "when": "Terse output to save tokens in a long build session" }
+    { "source": "caveman", "path": "caveman", "seats": ["junior", "mid", "senior", "10x"], "when": "Stricter caveman voice for a long session (core terse-output already covers chat and PRs)" }
   ],
   "ignoredCalls": [
     { "source": "caveman", "from": "caveman", "to": "ultracave", "why": "Output mode reached only by /caveman ultra. Not pinned on purpose." },

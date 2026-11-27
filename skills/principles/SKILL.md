@@ -26,6 +26,7 @@ read them all.
 | [attack-the-premise.md](attack-the-premise.md) | Two failed fixes on one belief means test the belief |
 | [test-behaviour.md](test-behaviour.md) | A test checks what the code does, not how |
 | [locations.md](locations.md) | Where the factory scripts and the extras are, whatever the install |
+| [terse-output.md](terse-output.md) | Caveman fragments in chat and PRs; full sentences only for safety or user docs |
 
 ## Adding one
 
