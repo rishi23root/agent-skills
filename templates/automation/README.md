@@ -14,3 +14,4 @@ and approve its recurring prompts once.
 | File | Runs when |
 |---|---|
 | [pr-opened.md](pr-opened.md) | A PR opens |
+| [daily-triage.md](daily-triage.md) | Every weekday morning |
