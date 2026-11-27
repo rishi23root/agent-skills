@@ -41,8 +41,13 @@ that in writing, PR by PR. So this section comes before anything is built.
    and every Codex worker fails before its first command. The fix is one
    AppArmor profile and one reload, both as root, so both are the owner's:
    - Print the profile with the command in that line and show it whole. Say
-     what it grants: that one program may create user namespaces, and
-     nothing else.
+     what it changes. A program with no profile already runs unconfined, so
+     the profile adds one right: creating user namespaces. It is the form
+     the system's own AppArmor package uses for programs that need them.
+   - Say what it costs. The path is in the owner's home folder, so anything
+     that runs as the owner can put a program there and get that right too.
+     The system's restriction exists to deny it to such programs. The owner
+     weighs that against Codex reviewing unattended.
    - On a yes, the owner saves it as the file its first line of `profile`
      names, in the system's AppArmor folder, and reloads it with
      `sudo apparmor_parser -r <that file>`. You run neither: you have no
@@ -100,10 +105,14 @@ the skills gets no review until someone starts one.
    issue, PR, message or report. The owner can find it again in the
    harness's settings.
 
+   Give it to that command on its input, never as an argument: any program
+   on the machine can read another's arguments while it runs.
+
    ```
-   gh api repos/<owner>/<repo>/hooks -f name=web -F active=true \
-     -f "events[]=pull_request" -f "config[content_type]=json" \
-     -f "config[url]=<the address>"
+   gh api repos/<owner>/<repo>/hooks --input - <<'EOF'
+   {"name": "web", "active": true, "events": ["pull_request"],
+    "config": {"url": "<the address>", "content_type": "json"}}
+   EOF
    ```
 
 4. A signing secret is the owner's to set, on both sides, through the
