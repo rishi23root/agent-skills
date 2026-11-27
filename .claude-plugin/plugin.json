@@ -1,0 +1,9 @@
+{
+  "name": "agent-skills",
+  "version": "0.1.0",
+  "description": "A personal software factory: a task in any wording goes in, a reviewed pull request waiting at the merge gate comes out.",
+  "author": { "name": "rishi23root", "url": "https://github.com/rishi23root" },
+  "repository": "https://github.com/rishi23root/agent-skills",
+  "keywords": ["skills", "factory", "code-review", "orchestration"],
+  "skills": "./skills/"
+}

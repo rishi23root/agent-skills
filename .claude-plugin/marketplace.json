@@ -1,0 +1,13 @@
+{
+  "name": "rishi23root",
+  "owner": { "name": "rishi23root", "url": "https://github.com/rishi23root" },
+  "description": "The agent-skills software factory, as an installable plugin.",
+  "plugins": [
+    {
+      "name": "agent-skills",
+      "source": "./",
+      "description": "A task in any wording goes in, a reviewed pull request waiting at the merge gate comes out.",
+      "category": "engineering"
+    }
+  ]
+}

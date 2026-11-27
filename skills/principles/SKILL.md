@@ -25,6 +25,7 @@ read them all.
 | [smallest-change.md](smallest-change.md) | Delete, reuse, then write, in that order |
 | [attack-the-premise.md](attack-the-premise.md) | Two failed fixes on one belief means test the belief |
 | [test-behaviour.md](test-behaviour.md) | A test checks what the code does, not how |
+| [locations.md](locations.md) | Where the factory scripts and the extras are, whatever the install |
 
 ## Adding one
 
