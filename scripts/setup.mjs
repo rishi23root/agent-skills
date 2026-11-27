@@ -5,24 +5,27 @@
 //
 //   node scripts/setup.mjs [--project <dir>] [--require-check <name,name>] [--json]
 //   node scripts/setup.mjs --draft-profile [--project <dir>]
+//   node scripts/setup.mjs --codex-apparmor
 //
 // The first form prints one table. Every line is `ok`, `missing` or `unknown`,
 // and every line that is not `ok` says how to fix it. `required` means a
-// factory run cannot reach a PR at the merge gate without it.
+// factory run cannot finish without it: a logged PR at the merge gate.
 // The second form prints templates/factory.md with what it detected filled in.
+// The third prints the AppArmor profile that lets Codex's sandbox start on a
+// Linux that restricts user namespaces.
 //
 // Exit code 0: no required line is missing. 1: at least one is. 2: bad usage.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ROOT, loadLock, parseArgs, posix } from './lib.mjs';
+import { ROOT, loadLock, parseArgs, posix, runlogFile } from './lib.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 // An option that is misspelled or has no value must not be dropped in silence:
 // the table would then answer a question the owner did not ask.
-const OPTIONS = { project: true, 'require-check': true, json: false, 'draft-profile': false };
-const usage = (why) => { console.error(`${why}\nusage: setup.mjs [--project <dir>] [--require-check <name,name>] [--json] | --draft-profile [--project <dir>]`); process.exit(2); };
+const OPTIONS = { project: true, 'require-check': true, json: false, 'draft-profile': false, 'codex-apparmor': false };
+const usage = (why) => { console.error(`${why}\nusage: setup.mjs [--project <dir>] [--require-check <name,name>] [--json] | --draft-profile [--project <dir>] | --codex-apparmor`); process.exit(2); };
 if (args._.length) usage(`unexpected argument: ${args._[0]}`);
 for (const [name, value] of Object.entries(args)) {
   if (name === '_') continue;
@@ -31,6 +34,7 @@ for (const [name, value] of Object.entries(args)) {
 }
 const project = path.resolve(args.project || process.cwd());
 if (!fs.existsSync(project)) usage('no such folder: ' + project);
+if (args['codex-apparmor']) { process.stdout.write(codexProfile()); process.exit(0); }
 const HOME = os.homedir();
 // The fixes are commands the owner or an agent may paste. Names and paths in
 // them come from the project, from GitHub and from the machine, so they are
@@ -210,9 +214,11 @@ function agent(name, cmd, cliHome, dirs, installFix, offFix = installFix) {
   reach.push(state);
 }
 const at = (...p) => path.join(...p, 'skills');
-agent('Claude Code', 'claude', process.env.CLAUDE_CONFIG_DIR || path.join(HOME, '.claude'), [at(project, '.claude'), at(HOME, '.claude')],
+const claudeHome = process.env.CLAUDE_CONFIG_DIR || path.join(HOME, '.claude');
+const codexHome = process.env.CODEX_HOME || path.join(HOME, '.codex');
+agent('Claude Code', 'claude', claudeHome, [at(project, '.claude'), at(HOME, '.claude')],
   `claude plugin install ${plugin.name} --marketplace ${marketRepo}`, `claude plugin enable ${pluginId}`);
-agent('Codex', 'codex', process.env.CODEX_HOME || path.join(HOME, '.codex'), [at(project, '.agents'), at(HOME, '.agents'), at(HOME, '.codex')],
+agent('Codex', 'codex', codexHome, [at(project, '.agents'), at(HOME, '.agents'), at(HOME, '.codex')],
   `codex plugin marketplace add ${marketRepo} ; codex plugin add ${pluginId}`);
 agent('agents that read `.agents/skills`', null, null, [at(project, '.agents'), at(HOME, '.agents')], linkCmd);
 const anyReach = reach.includes('ok');
@@ -235,6 +241,54 @@ const extrasOk = pinned.length === sources.length;
 add('Locations', 'Extras, at their pinned commits', 'optional', extrasOk ? 'ok' : 'missing',
   `${pinned.length} of ${sources.length} in ${posix(upstream)}`,
   extrasOk ? '' : `node ${repoPath}/scripts/sync-upstream.mjs --dir ${shown(upstream, '<extras folder>')}`);
+
+// ---- 5. providers -----------------------------------------------------------
+// Which agents are signed in. Only a yes or no is taken from each status
+// command: its text can hold an email address, which is never printed.
+const said = (r) => { const t = `${r.out}\n${r.err}`; return r.ok && /logged in/i.test(t) && !/not logged in/i.test(t); };
+const AGENTS = [
+  ['Claude Code (Anthropic)', 'anthropic', 'claude', ['auth', 'status'], (r) => json(r)?.loggedIn === true, 'claude auth login', claudeHome],
+  ['Codex (OpenAI)', 'openai', 'codex', ['login', 'status'], said, 'codex login', codexHome],
+  // Cursor runs models from several providers, so it cannot count as one of its own.
+  ['Cursor (several providers)', null, 'cursor-agent', ['status'], said, 'cursor-agent login', null],
+].map(([name, provider, cmd, statusArgs, yes, login, cliHome]) => {
+  // As with the plugin lists: an agent that never ran here is not signed in, and is not asked.
+  if (cliHome && !fs.existsSync(cliHome)) return { name, provider, login, state: run(cmd, ['--version']).gone ? 'not found' : 'not signed in' };
+  const r = run(cmd, statusArgs, { timeout: 10000 });
+  return { name, provider, login, state: r.gone ? 'not found' : yes(r) ? 'signed in' : 'not signed in' };
+});
+const signed = AGENTS.filter((a) => a.state === 'signed in');
+const providers = uniq(signed.map((a) => a.provider).filter(Boolean));
+const GATE = 'The merge gate needs a reviewer from another provider than the builder\'s (condition 7 in the ship skill)';
+const other = AGENTS.filter((a) => a.state !== 'signed in' && a.provider && !providers.includes(a.provider)).map((a) => `\`${a.login}\``);
+add('Providers', 'Two providers signed in', 'required', providers.length >= 2 ? 'ok' : 'unknown',
+  AGENTS.map((a) => `${a.name}: ${a.state}`).join('; '),
+  providers.length >= 2 ? '' : `${GATE}. ${other.length ? `Sign in to another provider (${other.join(' or ')}), or let` : 'Let'} the setup skill ask the harness which providers it can run${signed.some((a) => !a.provider) ? ', Cursor\'s among them' : ''}`);
+add('Providers', 'A provider other than the builder\'s can run a review', 'required', 'unknown', 'signed in is not able to run, and a script cannot start a worker',
+  `${GATE}. The factory-setup skill asks the harness and, on a yes, proves it with one small read-only run`);
+
+// On Linux, Codex runs each command of a worker inside a sandbox that needs
+// its own user namespace. Where AppArmor refuses that to a program without a
+// profile, a Codex worker can run no command at all, so it can review nothing.
+const codexState = AGENTS.find((a) => a.login === 'codex login').state;
+if (process.platform === 'linux' && codexState !== 'not found' && fs.existsSync(codexHome)) {
+  const box = run('codex', ['sandbox', '--', 'echo', 'ok']);
+  const check = 'Codex can run a command in its sandbox';
+  // AppArmor is the cause only when the system restricts user namespaces and
+  // bwrap failed in the way that restriction makes it fail.
+  const restricted = (readText('/proc/sys/kernel/apparmor_restrict_unprivileged_userns') || '').trim() === '1';
+  const refused = /RTM_NEWADDR|setting up uid map|No permissions to create new namespace|creating new namespace failed/i.test(`${box.out}\n${box.err}`);
+  if (box.ok && /^ok$/m.test(box.out)) add('Providers', check, 'optional', 'ok', 'a test command ran inside it');
+  else if (restricted && refused) add('Providers', check, 'optional', 'missing',
+    'the sandbox cannot start: this system refuses it a user namespace, so a Codex worker can run no command',
+    `\`node ${repoPath}/scripts/setup.mjs --codex-apparmor\` prints an AppArmor profile that allows it. The factory-setup skill shows it, and the two steps that need sudo are yours`);
+  else add('Providers', check, 'optional', 'unknown', box.slow ? 'the test command did not finish in time' : 'the test command failed for a reason the script does not know',
+    'Run `codex sandbox -- echo ok` and read the error');
+}
+
+// ---- 6. harness settings ----------------------------------------------------
+add('Harness', 'Settings the factory relies on', 'optional', 'unknown', 'a script cannot read a harness\'s settings',
+  'The factory-setup skill goes through them with you: "Settings the factory relies on" in skills/dispatch/harness.md');
 
 // ---- 7. project profile -----------------------------------------------------
 const draftCmd = `node ${repoPath}/scripts/setup.mjs --draft-profile --project ${projectPath}`;
@@ -324,6 +378,92 @@ if (!slug || !branch) {
       [...absent.filter(plain).map((l) => `gh label create "${l}" --repo ${slug}`),
         ...(odd ? [`${odd} name${odd > 1 ? 's' : ''} in the profile's "Used here" column hold${odd > 1 ? '' : 's'} characters that are not safe in a command: correct the column, or create the label by hand in ${settings}`] : [])].join(' ; '));
   }
+}
+
+// ---- 9. automation ----------------------------------------------------------
+// Only the events of each active webhook are read. A webhook's address can
+// carry a token, so it is never asked for.
+// Every page, one line of events per active webhook.
+const hooks = slug ? run('gh', ['api', '--paginate', `repos/${slug}/hooks`, '--jq', '.[] | select(.active) | .events | join(",")']) : null;
+const firing = hooks?.ok ? hooks.out.split('\n').filter((l) => l.split(',').some((e) => e === 'pull_request' || e === '*')).length : null;
+const WIRE = 'The factory-setup skill wires templates/automation/pr-opened.md on a yes';
+if (firing === null) add('Automation', 'A webhook fires when a PR opens', 'optional', 'unknown',
+  slug ? 'the webhooks could not be read: that needs an administrator' : 'the repository could not be read', slug ? `${WIRE}, with an administrator's token` : 'Fix the GitHub lines above, then run this again');
+else if (!firing) add('Automation', 'A webhook fires when a PR opens', 'optional', 'missing', 'no webhook: a PR opened outside the skills gets no review until someone starts one', WIRE);
+else add('Automation', 'A webhook fires when a PR opens', 'optional', 'unknown', `${firing} webhook${firing > 1 ? 's fire' : ' fires'} on pull requests. A script cannot tell that it starts the review task`,
+  'The factory-setup skill finds the task in the harness\'s list. Do not add a second webhook before that: two would start two reviews');
+add('Automation', 'Daily triage is scheduled', 'optional', 'unknown', 'a script cannot see a harness\'s schedule',
+  'The factory-setup skill reads the harness\'s task list and offers templates/automation/daily-triage.md on a yes');
+
+// ---- 10. run log ------------------------------------------------------------
+// Checked without writing: the file, or the nearest folder that exists above it.
+const logFile = runlogFile();
+const isDir = (p) => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
+const may = (p, mode) => { try { fs.accessSync(p, mode); return true; } catch { return false; } };
+const logIsDir = isDir(logFile);
+const logThere = fs.existsSync(logFile);
+const logText = logIsDir ? null : readText(logFile);
+let logDir = path.dirname(logFile);
+while (!fs.existsSync(logDir) && path.dirname(logDir) !== logDir) logDir = path.dirname(logDir);
+const blocked = logIsDir ? 'it is a folder: the run log is a file'
+  : logThere && logText === null ? 'it cannot be read'
+    : !logThere && !isDir(logDir) ? `${posix(logDir)} is a file where a folder is needed` : '';
+// runlog.mjs reads the file before it closes a row, and appends to it, so it needs both.
+const canLog = !blocked && (logThere ? may(logFile, fs.constants.R_OK | fs.constants.W_OK) : may(logDir, fs.constants.W_OK | fs.constants.X_OK));
+const logLines = (logText || '').split('\n').filter(Boolean);
+add('Run log', 'A row can be written', 'required', canLog ? 'ok' : 'missing',
+  `${posix(logFile)}${process.env.AGENT_RUNLOG ? ' (from AGENT_RUNLOG)' : ''}, ${blocked || (logText !== null ? `${logLines.length} lines` : 'made with the first row')}`,
+  canLog ? '' : blocked && !logThere || logIsDir ? 'Set AGENT_RUNLOG to a file in a folder you can write'
+    : blocked ? `Make ${shown(logFile, 'the run log')} readable and writable by you, or set AGENT_RUNLOG to another file`
+    : `Make ${shown(logText !== null ? logFile : logDir, 'the run log\'s folder')} writable, or set AGENT_RUNLOG to a file you can write`);
+
+// ---- 11. test run -----------------------------------------------------------
+const TEST_TASK = '/factory Setup test run. Add the file docs/agents/setup-test.md holding one line with today\'s date. Treat it as size small, not trivial: '
+  + 'build it on a branch, have it reviewed by a model from another provider, take the PR to the merge gate and stop. Do not merge. '
+  + 'Say in the PR that it is a setup test, to be closed without merging.';
+const logged = slug ? logLines.filter((l) => { try { const r = JSON.parse(l); return r.kind !== 'close' && String(r.ticket || '').includes(`github.com/${slug}/`); } catch { return false; } }).length : 0;
+add('Test run', 'A factory run is logged for this repository', 'optional', logged ? 'ok' : slug ? 'missing' : 'unknown',
+  logged ? `${logged} logged run${logged > 1 ? 's' : ''} for ${slug}` : slug ? 'none in the run log' : 'the repository could not be read',
+  logged ? '' : `In a fresh session, type: ${TEST_TASK}`);
+
+// ---- the AppArmor profile for Codex's sandbox --------------------------------
+// The path is found on this machine, never written in the repository. Version
+// folders become * so the profile survives an upgrade of Node or of Codex.
+function codexProfile() {
+  const ancestors = (p) => { const out = []; for (let d = path.dirname(p); d !== path.dirname(d); d = path.dirname(d)) out.push(d); return out; };
+  const bin = (process.env.PATH || '').split(path.delimiter).map((d) => path.join(d, 'codex')).find((f) => fs.existsSync(f));
+  let dir = bin ? path.dirname(fs.realpathSync(bin)) : '';
+  while (dir && path.dirname(dir) !== dir && !fs.existsSync(path.join(dir, 'node_modules', '@openai'))) dir = path.dirname(dir);
+  const scope = path.join(dir, 'node_modules', '@openai');
+  const found = (fs.existsSync(scope) ? fs.readdirSync(scope) : []).flatMap((pkg) => {
+    const vendor = path.join(scope, pkg, 'vendor');
+    return (fs.existsSync(vendor) ? fs.readdirSync(vendor) : []).map((triple) => path.join(vendor, triple, 'codex-resources', 'bwrap'));
+  }).find((f) => fs.existsSync(f));
+  if (!found) { console.error('Codex\'s bundled bwrap was not found from the `codex` on PATH. Find it with: find / -path "*codex-resources/bwrap" 2>/dev/null'); process.exit(1); }
+  if (/[\s"{}\[\]*?,#^]/.test(found)) { console.error('The path of Codex\'s bwrap holds characters an AppArmor profile cannot take as they are: ' + found); process.exit(1); }
+  const ownedByRoot = [found, ...ancestors(found)].every((p) => fs.statSync(p).uid === 0);
+  const glob = posix(found).replace(/\/versions\/node\/[^/]+\//, '/versions/node/*/').replace(/\/vendor\/[^/]+\//, '/vendor/*/');
+  return [
+    '# Lets the bwrap bundled with the Codex CLI create user namespaces, which its',
+    '# sandbox needs. Some Linux systems refuse them to any program without a',
+    '# profile like this one (kernel.apparmor_restrict_unprivileged_userns=1).',
+    '# What it allows: that program, and every program it starts, may hold all',
+    '# capabilities inside their own user namespace, as on a Linux without the',
+    '# restriction. The system\'s bwrap-userns-restrict profile shows a stricter',
+    '# form, which takes the capabilities away from what bwrap starts.',
+    ...(ownedByRoot ? [] : [
+      '# Warning: this path is owned by you, not by root. Anything that runs as',
+      '# you can put a program there and use this profile.']),
+    'abi <abi/4.0>,',
+    'include <tunables/global>',
+    '',
+    `profile codex-bwrap ${glob} flags=(unconfined) {`,
+    '  userns,',
+    '',
+    '  include if exists <local/codex-bwrap>',
+    '}',
+    '',
+  ].join('\n');
 }
 
 // ---- the draft profile ------------------------------------------------------

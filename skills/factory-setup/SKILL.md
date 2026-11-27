@@ -9,7 +9,7 @@ metadata:
   layer: "2"
   role: first-run
   requires: ""
-  reads: "principles"
+  reads: "principles dispatch"
 ---
 
 # factory-setup
@@ -48,7 +48,8 @@ changes. A line that is already `ok` is left alone.
   already there, do not write it again.
 - **No secret in any file.** A token, a password or a signing secret never
   goes in a file, an issue, a PR, a command you show or your report. You
-  never ask the owner to paste one into the conversation.
+  never ask the owner to paste one into the conversation. When a step needs
+  one, use the harness's private prompt (`../dispatch/harness.md`).
 - **What you cannot check is `unknown`.** Give the exact steps. When the
   owner says they did them, that line's Found cell reads "confirmed by the
   owner". Never turn a guess into `ok`.
@@ -64,8 +65,9 @@ node <repo>/scripts/setup.mjs
 
 It reads and never writes. It prints one table. Each line is `ok`, `missing`
 or `unknown`, and `required` or `optional`, and every line that is not `ok`
-carries its fix. Required means a factory run cannot reach a PR at the merge
-gate without it. The script exits non-zero while a required line is missing.
+carries its fix. Required means a factory run cannot finish without it: a
+logged PR at the merge gate. The script exits non-zero while a required line
+is missing.
 
 If the script cannot run, that is the first finding. Say why (no Node, or the
 repository was not found), give the fix, and stop. Do not check by hand what
@@ -83,8 +85,13 @@ GitHub can be read before `gh` is signed in.
 | GitHub | `gh` signed in, its token scopes, write access to the repository | nothing: the owner signs in | [machine.md](machine.md) |
 | Skills | each agent on this machine can load the skills | that agent's plugins, or the project's skills folders | [machine.md](machine.md) |
 | Locations | the scripts and the extras are where the skills look for them | `local.md`, through the installer, and the extras folder | [machine.md](machine.md) |
+| Providers | which providers can run, who manages, builds and reviews, and that a second provider can review | the Families line of the profile | [fleet.md](fleet.md) |
+| Harness settings | the settings a run relies on: permission modes, fallback, resume | nothing: the owner sets them | [fleet.md](fleet.md) |
 | Profile | `docs/agents/factory.md` exists and has a mode | that file, in the project | [project.md](project.md) |
 | Guards | the default branch is protected, the tracker labels exist | the repository's settings | [project.md](project.md) |
+| Automation | the PR review webhook and the daily triage | the harness's tasks, and one webhook on the repository | [fleet.md](fleet.md) |
+| Run log | where a run row goes, and that one can be written | nothing: the owner sets the path | [fleet.md](fleet.md) |
+| Test run | one tiny task taken to a PR at the gate, not merged | nothing: it is a run of its own | [fleet.md](fleet.md) |
 
 For each section:
 
@@ -103,10 +110,13 @@ After the last write, run the script once more, with the same options, and
 show its table whole, as printed. Do not retype it from memory: the table is the script's, and a line
 you typed is a claim, not a check.
 
-Change a line only for something the script cannot see and the owner
-confirmed in this run. Say so in its Found cell.
+Change a line only for something the script cannot see, and only to what the
+harness reported or the owner confirmed in this run. Say which in its Found
+cell. Where the script printed one line for a group it cannot see, replace it
+with one line per item, as [fleet.md](fleet.md) says.
 
-Under the table, in this order:
+Under the table, in this order, written as `../principles/terse-output.md`
+says. A security warning or a step that needs sudo stays in full sentences:
 
 1. What you wrote or ran, and where, one line each.
 2. What the owner skipped.

@@ -11,11 +11,10 @@
 //
 // The file is append-only. `close` adds a closing line; it never rewrites a row.
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
-import { parseArgs } from './lib.mjs';
+import { parseArgs, runlogFile } from './lib.mjs';
 
-const FILE = process.env.AGENT_RUNLOG || path.join(os.homedir(), 'agent-logs', 'task-stats.jsonl');
+const FILE = runlogFile();
 // What can happen to a merged change later. Only `close` sets these.
 const POST_MERGE = ['reverted', 'defect-after-merge'];
 const ENUMS = {

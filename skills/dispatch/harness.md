@@ -55,6 +55,26 @@ carry them out, strictest first.
   lower the default to auto. Until then, a manager thread has no limits, which
   the manager's role does not allow.
 
+## Settings the factory relies on
+
+`factory-setup` goes through this table with the owner. "Reads" names what shows an
+agent the value. "By hand" means nothing does: give the owner the step and
+take their word. An agent never changes a default or an account-wide
+setting itself. What it passes on each start, such as the permission mode,
+and a task the owner said yes to, are its to set.
+
+| Setting | Why | T3 Code | Claude Code | Codex |
+|---|---|---|---|---|
+| What can run a worker now | A provider that is signed out or disabled cannot review | Reads: `orchestrator_capabilities`, each provider's `canRunChildTask` and its constraints | Reads: the Agent tool's listed types and models | Reads: `spawn_agent` options |
+| A second machine can be targeted | A worker cannot start on a machine that is only paired | The machine is linked, under Linked environments in the settings. Reads: `t3_environment_links` | Not available | Not available |
+| Default permission mode of a new session | A manager with no limits is against its role | New threads start at full access. The owner lowers the default to auto in the settings. By hand | `permissions.defaultMode` in the settings file. Reads: that file | `approval_policy` and `sandbox_mode` in the config file. Reads: that file |
+| Permission per role | The role rule holds only when every start sets the mode | `runtimeMode` on each start. Reads: `orchestrator_capabilities`, the modes each provider accepts. A provider without auto takes the next stricter mode | The agent definition, as "Permission modes" says | The flags on each start |
+| Fallback model | A usage limit otherwise stops a run with nobody there | A fallback model on another subscription, in the thread settings. By hand | None. A new session from the handoff note | None. A new session from the handoff note |
+| Text-generation model | Titles, branch names and commit messages are fast-tier work | The model the harness writes them with, in the settings. By hand | Not set apart | Not set apart |
+| Resume after a usage limit | A thread that hit its limit goes on when the allowance returns | Auto-resume, or snooze, in the thread settings. By hand | None | None |
+| Tasks that start with nobody there | The automation templates need one each | Reads: `list_scheduled_tasks`. Creates: `schedule_task`. A webhook task's address is returned once, at creation, and needs T3 Connect on | A scheduled cloud task the owner creates. By hand | Whatever scheduler the owner uses. By hand |
+| A value only the owner has | A secret typed into the conversation is in the transcript for good | `request_secret` | The owner runs the command in their own terminal | The owner runs the command in their own terminal |
+
 ## Notes
 
 - **Linked is not paired.** A second machine that is only paired cannot be
