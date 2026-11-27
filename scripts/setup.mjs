@@ -401,16 +401,20 @@ const logFile = runlogFile();
 const isDir = (p) => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
 const may = (p, mode) => { try { fs.accessSync(p, mode); return true; } catch { return false; } };
 const logIsDir = isDir(logFile);
+const logThere = fs.existsSync(logFile);
 const logText = logIsDir ? null : readText(logFile);
 let logDir = path.dirname(logFile);
 while (!fs.existsSync(logDir) && path.dirname(logDir) !== logDir) logDir = path.dirname(logDir);
-const blocked = logIsDir ? `${posix(logFile)} is a folder: the run log is a file`
-  : logText === null && !isDir(logDir) ? `${posix(logDir)} is a file where a folder is needed` : '';
-const canLog = !blocked && (logText !== null ? may(logFile, fs.constants.W_OK) : may(logDir, fs.constants.W_OK | fs.constants.X_OK));
+const blocked = logIsDir ? 'it is a folder: the run log is a file'
+  : logThere && logText === null ? 'it cannot be read'
+    : !logThere && !isDir(logDir) ? `${posix(logDir)} is a file where a folder is needed` : '';
+// runlog.mjs reads the file before it closes a row, and appends to it, so it needs both.
+const canLog = !blocked && (logThere ? may(logFile, fs.constants.R_OK | fs.constants.W_OK) : may(logDir, fs.constants.W_OK | fs.constants.X_OK));
 const logLines = (logText || '').split('\n').filter(Boolean);
 add('Run log', 'A row can be written', 'required', canLog ? 'ok' : 'missing',
   `${posix(logFile)}${process.env.AGENT_RUNLOG ? ' (from AGENT_RUNLOG)' : ''}, ${blocked || (logText !== null ? `${logLines.length} lines` : 'made with the first row')}`,
-  canLog ? '' : blocked ? 'Set AGENT_RUNLOG to a file in a folder you can write'
+  canLog ? '' : blocked && !logThere || logIsDir ? 'Set AGENT_RUNLOG to a file in a folder you can write'
+    : blocked ? `Make ${shown(logFile, 'the run log')} readable and writable by you, or set AGENT_RUNLOG to another file`
     : `Make ${shown(logText !== null ? logFile : logDir, 'the run log\'s folder')} writable, or set AGENT_RUNLOG to a file you can write`);
 
 // ---- 11. test run -----------------------------------------------------------

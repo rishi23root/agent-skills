@@ -461,6 +461,14 @@ test('run log: a folder, or a file where a folder is needed, is missing', () => 
   const b = find(world({ env: { AGENT_RUNLOG: path.join(file, 'x', 'runs.jsonl') } }).rows().rows, 'A row can be written');
   assert.equal(b.state, 'missing');
   assert.match(b.found, /plain-file is a file where a folder is needed/);
+  if (process.platform !== 'win32' && process.getuid?.() !== 0) {
+    const shut = path.join(w.tmp, 'shut.jsonl');
+    fs.writeFileSync(shut, '');
+    fs.chmodSync(shut, 0o000);
+    const c = find(world({ env: { AGENT_RUNLOG: shut } }).rows().rows, 'A row can be written');
+    assert.deepEqual([c.state, /shut\.jsonl \(from AGENT_RUNLOG\), it cannot be read$/.test(c.found)], ['missing', true]);
+    assert.match(c.fix, /readable and writable by you/);
+  }
 });
 
 test('test run: ok once a run is logged for this repository, else the command to type', () => {

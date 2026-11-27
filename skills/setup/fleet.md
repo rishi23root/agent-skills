@@ -108,24 +108,19 @@ the skills gets no review until someone starts one.
 2. On a yes, create the webhook task in the harness, with the template's
    block as its prompt and the placeholder its first lines name. Limit it to
    the event of a PR being opened, so an edit or a close starts nothing.
-3. The harness returns the task's address once. Whoever holds it can start
-   an agent on this machine, so treat it as a secret: use it in the one
-   command that creates the webhook, and nowhere else. It goes in no file,
-   issue, PR, message or report. The owner can find it again in the
-   harness's settings.
-
-   Give it to that command on its input, never as an argument: any program
-   on the machine can read another's arguments while it runs.
-
-   ```
-   gh api repos/<owner>/<repo>/hooks --input - <<'EOF'
-   {"name": "web", "active": true, "events": ["pull_request"],
-    "config": {"url": "<the address>", "content_type": "json"}}
-   EOF
-   ```
-
-4. A signing secret is the owner's to set, on both sides, through the
-   harness's private prompt. You never see it.
+3. The harness returns the task's address. Whoever holds it can start an
+   agent on this machine, so it is a secret, and the owner adds the
+   repository's webhook with it, not you. A command you run carries its
+   whole text in the arguments of the shell that runs it, where any program
+   on the machine can read it. Do not repeat the address in a command, a
+   file, an issue, a PR, a message or your report.
+4. Give the owner the steps. In the harness's settings, copy the task's
+   address. In the repository's settings, under Webhooks, add one: that
+   address as the payload URL, content type JSON, and only the
+   "Pull requests" event. Anyone with admin rights on the repository can
+   read the address there, so say that too. A signing secret is the owner's
+   to set, on both sides, through the harness's private prompt. You never
+   see it. Wait for them to say it is done.
 5. Run the script again. The webhook line now counts one. Tell the owner to
    open the next PR while they watch, and to approve the task's recurring
    prompts once: a mode that asks before acting stalls with nobody there.
