@@ -43,7 +43,7 @@ other-provider review.
 Before you review, pick the row of [council.md](council.md) that fits and
 write the `Voices:` line in your report. The same file says who starts the
 voices. A council voice skips this step. When no other provider can run above
-the quota floor (`../dispatch/allocation.md`), a fresh agent on the strongest
+the quota floor (`../dispatch/allocation.md`) at the author's tier, a fresh agent on the strongest
 model available reviews, and the verdict says "same provider". Condition 7
 of the merge gate, in `ship`, says what follows.
 

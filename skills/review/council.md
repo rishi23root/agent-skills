@@ -8,8 +8,8 @@ opinion. `review` and `spec` both use it. So does `10x`.
 
 ## How many voices
 
-Every review, and every spec whose choice is expensive to reverse, writes one
-line in its report: `Voices: <number>, <reason>`. Read the table from the top and take
+Every review, and every spec the table below covers, writes one line in its
+report: `Voices: <number>, <reason>`. Read the table from the top and take
 the first row that fits. Each voice is from a different provider, and at
 least one is not the author's provider. Three or more voices is a council.
 

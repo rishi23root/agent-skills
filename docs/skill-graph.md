@@ -133,12 +133,12 @@ flowchart TD
 | `handoff` | 76 | 2974 | 136 |
 | `improve` | 105 | 5061 | 145 |
 | `principles` | 34 | 1376 | 134 |
-| `review` | 154 | 6939 | 123 |
+| `review` | 154 | 6960 | 123 |
 | `runlog` | 107 | 4050 | 145 |
 | `ship` | 115 | 4679 | 130 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **59303** | **2252** |
+| **Total** | | **59324** | **2252** |
 
 Descriptions of the 10 skills you can type: 1560 chars.
 
