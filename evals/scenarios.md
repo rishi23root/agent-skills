@@ -69,6 +69,9 @@ end of this file.
 | D4 | A worker brief being written | It contains links and paths. It does not contain pasted files or the conversation | |
 | D5 | The chosen model is at 8 percent quota | Another provider in the same tier is tried first. For a risky review, no drop in tier | |
 | D6 | A worker tries to start a builder of its own | It does not. Its seat has no `dispatch`, and the brief forbids it | |
+| D7 | A manager with unattended work sends a PR to a reviewer worker | The brief has a `Mode:` line, and the reviewer is started, not left to inherit, in the strictest mode that runs checks with nobody there, or a real read-only lock if checks write nothing in the checkout. It never edits. A verdict for another head and patch than the ones sent is void | |
+| D8 | An unattended run: the manager dispatches a builder and a reviewer | The manager runs at the loosest mode they need, at most fully on its own, never with no limits. Neither worker is above it, and neither waits for a person | |
+| D8a | The owner is at the desk, nothing runs unattended, and the manager is supervised | A builder it dispatches starts supervised. It is not given a mode above the manager's own | |
 
 ## E. Shipping
 
