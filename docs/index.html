@@ -352,7 +352,7 @@
 
 <section>
   <h2>Which skill calls which</h2>
-  <p>Fifteen skills in three layers. A skill may load only skills in a layer below it. Nothing points up.</p>
+  <p>Sixteen skills in three layers. A skill may load only skills in a layer below it. Nothing points up.</p>
   <div class="layers">
     <div class="layer"><span class="label">Layer 0: Manager</span>
       <div class="sks"><span class="sk m">/factory</span></div></div>
@@ -361,7 +361,7 @@
       <div class="sks"><span class="sk s">/junior</span><span class="sk s">/mid</span><span class="sk s">/senior</span><span class="sk s">/10x</span></div></div>
     <div class="down">load, one at a time, only when a step needs it</div>
     <div class="layer"><span class="label">Layer 2: Procedures</span>
-      <div class="sks"><span class="sk p">build</span><span class="sk p">dispatch</span><span class="sk p">/handoff</span><span class="sk f">/improve</span><span class="sk p">principles</span><span class="sk p">/review</span><span class="sk p">runlog</span><span class="sk p">/ship</span><span class="sk p">/spec</span><span class="sk p">tickets</span></div></div>
+      <div class="sks"><span class="sk p">build</span><span class="sk p">dispatch</span><span class="sk p">/factory-setup</span><span class="sk p">/handoff</span><span class="sk f">/improve</span><span class="sk p">principles</span><span class="sk p">/review</span><span class="sk p">runlog</span><span class="sk p">/ship</span><span class="sk p">/spec</span><span class="sk p">tickets</span></div></div>
   </div>
   <p class="small">A name that starts with <code>/</code> is one you can type yourself. The others are loaded only by other skills.</p>
 
@@ -382,12 +382,13 @@
     </tbody>
   </table>
   </div>
-  <p class="small"><span class="sk m">factory</span> also loads the four seats. Procedures may use each other: <span class="sk p">dispatch</span> loads <span class="sk p">runlog</span>; <span class="sk p">review</span> loads <span class="sk p">dispatch</span>; <span class="sk p">ship</span> loads <span class="sk p">review</span>; <span class="sk p">spec</span> loads <span class="sk f">improve</span> and <span class="sk p">dispatch</span>. Nothing loads <span class="sk p">principles</span> whole. Eight skills read single files from it.</p>
+  <p class="small"><span class="sk m">factory</span> also loads the four seats. Procedures may use each other: <span class="sk p">dispatch</span> loads <span class="sk p">runlog</span>; <span class="sk p">review</span> loads <span class="sk p">dispatch</span>; <span class="sk p">ship</span> loads <span class="sk p">review</span>; <span class="sk p">spec</span> loads <span class="sk f">improve</span> and <span class="sk p">dispatch</span>. Nothing loads <span class="sk p">factory-setup</span> whole. Nothing loads <span class="sk p">principles</span> whole. Nine skills read single files from it.</p>
 
   <h3 style="margin-top:var(--s5)">What each procedure does</h3>
   <dl class="defs">
     <div><dt><span class="sk p">build</span></dt><dd>Implements one ticket: failing check first, smallest change that passes, observed proof, self-check, commit, report.</dd></div>
     <div><dt><span class="sk p">dispatch</span></dt><dd>The orchestration layer: clone gate and caps, subagent or own thread, model and effort choice, the worker brief, and how results come back.</dd></div>
+    <div><dt><span class="sk p">factory-setup</span></dt><dd>Checks a machine and a project for what a factory run needs, asks only for what it cannot detect, writes on a yes, and ends with one table of what is ready and the fix for what is not.</dd></div>
     <div><dt><span class="sk p">handoff</span></dt><dd>Writes the note that lets a fresh session continue the work, when context is filling up, a seat changes, or a review bounces.</dd></div>
     <div><dt><span class="sk f">improve</span></dt><dd>Turns a rough, dictated or client-worded request into a clear agent brief grounded in the current project, then stops. Does not code.</dd></div>
     <div><dt><span class="sk p">principles</span></dt><dd>One short file per rule that more than one skill relies on. Other skills cite a file by name instead of restating the rule.</dd></div>
@@ -410,7 +411,7 @@
   <pre><code>codex plugin marketplace add rishi23root/agent-skills
 codex plugin add agent-skills@rishi23root</code></pre>
   <p>Restart the agent session, then type <code>/factory</code> or <code>/improve</code> followed by a task.</p>
-  <p class="small">Requirements: Node 20 or later, git, and an authenticated GitHub CLI (<code>gh</code>). Python 3 for tstack's <code>babysit-pr</code> extra.</p>
+  <p class="small">Requirements: Node 20 or later, git, and an authenticated GitHub CLI (<code>gh</code>). Python 3 for tstack's <code>babysit-pr</code> extra. On a new machine or in a new project, type <code>/factory-setup</code> first. It checks all of this, asks for what it cannot detect, and ends with a table of what is ready and how to fix what is not.</p>
 </section>
 
 <section>
