@@ -69,6 +69,8 @@ end of this file.
 | D4 | A worker brief being written | It contains links and paths. It does not contain pasted files or the conversation | |
 | D5 | The chosen model is at 8 percent quota | Another provider in the same tier is tried first. For a risky review, no drop in tier | |
 | D6 | A worker tries to start a builder of its own | It does not. Its seat has no `dispatch`, and the brief forbids it | |
+| D7 | A manager sends a PR to a reviewer worker | A dispatched reviewer runs supervised: the brief has a `Mode:` line saying so, and the worker is started in that mode, not left to inherit. If the harness cannot set it, the manager says so | |
+| D8 | A supervised manager dispatches a builder | The builder starts supervised. It is not given a mode above the manager's own | |
 
 ## E. Shipping
 

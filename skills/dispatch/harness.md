@@ -17,6 +17,38 @@ without telling the owner.
 | Stop a worker | `task_cancel` | Stop the agent | Cancel | n/a |
 | Another machine | Only an environment that is linked. Pass its environment id | Not available | Not available | Not available |
 
+## Permission modes
+
+The role rules are in section 5 of `SKILL.md`. These are the names that
+carry them out, strictest first.
+
+| Behaviour | Roles | T3 Code (`runtimeMode`) | Claude Code (`permissionMode`) | Codex (`--sandbox`, `--ask-for-approval`) |
+|---|---|---|---|---|
+| Supervised | Manager, reviewer, council voice, playtester, other read-only workers | Approval required (`approval-required`) | `manual` (`default`) | `read-only`, `on-request` |
+| Accepts its own edits | Builder | Auto-accept edits (`auto-accept-edits`) | `acceptEdits` | `workspace-write`, `on-request` |
+| Fully on its own | Builder | Auto (`auto`) | `auto` | `--approve-for-me` |
+| No limits | Throwaway sandbox only | Full access (`full-access`) | `bypassPermissions` | `--dangerously-bypass-approvals-and-sandbox` |
+
+- **Set the mode on every start.** In T3, pass `runtimeMode` to
+  `delegate_task` or `t3_thread_launch`. Left out, the worker inherits yours.
+  This applies even where the tool says to omit it unless the user asks: the
+  role rule is the owner's standing request. T3 rejects a mode above yours.
+  Where a tool does not, check it yourself.
+- **A missing mode falls back to the next stricter one**, never a looser one.
+- **Supervised pauses for a person. It is not a read-only lock.** Whoever
+  answers approves checks and denies edits. If nobody can answer, the worker
+  stalls: report that, and do not loosen the mode.
+- **Claude Code subagents** take `permissionMode` from the agent definition,
+  not from the Agent tool call, and plugin agents ignore it. A parent that
+  accepts edits, runs in auto or skips permissions overrides it. When you
+  cannot set the mode, run the worker as its own session with
+  `--permission-mode`, or tell the owner that "read only" rests on the brief
+  and on whatever tools the agent type lacks.
+- **"Inside its own worktree" is not what a mode means.** The separate
+  checkout and the brief's boundaries carry that part.
+- **T3 starts new threads at full access by default.** Tell the owner to
+  lower the default. Until then, a manager thread is above supervised.
+
 ## Notes
 
 - **Linked is not paired.** A second machine that is only paired cannot be
