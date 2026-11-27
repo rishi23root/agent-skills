@@ -228,6 +228,8 @@
     body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 62vh auto; height: auto; }
     body.walking { grid-template-rows: auto auto 82vh auto; }
     body.walking .legend { display: none; }
+    .walk { padding: var(--s2) var(--s3) var(--s3); }
+    .walk p { font-size: 14px; line-height: 1.55; }
     aside { border-left: 0; border-top: 1px solid var(--line); padding: var(--s4); }
     input[type=search] { margin-left: 0; width: 100%; }
   }
@@ -526,7 +528,8 @@ function fit() {
     x0 = Math.min(x0, n.x - n.r); y0 = Math.min(y0, n.y - n.r);
     x1 = Math.max(x1, n.x + n.r); y1 = Math.max(y1, n.y + n.r);
   });
-  if (bandX0 != null && !lit) x0 = Math.min(x0, bandX0);
+  // Keep the row labels on screen, in the walkthrough too.
+  if (bandX0 != null) x0 = Math.min(x0, bandX0);
   scale = Math.min(box.width / (x1 - x0 + 70), box.height / (y1 - y0 + 90), 1.5);
   tx = box.width / 2 - (x0 + x1) / 2 * scale; ty = box.height / 2 - (y0 + y1) / 2 * scale;
   applyView();
