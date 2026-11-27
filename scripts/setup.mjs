@@ -38,6 +38,9 @@ const HOME = os.homedir();
 // command: letters, digits, spaces and . _ : / @ + -. Anything else could
 // change what the pasted command does, so it gets a stand-in or a by-hand fix.
 const plain = (s) => typeof s === 'string' && /^[\p{L}\p{N}_ .:/@+-]+$/u.test(s);
+// For a name that is only shown, never run: keep it readable, and turn any
+// character that could make it look like a command into a question mark.
+const text = (s) => String(s).replace(/[^\p{L}\p{N}_ .:/@+\-()[\],#'=]/gu, '?');
 const shown = (p, standIn) => { const s = posix(p); return !plain(s.replace(/^~/, '')) ? standIn : /\s/.test(s) ? `"${s}"` : s; };
 const repoPath = shown(ROOT, '<repo>');
 const projectPath = shown(project, '<project>');
@@ -89,12 +92,14 @@ const gitName = hasGit ? run('git', ['config', 'user.name']).out : '';
 const gitEmail = hasGit ? run('git', ['config', 'user.email']).out : '';
 if (gitName && gitEmail) add('Machine', 'git identity', 'required', 'ok', `${gitName} <${gitEmail}>`);
 else {
-  const name = user?.login ? (plain(user.name) ? user.name : user.login) : '<your name>';
-  const email = user?.login ? `${user.id}+${user.login}@users.noreply.github.com` : '<your email>';
+  // The login and id come from GitHub and go into a command, so they are checked like any other name.
+  const account = plain(user?.login) && Number.isInteger(user?.id) ? user : null;
+  const name = account ? (plain(account.name) ? account.name : account.login) : '<your name>';
+  const email = account ? `${account.id}+${account.login}@users.noreply.github.com` : '<your email>';
   add('Machine', 'git identity', 'required', hasGit ? 'missing' : 'unknown',
     !hasGit ? 'git not found' : [gitName ? '' : 'no user.name', gitEmail ? '' : 'no user.email'].filter(Boolean).join(', '),
     [gitName ? '' : `git config --global user.name "${name}"`, gitEmail ? '' : `git config --global user.email "${email}"`].filter(Boolean).join(' ; ')
-      + (user?.login ? '' : ' (sign in to gh first and run this again to be offered your GitHub noreply address)'));
+      + (account ? '' : ' (sign in to gh first and run this again to be offered your GitHub noreply address)'));
 }
 
 // ---- 2. GitHub --------------------------------------------------------------
@@ -103,7 +108,7 @@ add('GitHub', 'GitHub CLI (`gh`)', 'required', hasGh ? 'ok' : 'missing',
 
 const signedIn = !!user?.login;
 add('GitHub', 'Signed in', 'required', signedIn ? 'ok' : hasGh && !ghUser.slow ? 'missing' : 'unknown',
-  signedIn ? `as ${user.login}` : !hasGh ? 'gh not found' : ghUser.slow ? 'GitHub did not answer in time' : 'not signed in, the token no longer works, or GitHub cannot be reached',
+  signedIn ? `as ${text(user.login)}` : !hasGh ? 'gh not found' : ghUser.slow ? 'GitHub did not answer in time' : 'not signed in, the token no longer works, or GitHub cannot be reached',
   signedIn ? '' : hasGh && ghUser.slow ? 'Check the network, then run this again' : 'gh auth login');
 
 // Scopes come from the status text of the active account. Only the scopes
@@ -248,7 +253,7 @@ if (!slug || !branch) {
   add('Guards', 'Tracker labels', 'optional', 'unknown', 'the repository could not be read', 'Fix the GitHub lines above, then run this again');
 } else {
   const settings = `the settings of ${plain(slug) ? slug : 'the repository'}`;
-  const named = (xs) => xs.filter(plain).join(', ');
+  const named = (xs) => xs.map(text).join(', ');
   const base = `repos/${slug}/branches/${encodeURIComponent(branch)}`;
   // A command is offered only when every name in it is plain. Otherwise the fix is by hand.
   const canCommand = plain(slug) && plain(branch) && want.every(plain);
@@ -315,7 +320,7 @@ if (!slug || !branch) {
     const odd = absent.filter((l) => !plain(l)).length;
     if (!list.ok) add('Guards', 'Tracker labels', 'optional', 'unknown', 'the labels could not be read', `Open the labels page in ${settings} and compare with: ${named(labels)}`);
     else add('Guards', 'Tracker labels', 'optional', absent.length ? 'missing' : 'ok',
-      absent.length ? `absent: ${named(absent)}${odd ? `${absent.length > odd ? ', and ' : ''}${odd} whose name is not plain text` : ''}` : `all ${labels.length} present`,
+      absent.length ? `absent: ${named(absent)}` : `all ${labels.length} present`,
       [...absent.filter(plain).map((l) => `gh label create "${l}" --repo ${slug}`),
         ...(odd ? [`${odd} name${odd > 1 ? 's' : ''} in the profile's "Used here" column hold${odd > 1 ? '' : 's'} characters that are not safe in a command: correct the column, or create the label by hand in ${settings}`] : [])].join(' ; '));
   }

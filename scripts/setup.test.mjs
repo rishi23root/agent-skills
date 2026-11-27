@@ -174,6 +174,17 @@ test('a name that is not plain text never reaches a command', () => {
   }
   const named = world({ answers: { 'gh api user': say({ login: 'octo', id: 42, name: 'Octo"; rm -rf ~ #' }) }, identity: false }).rows();
   assert.match(find(named.rows, 'git identity').fix, /user\.name "octo" ;/, 'an account name that is not plain falls back to the login');
+  const login = world({ answers: { 'gh api user': say({ login: 'oc$(id)to', id: 42 }) }, identity: false }).rows();
+  assert.match(find(login.rows, 'git identity').fix, /user\.email "<your email>"/, 'nor does a login that is not plain reach the command');
+});
+
+test('a name that is only shown stays readable', () => {
+  const matrix = say({ required_status_checks: { contexts: ['build (18.x)', 'lint'] }, enforce_admins: { enabled: true } });
+  const r = find(world({ answers: { [PROTECTION]: matrix } }).rows().rows, 'protected');
+  assert.deepEqual([r.state, r.found], ['ok', 'requires build (18.x), lint; administrators included']);
+  const lacking = find(world().rows('--require-check', 'build (18.x)').rows, 'protected');
+  assert.doesNotMatch(lacking.fix, /gh api/, 'a name with brackets is added by hand');
+  assert.match(lacking.fix, /add: build \(18\.x\)$/);
 });
 
 test('an option that is misspelled, glued with "=", or missing its value stops the script', () => {
