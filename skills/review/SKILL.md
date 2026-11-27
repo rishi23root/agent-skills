@@ -33,17 +33,19 @@ owner.
 | Junior PR, risk normal | `mid` |
 | Mid PR, risk normal | another `mid` or `senior` |
 | Any PR, risk high | `senior`, plus a second review by a model from a different provider than the author's |
-| A decision, or a change that is very expensive to get wrong | a council: three voices or more, from different providers |
+| A decision, or a change that cannot be rolled back once merged | a council, sized by [council.md](council.md) |
 
-The reviewer's model is at least as strong as the author's.
+The reviewer's model is at least as strong as the author's. That comes first:
+a model from another provider on a weaker tier does not count as the
+other-provider review.
 
 **Another provider, every time** (`../principles/independent-review.md`).
 Before you review, pick the row of [council.md](council.md) that fits and
 write the `Voices:` line in your report. The same file says who starts the
 voices. A council voice skips this step. When no other provider can run above
 the quota floor (`../dispatch/allocation.md`), a fresh agent on the strongest
-model available reviews, and the verdict says "same provider". The merge gate
-treats that as unmet, at every risk, until the owner waives it.
+model available reviews, and the verdict says "same provider". Condition 7
+of the merge gate, in `ship`, says what follows.
 
 ## Two axes
 

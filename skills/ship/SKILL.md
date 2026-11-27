@@ -76,8 +76,9 @@ condition 3.
    repository requires that.
 7. A model from a different provider than the author's reviewed, and so did
    every voice the review's `Voices:` line called for. For risk `high`,
-   `senior` reviewed as well. If no other provider could run, this condition
-   is unmet. Tell the owner, who may waive it in writing on the PR.
+   `senior` reviewed as well. If no other provider could run, or fewer voices
+   ran than the line called for, this condition is unmet. Tell the owner, who
+   may waive it in writing on the PR.
 
 When the factory scripts are installed, run the gate check and paste its
 output on the PR. The repository path is in `local.md` next to this file. If

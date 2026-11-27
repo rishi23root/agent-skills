@@ -8,8 +8,8 @@ opinion. `review` and `spec` both use it. So does `10x`.
 
 ## How many voices
 
-Every review, and every spec with a design choice in it, writes one line in
-its report: `Voices: <number>, <reason>`. Read the table from the top and take
+Every review, and every spec whose choice is expensive to reverse, writes one
+line in its report: `Voices: <number>, <reason>`. Read the table from the top and take
 the first row that fits. Each voice is from a different provider, and at
 least one is not the author's provider. Three or more voices is a council.
 
@@ -24,8 +24,11 @@ least one is not the author's provider. Three or more voices is a council.
 The owner can ask for more voices on any piece of work. Each voice past one
 costs about one more review. Say so in the report, and do not pick a higher
 row to be safe. The quota floor in `../dispatch/allocation.md` applies to
-every voice. With fewer providers than the row asks for, say so and use what
-there is. Do not call it a council of three.
+every voice. The `Voices:` line records the number the row calls for. If
+fewer ran, because there were fewer providers or the caps left no room, say
+how many and why, and do not call it a council of three. For a review that
+is a gap at the merge gate. In pilot mode three voices is the most that fit:
+wait for free slots rather than start fewer.
 
 ## How it runs
 
