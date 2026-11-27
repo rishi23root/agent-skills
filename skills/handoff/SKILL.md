@@ -24,6 +24,8 @@ needs, then stop. The next session starts clean and reads only the note.
 - The work is moving to a different seat.
 - A PR came back from review and the author's session is already long.
 - You are stopping for the day with work in flight.
+- Your provider's usage is close to its limit and the work will not finish
+  first.
 
 ## Typed by the owner, with no ticket
 
@@ -51,6 +53,11 @@ the work branch, so it travels with the branch.
 **How to check:** the commands that prove the current state.
 **Next action:** the first thing the next session should do, and which seat does it.
 ```
+
+When the trigger is a usage limit, write the note before you reach the limit,
+not after. **State** names each half-done piece by file and line, and **Next
+action** gives the next three commands. A thread moved to another provider
+carries a summary, not the old model's reasoning, so the note must stand alone.
 
 ## Rules
 

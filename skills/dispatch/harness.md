@@ -14,6 +14,7 @@ without telling the owner.
 | Wait for a worker | Follow the `next` it returns. Do not poll | The tool returns when the agent finishes | Wait call | n/a |
 | Watch a PR's checks | `watch_pull_request`, then end the turn | `gh pr checks` when asked | `gh pr checks` | `gh pr checks` |
 | Resume with a clean context | `t3_thread_send` with fresh context, pointing at the handoff note | Start a new agent with the handoff note | Start a new agent | New session, read the handoff note |
+| A usage limit is reached | The thread can resume by itself when the allowance returns, or be snoozed until then. A fallback model on another subscription can be set in the thread settings | Start a new session from the handoff note | Start a new session from the handoff note | Start a new session from the handoff note |
 | Stop a worker | `task_cancel` | Stop the agent | Cancel | n/a |
 | Another machine | Only an environment that is linked. Pass its environment id | Not available | Not available | Not available |
 
