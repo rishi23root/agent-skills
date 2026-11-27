@@ -17,6 +17,43 @@ without telling the owner.
 | Stop a worker | `task_cancel` | Stop the agent | Cancel | n/a |
 | Another machine | Only an environment that is linked. Pass its environment id | Not available | Not available | Not available |
 
+## Permission modes
+
+The role rules are in section 5 of `SKILL.md`. These are the names that
+carry them out, strictest first.
+
+| Behaviour | Who | T3 Code (`runtimeMode`) | Claude Code (`permissionMode`) | Codex (`--sandbox`, `--ask-for-approval`) |
+|---|---|---|---|---|
+| Supervised | Everyone, only while the owner is at the desk and nothing runs unattended | Approval required (`approval-required`) | `manual` (`default`) | `read-only`, `on-request` |
+| Accepts its own edits | Builder whose commands need no approval | Auto-accept edits (`auto-accept-edits`) | `acceptEdits` | `workspace-write`, `on-request` |
+| Fully on its own | Unattended: builder, reviewer, other read-only workers, and their manager | Auto (`auto`) | `auto` | `--approve-for-me` |
+| No limits | A worker in a throwaway sandbox | Full access (`full-access`) | `bypassPermissions` | `--dangerously-bypass-approvals-and-sandbox` |
+
+- **Unattended reviewers** in T3 Code and Claude Code take auto: the stricter
+  modes can stop to ask before a check runs. Codex has a real lock,
+  `--sandbox read-only --ask-for-approval never`. Use it when the checks write
+  nothing in the checkout. When they must write, use `--approve-for-me`.
+- **Set the mode on every start.** In T3, pass `runtimeMode` to
+  `delegate_task` or `t3_thread_launch`. Left out, the worker inherits yours.
+  This applies even where the tool says to omit it unless the user asks: the
+  role rule is the owner's standing request. T3 rejects a mode above yours.
+  Where a tool does not, check it yourself.
+- **A missing mode falls back to the next stricter one**, never a looser one.
+  If that mode then stops to ask and nobody can answer, report the stall. Do
+  not loosen the mode.
+- **A T3 narrow mode pauses for a person. It is not a read-only lock.** For a
+  read-only worker, whoever answers approves checks and denies edits.
+- **Claude Code subagents** take `permissionMode` from the agent definition,
+  not from the Agent tool call, and plugin agents ignore it. A parent that
+  accepts edits, runs in auto or skips permissions overrides it. When you
+  cannot set the mode a worker needs, run it as its own session with
+  `--permission-mode`, or tell the owner which mode it really ran in.
+- **"Inside its own worktree" is not what a mode means.** The separate
+  checkout and the brief's boundaries carry that part.
+- **T3 starts new threads at full access by default.** Tell the owner to
+  lower the default to auto. Until then, a manager thread has no limits, which
+  the manager's role does not allow.
+
 ## Notes
 
 - **Linked is not paired.** A second machine that is only paired cannot be

@@ -78,6 +78,12 @@ would want fixed soon. Block only for a problem this change causes, or a bug
 a user would hit. A problem that was already in the base gets one line and
 does not block.
 
+## Break it
+
+When a user can reach the change (a screen, a command, an API, an input file),
+try to break it too: users do what the ticket never named. Work through every
+attack in [attacks.md](attacks.md) and report each as that file says.
+
 ## Findings
 
 Each finding has a severity, a location, what is wrong, and a concrete case
@@ -131,7 +137,16 @@ a normal GitHub review.
 
 1. The original author fixes what was sent back, with a clean context: the
    ticket, the PR and the findings.
-2. The same reviewer checks the fixes. Only the findings. Not a fresh sweep.
+2. The same reviewer rechecks and marks every earlier finding:
+   - `FIXED`: its case no longer happens, shown the way the finding was.
+   - `STILL BROKEN`: its case still happens, or you could not show that it
+     stopped. Say which.
+   - `NEW REGRESSION`: its case is gone, but that fix broke something else.
+
+   Then look once through the fix diff (the changes since your last verdict)
+   for regressions, because a fix is new code. List any other break there as
+   `NEW REGRESSION`. Each one gets its own severity and proof. This is still
+   not a fresh sweep, and the attack list is not repeated.
 3. Cap: **three rounds**. Five when risk is `high`. This is the only place
    the number is written. A round is one send-back and the recheck of its
    fixes. The cap is hit when the recheck of the last round still has a

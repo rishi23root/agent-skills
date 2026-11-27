@@ -94,6 +94,7 @@ A worker starts with nothing but what you send. Send this, and only this:
 **Seat:** <junior | mid>. Read <path>/<seat>/SKILL.md and work under it.
 **Ticket:** <link or path>   **Spec:** <link to the section>
 **Objective:** <one sentence, the outcome>
+**Mode:** <the permission mode for this worker's role, from the list below>
 **Boundaries:** Touches <...>. Must not touch <...>. Seam to test <...>.
 Do not start workers, apart from one read-only helper to locate code. Tell
 it to reply only with `path:first-last  reason` lines for ranges it read, or
@@ -110,6 +111,26 @@ only. Change nothing." A reviewer is the exception: it changes nothing on the
 branch, but it may run checks in its own worktree of the PR's head. A worker
 that only locates code replies in the locator format in
 [report-format.md](report-format.md).
+
+The role sets the permission mode. Start the worker in it
+([harness.md](harness.md)): the line in the brief only tells the worker, and
+the harness is what holds it.
+
+- **Builder:** may accept its own edits, or run fully on its own, inside its
+  own worktree only.
+- **Reviewer, council voice, playtester, any other read-only worker:** the
+  strictest mode that still runs checks with nobody there to approve them. It
+  never edits. A real read-only lock is better, when the worker needs to write
+  nothing in its checkout.
+- **The manager:** the loosest mode any of its workers needs, at most fully on
+  its own. It is supervised only when the owner is at the desk and nothing
+  runs unattended.
+- **No limits at all:** only in a throwaway sandbox, and never the manager.
+
+No worker starts in a mode above the manager's own, so a supervised
+manager's workers are all supervised. A mode that runs checks alone may allow
+edits, so a verdict for another head and patch than you sent is void. Later,
+the gate voids it on any push that changes the patch.
 
 Only `junior` and `mid` run as workers. `senior` and `10x` work in the top
 session.
