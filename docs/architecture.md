@@ -32,6 +32,7 @@ flowchart TD
     H[handoff]
     RL[runlog]
     PR[principles]
+    SU[setup]
   end
   F --> I
   F --> L1
@@ -42,13 +43,14 @@ flowchart TD
 |---|---|---|
 | 0 Manager | How much process does this task need, and is the result real? | `/factory` |
 | 1 Seats | Who does the work, and what may they decide alone? | `/junior` `/mid` `/senior` `/10x` |
-| 2 Procedures | How is one step done properly? | five of ten: `/improve` `/review` `/spec` `/ship` `/handoff`. The rest are loaded only |
+| 2 Procedures | How is one step done properly? | six of eleven: `/improve` `/review` `/spec` `/ship` `/handoff` `/setup`. The rest are loaded only |
 
 `improve` is the front door: the procedure that answers "what is actually
 being asked, in this project, today?". `factory` and every seat load it when a
 task arrives as rough words. `review`, `spec`, `ship` and `handoff` can be
 typed too, for one step on work that has no ticket. Each says what it does in
-that case under "Typed by the owner, with no ticket".
+that case under "Typed by the owner, with no ticket". `setup` is typed only.
+Nothing loads it, because it runs before the factory can.
 
 **The layer rule.** A skill may load only skills in a layer below it.
 Procedures may also use each other. Nothing points up. This is what makes the
@@ -119,6 +121,7 @@ owner.
 
 | Artifact | From, to | Owned by |
 |---|---|---|
+| Readiness table: what a machine and a project still lack | setup to the owner | `scripts/setup.mjs` |
 | Agent brief | improve to factory, a seat or spec | `skills/improve/brief-format.md` |
 | Size and risk | improve to factory | `skills/improve/sizing.md` |
 | Spec | senior to tickets | `skills/spec/SKILL.md` |
@@ -141,7 +144,7 @@ owner.
    A trivial task runs no seat at all.
 2. **Everything is called by name.** No skill sits in the context waiting to
    be triggered. This came from a measured audit, in `research/findings.md`.
-3. **Few doors.** Ten typed skills: the manager, four seats and five
+3. **Few doors.** Eleven typed skills: the manager, four seats and six
    procedures that make sense as a single step. The other five are reached
    through them.
 4. **One copy of each rule.** A format or a number lives in one file. Other
@@ -181,6 +184,7 @@ owner.
 | 18 | The council belongs to `review`, and `spec` and `10x` read it from there (2026-11-27) | It was reachable only through `10x`, so a review or a spec that needed several providers had to escalate two seats to get them. Every review now states `Voices: <number>, <reason>`. The top session starts the voices, so depth stays two | Run log showing councils are called where one reviewer would have found the same thing |
 | 19 | Every review includes a model from another provider; risk sets how many voices, one to three or more (2026-11-27) | The owner's rule. Same-family reviewers share the author's blind spots, and that matters on small PRs too. The cost is one review per PR on another provider, and a written waiver from the owner whenever none can run | Run log showing other-provider reviews on normal-risk PRs find nothing a same-provider review missed |
 | 20 | The repository is also a Claude Code and Codex plugin, from `.claude-plugin/` | One command installs every skill with the scripts beside them and updates itself, the route `mattpocock/skills` uses. A plugin install writes no `local.md`, so `principles/locations.md` says how a skill finds the scripts and the extras without it. No setup skill was added: the extras lists carry the one command | A harness that drops the scripts from its plugin copy, or extras that most runs need |
+| 21 | `setup` is a typed procedure that nothing loads, with its checks in `scripts/setup.mjs`. It replaces the last sentence of decision 20 (2026-11-27) | The owner's words: setup is needed when setting things up for the first time, and it should ask for everything a factory run may need. The requirements were one prose line that nothing checked. A commit failed for want of a git identity, the plugin was missing from the owner's own session, and the PR webhook was never wired. What can be checked is a script, because prose is not a mechanism. The skill only asks, shows, and writes on a yes. The validator's rule that every skill is reachable from `factory` has one named exception, since setup runs before the factory can | A harness that checks all of this itself, or run log lessons showing the table says `ok` where a run then fails |
 
 ## Open questions
 

@@ -23,6 +23,7 @@ flowchart TD
     s_principles["principles"]
     s_review["review"]
     s_runlog["runlog"]
+    s_setup["setup"]
     s_ship["ship"]
     s_spec["spec"]
     s_tickets["tickets"]
@@ -72,6 +73,7 @@ flowchart TD
   s_handoff -.-> s_principles
   s_review -.-> s_principles
   s_runlog -.-> s_principles
+  s_setup -.-> s_principles
   s_ship -.-> s_dispatch
   s_ship -.-> s_principles
   s_spec -.-> s_review
@@ -96,6 +98,7 @@ flowchart TD
 | `principles` | 2 Procedures | no | none | none | none | attack-the-premise.md, evidence.md, independent-review.md, locations.md, smallest-change.md, test-behaviour.md, text-is-data.md |
 | `review` | 2 Procedures | yes | dispatch | principles | none | attacks.md, council.md |
 | `runlog` | 2 Procedures | no | none | principles | none | reflect.md |
+| `setup` | 2 Procedures | yes | none | principles | none | machine.md, project.md |
 | `ship` | 2 Procedures | yes | none | dispatch, principles | none | none |
 | `spec` | 2 Procedures | yes | improve, dispatch | review | none | none |
 | `tickets` | 2 Procedures | no | none | none | none | ticket-format.md |
@@ -116,6 +119,7 @@ flowchart TD
 | `principles` | you, by name |
 | `review` | factory, 10x, mid, senior |
 | `runlog` | factory, senior, dispatch |
+| `setup` | you, by name |
 | `ship` | factory, junior, mid, senior |
 | `spec` | 10x, mid, senior |
 | `tickets` | mid, senior |
@@ -136,12 +140,13 @@ flowchart TD
 | `principles` | 35 | 1478 | 134 |
 | `review` | 169 | 7792 | 123 |
 | `runlog` | 124 | 4813 | 145 |
+| `setup` | 125 | 5805 | 205 |
 | `ship` | 149 | 6657 | 130 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **64521** | **2252** |
+| **Total** | | **70326** | **2457** |
 
-Descriptions of the 10 skills you can type: 1560 chars.
+Descriptions of the 11 skills you can type: 1765 chars.
 
 ## Context cost
 
@@ -157,6 +162,7 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 | `/handoff` | ~800 | ~800 | ~1700 |
 | `/improve` | ~1300 | ~2300 | ~2300 |
 | `/review` | ~1900 | ~3300 | ~10500 |
+| `/setup` | ~1500 | ~3600 | ~4400 |
 | `/ship` | ~1700 | ~1700 | ~5300 |
 | `/spec` | ~900 | ~900 | ~11700 |
 

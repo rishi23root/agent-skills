@@ -77,6 +77,8 @@ which is which.
 | The clones on a machine are at those commits | `scripts/sync-upstream.mjs --status` | Mechanism, once it is run |
 | Install never overwrites other skills | `scripts/install.mjs` refuses | **Mechanism** |
 | The plugin manifests ship every skill and carry a version | `scripts/validate.mjs` checks `.claude-plugin/` | **Mechanism** |
+| A machine and a project have what a factory run needs: tools, git identity, GitHub scopes, skills an agent can load, a protected default branch, tracker labels | `scripts/setup.mjs` prints each as `ok`, `missing` or `unknown` and exits non-zero while a required one is missing | **Mechanism**, once it is called. It reads and never writes |
+| Setup writes only on the owner's yes, and writes no secret | Instruction in `skills/setup/SKILL.md` | **Prose only** |
 | Run rows have valid fields | `scripts/runlog.mjs` rejects bad values | **Mechanism**, once it is called |
 | A logged row is never rewritten | `runlog.mjs close` appends a closing line | **Mechanism**, once it is called |
 | Rows with weak evidence are visible | `runlog.mjs audit` lists them and exits non-zero | **Mechanism**, once it is called |

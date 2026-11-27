@@ -15,7 +15,9 @@ const LAYERS = { 0: 'Manager', 1: 'Seats', 2: 'Procedures' };
 const PROCEDURES = 2;
 // The procedures the owner may also type. Each says what it does when typed
 // with no ticket. Every other procedure is loaded only.
-const TYPED_PROCEDURES = ['improve', 'review', 'spec', 'ship', 'handoff'];
+const TYPED_PROCEDURES = ['improve', 'review', 'spec', 'ship', 'handoff', 'setup'];
+// Skills that nothing loads. The owner types them before the factory can run.
+const STANDALONE = ['setup'];
 
 const errors = [];
 const warn = [];
@@ -108,7 +110,11 @@ for (const n of byName.keys()) visit(n, []);
 const reach = new Set();
 const walk = (n) => { if (reach.has(n)) return; reach.add(n); const s = byName.get(n); for (const d of [...(s?.requires || []), ...(s?.reads || [])]) walk(d); };
 walk('factory');
-for (const s of byName.values()) if (!reach.has(s.dir)) err(s.dir, 'is not reachable from factory');
+for (const s of byName.values()) {
+  const loaded = reach.has(s.dir);
+  if (!loaded && !STANDALONE.includes(s.dir)) err(s.dir, 'is not reachable from factory');
+  if (loaded && STANDALONE.includes(s.dir)) err(s.dir, 'is loaded by another skill: remove it from STANDALONE');
+}
 
 // ---- principles: one rule per file, written once ----------------------------
 const PRINCIPLE_BYTES = 600;

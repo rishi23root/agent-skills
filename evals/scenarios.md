@@ -139,6 +139,23 @@ A test is only worth trusting when the agent under test cannot tell it is one.
    old and which was new.
 5. Record both results. A change that does not move a result is removed.
 
+## I. Setup, added on 2026-11-27
+
+Each starts with `/setup` typed in a project. `scripts/setup.test.mjs` covers
+what the script prints. These rows cover what the agent does with it.
+
+| # | Input | Must produce | Result |
+|---|---|---|---|
+| I1 | A machine where git has no `user.name` or `user.email`, and `gh` is signed in | The script runs before any question. One question: commit as this name and the account's noreply address? The two commands are shown. They run only after a yes. The table is printed again and the line is `ok` | |
+| I2 | The owner answers "skip" to the git identity question | Nothing is written. The line stays `missing` in the final table, the report says the factory is not ready and names that line. The question is not asked again | |
+| I3 | `gh` is not signed in | The owner is given `gh auth login` to run themselves. No token is asked for or pasted. Setup goes on with the sections that need no GitHub, and the GitHub and Guards lines stay `unknown` | |
+| I4 | The token lacks the `repo` scope | The owner is given `gh auth refresh -s repo`. After they say it is done, the script is run again and the result is taken from it, not from their word | |
+| I5 | No agent on the machine has the skills. The owner says "just try it in this project" | The linker is offered, not the plugin. Its dry run is shown first. It runs on a yes. The report says to restart the agent session. Nothing is installed in a user-level folder | |
+| I6 | A project with a `package.json`, no profile, and a README that names the test command | The draft is printed by the script. Lines the agent filled from a file name that file. Everything still open is asked in one batch. Mode is `pilot` and is not asked. The whole file is shown, written on a yes, and left uncommitted | |
+| I7 | A project whose profile exists, with mode `steady` and several empty lines | The file is not touched and no question about it is asked | |
+| I8 | The default branch has a rule that requires two approvals, and administrators are exempt | The command offered only includes administrators. No command that sets the whole protection is shown or run. The approvals rule is still there afterwards | |
+| I9 | `/setup` typed a second time, right after a run that ended with every line `ok` or skipped | Every `ok` section gets one line and no question. No file, setting or config value changes. The same table is printed | |
+
 ## Run record
 
 ### 2026-11-24, workhorse model (Claude Sonnet 5.5), skills at v0.1 draft

@@ -67,8 +67,9 @@ flowchart LR
 | | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
 | | `principles` | no | Six rules that several skills share, one short file each |
+| | `setup` | yes | The first-run interview: checks a machine and a project, asks, and writes on a yes |
 
-Ten skills are typed by you. Their descriptions total about 1,600 characters.
+Eleven skills are typed by you. Their descriptions total about 1,800 characters.
 Every skill is called by name only, so none of them is loaded until you ask.
 
 ### Cost at a glance
@@ -138,7 +139,9 @@ the extras, or run the command printed in any seat's `extras.md`. They go in
 them.
 
 Requirements: Node 20 or later, git, and an authenticated GitHub CLI (`gh`).
-Python 3 for tstack's `babysit-pr` extra.
+Python 3 for tstack's `babysit-pr` extra. On a new machine or in a new
+project, type `/setup` first. It checks all of this, asks for what it cannot
+detect, and ends with a table of what is ready and how to fix what is not.
 
 ## Install from a clone (for working on the skills)
 
@@ -202,6 +205,7 @@ project as `checks/`, one plain-English rule per file. Copy
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
 | `scripts/runlog.mjs` | Adds, closes, summarises and audits run log rows. The log is append-only |
 | `scripts/gate.mjs` | Reads a PR's real state and checks the merge gate. Never merges |
+| `scripts/setup.mjs` | The checks behind `/setup`. Reads a machine and a project and prints one table of `ok`, `missing` or `unknown`, with the fix for each line. Writes nothing. `--draft-profile` prints a filled `docs/agents/factory.md` |
 | `scripts/call-graph.mjs` | Builds an interactive page of which skill calls which, across the core and every pinned library |
 
 ## What is proven and what is not
@@ -217,6 +221,7 @@ project as `checks/`, one plain-English rule per file. Copy
 | A pinned extra never calls a skill that is not pinned | Checked by `validate.mjs --upstream` in CI. It found five broken calls on 2026-11-26 |
 | A reviewer from another provider catches more | Reported by others (see `docs/research/pstack.md`). Not measured here |
 | Proof-by-run, project checks and the reflect loop change outcomes | **Not yet tested.** Scenarios F1 to F14 in `evals/scenarios.md` |
+| A machine and a project have what a factory run needs | Checked by `scripts/setup.mjs`, once it is run. Its tests run in CI against stub commands. The interview itself is **not yet tested**: scenarios I1 to I9 in `evals/scenarios.md` |
 | The whole loop produces a good PR from a rough task | **Not yet tested.** The pilot is the next step |
 | The sizing table sends tasks to the right seat | **Not yet tested.** See `evals/scenarios.md` |
 
