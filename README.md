@@ -126,6 +126,9 @@ These install for your user, in every project. To try it in one project first,
 add `--scope project` to the Claude Code command. Restart the agent session,
 then type `/factory` or `/improve` followed by a task.
 
+To run checks and reviews when nobody is at the desk, see the prompts in
+[templates/automation](templates/automation/README.md).
+
 The optional third-party extras are a second step. Ask the agent to set up
 the extras, or run the command printed in any seat's `extras.md`. They go in
 `~/.agent-skills/upstream`, outside the plugin, so an update does not wipe
