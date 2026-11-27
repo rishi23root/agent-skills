@@ -1,11 +1,15 @@
 // Shared helpers for the factory scripts. No dependencies.
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const SKILLS = path.join(ROOT, 'skills');
 export const posix = (p) => p.split(path.sep).join('/');
+// Where the run log is written. runlog.mjs writes there and setup.mjs checks
+// it, so the path has one owner. See skills/runlog/SKILL.md.
+export const runlogFile = () => process.env.AGENT_RUNLOG || path.join(os.homedir(), 'agent-logs', 'task-stats.jsonl');
 
 // Minimal frontmatter reader: top-level `key: value`, folded `>-` blocks,
 // and one nested map (`metadata:`). That is all the skills use.

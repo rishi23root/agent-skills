@@ -56,6 +56,7 @@
 ## Fleet
 
 - **Mode:** pilot | steady. Leave it as pilot until one ticket has gone the whole way. Only the owner changes this line
+- **Families:** which provider manages, builds and reviews, when you have a preference. For example: manager A, builders A, reviewers B. Providers, not model names
 - **Machines that may run workers:**
 - **Ports and local databases:** what one builder uses by default, and how a second builder gets its own
 - **Council models**, if a council is used:

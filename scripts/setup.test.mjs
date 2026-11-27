@@ -14,6 +14,7 @@ import { ROOT } from './lib.mjs';
 
 const SETUP = path.join(ROOT, 'scripts', 'setup.mjs');
 const TOKEN = 'gho_NEVERPRINTTHISTOKEN';
+const EMAIL = 'never-print@example.com';
 const LABELS = ['needs-triage', 'needs-info', 'ready-for-agent', 'ready-for-human', 'wontfix'];
 const PROTECTION = 'gh api repos/octo/demo/branches/main/protection';
 const whereIs = (cmd) => path.dirname(execFileSync(process.platform === 'win32' ? 'where' : 'which', [cmd], { encoding: 'utf8' }).split('\n')[0].trim());
@@ -34,13 +35,13 @@ const repoView = (over = {}) => say({ nameWithOwner: 'octo/demo', defaultBranchR
 
 // A machine and a project with everything in place. `answers` replaces stub
 // answers; a null answer makes that command fail.
-function world({ answers = {}, identity = true, files = {}, fresh = false } = {}) {
+function world({ answers = {}, identity = true, files = {}, fresh = false, env: extra = {} } = {}) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-test-'));
   const [home, proj, bin] = ['home', 'proj', 'bin'].map((d) => path.join(tmp, d));
   for (const d of [home, proj, bin]) fs.mkdirSync(d);
   // Both agents have run on this machine before, unless a test says otherwise.
   if (!fresh) for (const d of ['.claude', '.codex']) fs.mkdirSync(path.join(home, d));
-  for (const cmd of ['gh', 'claude', 'codex']) fs.writeFileSync(path.join(bin, cmd), STUB, { mode: 0o755 });
+  for (const cmd of ['gh', 'claude', 'codex', 'cursor-agent']) fs.writeFileSync(path.join(bin, cmd), STUB, { mode: 0o755 });
   const table = {
     'gh --version': say('gh version 2.50.0 (2024-05-01)'),
     'gh api user': say({ login: 'octo', id: 42, name: 'Octo Cat' }),
@@ -51,13 +52,17 @@ function world({ answers = {}, identity = true, files = {}, fresh = false } = {}
     'gh label list *': say(LABELS.map((name) => ({ name }))),
     'claude plugin list --json': say([{ id: 'agent-skills@rishi23root', enabled: true }]),
     'codex plugin list --json': null,
+    'gh api repos/octo/demo/hooks *': say([]),
+    'claude auth status': say({ loggedIn: true, email: EMAIL }),
+    'codex login status': say('Logged in using ChatGPT'),
+    'cursor-agent status': say(`Not logged in`, { status: 1 }),
     ...answers,
   };
   fs.writeFileSync(path.join(tmp, 'stubs.json'), JSON.stringify(table));
   const env = {
     PATH: [bin, path.dirname(process.execPath), whereIs('git')].join(path.delimiter),
     HOME: home, USERPROFILE: home, STUB_TABLE: path.join(tmp, 'stubs.json'),
-    GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: path.join(home, '.gitconfig'),
+    GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: path.join(home, '.gitconfig'), ...extra,
   };
   const git = (...a) => execFileSync('git', a, { cwd: proj, env, encoding: 'utf8' });
   git('init', '--quiet', '--initial-branch=main');
@@ -71,7 +76,7 @@ function world({ answers = {}, identity = true, files = {}, fresh = false } = {}
     return { code: r.status, out: r.stdout, err: r.stderr };
   };
   const rows = (...a) => { const r = setup('--json', ...a); return { code: r.code, rows: JSON.parse(r.out).rows }; };
-  return { tmp, home, proj, setup, rows };
+  return { tmp, home, proj, env, setup, rows };
 }
 const find = (rows, check) => rows.find((r) => r.check.includes(check)) || assert.fail(`no line for "${check}"`);
 // Every file under a folder, with a hash of its content.
@@ -83,7 +88,9 @@ test('a ready machine and project: nothing required is missing, and the table is
   const w = world();
   const { code, rows } = w.rows();
   assert.equal(code, 0);
-  assert.deepEqual(rows.filter((r) => r.need === 'required' && r.state !== 'ok'), []);
+  // The one required line a script can never settle: whether another provider can run a review.
+  assert.deepEqual(rows.filter((r) => r.need === 'required' && r.state !== 'ok').map((r) => [r.check, r.state]),
+    [["A provider other than the builder's can run a review", 'unknown']]);
   for (const r of rows) {
     assert.ok(['ok', 'missing', 'unknown'].includes(r.state), `${r.check}: state ${r.state}`);
     assert.ok(['required', 'optional'].includes(r.need), `${r.check}: need ${r.need}`);
@@ -300,12 +307,93 @@ test('the draft profile fills what the repository shows and leaves the rest open
   assert.ok(!fs.existsSync(path.join(w.proj, 'docs')), 'the draft is printed, not written');
 });
 
-test('no output ever holds the token', () => {
+test('no output ever holds the token or an account email', () => {
   const w = world({ identity: false });
   for (const a of [[], ['--json'], ['--draft-profile']]) {
     const r = w.setup(...a);
     assert.ok(!(r.out + r.err).includes(TOKEN), `token leaked by: setup ${a.join(' ')}`);
+    assert.ok(!(r.out + r.err).includes(EMAIL), `email leaked by: setup ${a.join(' ')}`);
   }
+});
+
+test('providers: two signed in is ok, one is unknown, and able-to-run is never claimed', () => {
+  const two = world().rows();
+  const a = find(two.rows, 'two providers signed in');
+  assert.equal(a.state, 'ok');
+  assert.match(a.found, /Claude Code \(Anthropic\): signed in; Codex \(OpenAI\): signed in; Cursor \(several providers\): not signed in/);
+  const run = find(two.rows, 'can run a review');
+  assert.deepEqual([run.need, run.state], ['required', 'unknown']);
+  assert.match(run.fix, /condition 7/);
+
+  const one = world({ answers: { 'codex login status': say('Not logged in', { status: 1 }) } }).rows();
+  const b = find(one.rows, 'two providers signed in');
+  assert.equal(b.state, 'unknown');
+  assert.match(b.fix, /condition 7/);
+  assert.match(b.fix, /`codex login`/);
+  assert.equal(one.code, 0, 'unknown is not missing');
+});
+
+test('the harness line is one unknown line that points at the settings table', () => {
+  const r = find(world().rows().rows, 'Settings the factory relies on');
+  assert.equal(r.state, 'unknown');
+  assert.match(r.fix, /skills\/dispatch\/harness\.md/);
+  const harness = fs.readFileSync(path.join(ROOT, 'skills', 'dispatch', 'harness.md'), 'utf8');
+  assert.ok(harness.includes('## Settings the factory relies on'), 'the section the line names exists');
+});
+
+test('automation: no webhook is missing, one is unknown, and the schedule is always unknown', () => {
+  const none = world().rows().rows;
+  assert.equal(find(none, 'webhook fires').state, 'missing');
+  assert.equal(find(none, 'Daily triage').state, 'unknown');
+  const one = world({ answers: { 'gh api repos/octo/demo/hooks *': say([['push'], ['pull_request', 'push']]) } }).rows().rows;
+  const r = find(one, 'webhook fires');
+  assert.equal(r.state, 'unknown');
+  assert.match(r.found, /^1 webhook fires on pull requests/);
+  const denied = world({ answers: { 'gh api repos/octo/demo/hooks *': null } }).rows().rows;
+  assert.equal(find(denied, 'webhook fires').state, 'unknown');
+});
+
+test('run log: the path is the one runlog.mjs writes to, and it is checked without writing', () => {
+  const w = world();
+  const r = find(w.rows().rows, 'A row can be written');
+  assert.equal(r.state, 'ok');
+  const expected = path.join(w.home, 'agent-logs', 'task-stats.jsonl').split(path.sep).join('/');
+  assert.ok(r.found.startsWith(expected + ', made with the first row'), r.found);
+  assert.ok(!fs.existsSync(path.join(w.home, 'agent-logs')), 'the check made no folder');
+  const summary = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'runlog.mjs'), 'summary'], { env: w.env, encoding: 'utf8' }).stdout;
+  assert.ok(summary.includes(path.join(w.home, 'agent-logs', 'task-stats.jsonl')), 'runlog.mjs reads the same file: ' + summary);
+
+  const elsewhere = path.join(w.tmp, 'logs', 'runs.jsonl');
+  const moved = find(world({ env: { AGENT_RUNLOG: elsewhere } }).rows().rows, 'A row can be written');
+  assert.match(moved.found, /runs\.jsonl \(from AGENT_RUNLOG\)/);
+});
+
+test('run log: a file that cannot be written is a required line that is missing', { skip: process.platform === 'win32' || process.getuid?.() === 0 }, () => {
+  const w = world();
+  const locked = path.join(w.tmp, 'locked');
+  fs.mkdirSync(locked, { mode: 0o555 });
+  const { code, rows } = world({ env: { AGENT_RUNLOG: path.join(locked, 'runs.jsonl') } }).rows();
+  const r = find(rows, 'A row can be written');
+  assert.equal(r.state, 'missing');
+  assert.match(r.fix, /AGENT_RUNLOG/);
+  assert.equal(code, 1);
+});
+
+test('test run: ok once a run is logged for this repository, else the command to type', () => {
+  const none = find(world().rows().rows, 'factory run is logged');
+  assert.equal(none.state, 'missing');
+  assert.match(none.fix, /type: \/factory Setup test run\./);
+  assert.match(none.fix, /Do not merge\./);
+
+  const w = world();
+  const log = path.join(w.tmp, 'runs.jsonl');
+  fs.writeFileSync(log, [
+    { type: 'docs', ticket: 'https://github.com/octo/demo/pull/3' },
+    { kind: 'close', ticket: 'https://github.com/octo/demo/pull/3' },
+    { type: 'docs', ticket: 'https://github.com/octo/other/pull/9' },
+  ].map((r) => JSON.stringify(r)).join('\n') + '\nnot json\n');
+  const some = find(world({ env: { AGENT_RUNLOG: log } }).rows().rows, 'factory run is logged');
+  assert.deepEqual([some.state, some.found], ['ok', '1 logged run for octo/demo']);
 });
 
 test('running it twice changes nothing in the home folder or the project', () => {

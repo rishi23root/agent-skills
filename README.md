@@ -221,7 +221,7 @@ project as `checks/`, one plain-English rule per file. Copy
 | A pinned extra never calls a skill that is not pinned | Checked by `validate.mjs --upstream` in CI. It found five broken calls on 2026-11-26 |
 | A reviewer from another provider catches more | Reported by others (see `docs/research/pstack.md`). Not measured here |
 | Proof-by-run, project checks and the reflect loop change outcomes | **Not yet tested.** Scenarios F1 to F14 in `evals/scenarios.md` |
-| A machine and a project have what a factory run needs | Checked by `scripts/setup.mjs`, once it is run. Its tests run in CI against stub commands. The interview itself is **not yet tested**: scenarios I1 to I10 in `evals/scenarios.md` |
+| A machine and a project have what a factory run needs | Checked by `scripts/setup.mjs`, once it is run. Its tests run in CI against stub commands. The interview itself is **not yet tested**: scenarios I1 to I17 in `evals/scenarios.md` |
 | The whole loop produces a good PR from a rough task | **Not yet tested.** The pilot is the next step |
 | The sizing table sends tasks to the right seat | **Not yet tested.** See `evals/scenarios.md` |
 

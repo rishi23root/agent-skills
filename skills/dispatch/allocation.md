@@ -42,6 +42,10 @@ when more than one provider can run:
 | The playtester, who tries to break the change, and the reviewers | another provider than the builders' |
 | The copywriter, who does the docs pass | a third provider, when one is available |
 
+The owner's choice comes first: when the repo profile
+(`docs/agents/factory.md`) has a Families line, use it, and use this table for
+what it leaves out.
+
 This is a preference under the quota floor below, not a rule above it. It
 never puts a model below the floor into play, and never drops a tier. How many
 voices review, and which of them must come from another provider, is decided

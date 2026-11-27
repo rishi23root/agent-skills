@@ -8,7 +8,7 @@
 //
 // The first form prints one table. Every line is `ok`, `missing` or `unknown`,
 // and every line that is not `ok` says how to fix it. `required` means a
-// factory run cannot reach a PR at the merge gate without it.
+// factory run cannot finish without it: a logged PR at the merge gate.
 // The second form prints templates/factory.md with what it detected filled in.
 //
 // Exit code 0: no required line is missing. 1: at least one is. 2: bad usage.
@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ROOT, loadLock, parseArgs, posix } from './lib.mjs';
+import { ROOT, loadLock, parseArgs, posix, runlogFile } from './lib.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 // An option that is misspelled or has no value must not be dropped in silence:
@@ -205,9 +205,11 @@ function agent(name, cmd, cliHome, dirs, installFix, offFix = installFix) {
   reach.push(state);
 }
 const at = (...p) => path.join(...p, 'skills');
-agent('Claude Code', 'claude', process.env.CLAUDE_CONFIG_DIR || path.join(HOME, '.claude'), [at(project, '.claude'), at(HOME, '.claude')],
+const claudeHome = process.env.CLAUDE_CONFIG_DIR || path.join(HOME, '.claude');
+const codexHome = process.env.CODEX_HOME || path.join(HOME, '.codex');
+agent('Claude Code', 'claude', claudeHome, [at(project, '.claude'), at(HOME, '.claude')],
   `claude plugin install ${plugin.name} --marketplace ${marketRepo}`, `claude plugin enable ${pluginId}`);
-agent('Codex', 'codex', process.env.CODEX_HOME || path.join(HOME, '.codex'), [at(project, '.agents'), at(HOME, '.agents'), at(HOME, '.codex')],
+agent('Codex', 'codex', codexHome, [at(project, '.agents'), at(HOME, '.agents'), at(HOME, '.codex')],
   `codex plugin marketplace add ${marketRepo} ; codex plugin add ${pluginId}`);
 agent('agents that read `.agents/skills`', null, null, [at(project, '.agents'), at(HOME, '.agents')], linkCmd);
 const anyReach = reach.includes('ok');
@@ -230,6 +232,32 @@ const extrasOk = pinned.length === sources.length;
 add('Locations', 'Extras, at their pinned commits', 'optional', extrasOk ? 'ok' : 'missing',
   `${pinned.length} of ${sources.length} in ${posix(upstream)}`,
   extrasOk ? '' : `node ${repoPath}/scripts/sync-upstream.mjs --dir ${shown(upstream, '<extras folder>')}`);
+
+// ---- 5. providers -----------------------------------------------------------
+// Which agents are signed in. Only a yes or no is taken from each status
+// command: its text can hold an email address, which is never printed.
+const said = (r) => { const t = `${r.out}\n${r.err}`; return r.ok && /logged in/i.test(t) && !/not logged in/i.test(t); };
+const AGENTS = [
+  ['Claude Code (Anthropic)', 'claude', ['auth', 'status'], (r) => json(r)?.loggedIn === true, 'claude auth login', claudeHome],
+  ['Codex (OpenAI)', 'codex', ['login', 'status'], said, 'codex login', codexHome],
+  ['Cursor (several providers)', 'cursor-agent', ['status'], said, 'cursor-agent login', null],
+].map(([name, cmd, statusArgs, yes, login, cliHome]) => {
+  // As with the plugin lists: an agent that never ran here is not signed in, and is not asked.
+  if (cliHome && !fs.existsSync(cliHome)) return { name, login, state: run(cmd, ['--version']).gone ? 'not found' : 'not signed in' };
+  const r = run(cmd, statusArgs, { timeout: 10000 });
+  return { name, login, state: r.gone ? 'not found' : yes(r) ? 'signed in' : 'not signed in' };
+});
+const signed = AGENTS.filter((a) => a.state === 'signed in');
+const GATE = 'The merge gate needs a reviewer from another provider than the builder\'s (condition 7 in the ship skill)';
+add('Providers', 'Agents from two providers signed in', 'required', signed.length >= 2 ? 'ok' : 'unknown',
+  AGENTS.map((a) => `${a.name}: ${a.state}`).join('; '),
+  signed.length >= 2 ? '' : `${GATE}. Sign in to a second agent (${AGENTS.filter((a) => a.state !== 'signed in').map((a) => `\`${a.login}\``).join(' or ')}), or let the setup skill ask the harness what else it can run`);
+add('Providers', 'A provider other than the builder\'s can run a review', 'required', 'unknown', 'signed in is not able to run, and a script cannot start a worker',
+  `${GATE}. The setup skill asks the harness and, on a yes, proves it with one small read-only run`);
+
+// ---- 6. harness settings ----------------------------------------------------
+add('Harness', 'Settings the factory relies on', 'optional', 'unknown', 'a script cannot read a harness\'s settings',
+  'The setup skill goes through them with you: "Settings the factory relies on" in skills/dispatch/harness.md');
 
 // ---- 7. project profile -----------------------------------------------------
 const draftCmd = `node ${repoPath}/scripts/setup.mjs --draft-profile --project ${projectPath}`;
@@ -320,6 +348,42 @@ if (!slug || !branch) {
         ...(odd ? [`${odd} name${odd > 1 ? 's' : ''} in the profile's "Used here" column hold${odd > 1 ? '' : 's'} characters that are not safe in a command: correct the column, or create the label by hand in ${settings}`] : [])].join(' ; '));
   }
 }
+
+// ---- 9. automation ----------------------------------------------------------
+// Only the events of each active webhook are read. A webhook's address can
+// carry a token, so it is never asked for.
+const hooks = slug ? run('gh', ['api', `repos/${slug}/hooks`, '--jq', '[.[] | select(.active) | .events]']) : null;
+const firing = hooks?.ok ? (json(hooks) || []).filter((events) => events.includes('pull_request') || events.includes('*')).length : null;
+const WIRE = 'The setup skill wires templates/automation/pr-opened.md on a yes';
+if (firing === null) add('Automation', 'A webhook fires when a PR opens', 'optional', 'unknown',
+  slug ? 'the webhooks could not be read: that needs an administrator' : 'the repository could not be read', slug ? `${WIRE}, with an administrator's token` : 'Fix the GitHub lines above, then run this again');
+else if (!firing) add('Automation', 'A webhook fires when a PR opens', 'optional', 'missing', 'no webhook: a PR opened outside the skills gets no review until someone starts one', WIRE);
+else add('Automation', 'A webhook fires when a PR opens', 'optional', 'unknown', `${firing} webhook${firing > 1 ? 's fire' : ' fires'} on pull requests. A script cannot tell that it starts the review task`,
+  'The setup skill finds the task in the harness\'s list. Do not add a second webhook before that: two would start two reviews');
+add('Automation', 'Daily triage is scheduled', 'optional', 'unknown', 'a script cannot see a harness\'s schedule',
+  'The setup skill reads the harness\'s task list and offers templates/automation/daily-triage.md on a yes');
+
+// ---- 10. run log ------------------------------------------------------------
+// Checked without writing: the file, or the nearest folder that exists above it.
+const logFile = runlogFile();
+const logText = readText(logFile);
+let logDir = path.dirname(logFile);
+while (!fs.existsSync(logDir) && path.dirname(logDir) !== logDir) logDir = path.dirname(logDir);
+const may = (p, mode) => { try { fs.accessSync(p, mode); return true; } catch { return false; } };
+const canLog = logText !== null ? may(logFile, fs.constants.W_OK) : may(logDir, fs.constants.W_OK | fs.constants.X_OK);
+const logLines = (logText || '').split('\n').filter(Boolean);
+add('Run log', 'A row can be written', 'required', canLog ? 'ok' : 'missing',
+  `${posix(logFile)}${process.env.AGENT_RUNLOG ? ' (from AGENT_RUNLOG)' : ''}, ${logText !== null ? `${logLines.length} lines` : 'made with the first row'}`,
+  canLog ? '' : `Make ${shown(logText !== null ? logFile : logDir, 'the run log\'s folder')} writable, or set AGENT_RUNLOG to a file you can write`);
+
+// ---- 11. test run -----------------------------------------------------------
+const TEST_TASK = '/factory Setup test run. Add the file docs/agents/setup-test.md holding one line with today\'s date. Treat it as size small, not trivial: '
+  + 'build it on a branch, have it reviewed by a model from another provider, take the PR to the merge gate and stop. Do not merge. '
+  + 'Say in the PR that it is a setup test, to be closed without merging.';
+const logged = slug ? logLines.filter((l) => { try { const r = JSON.parse(l); return r.kind !== 'close' && String(r.ticket || '').includes(`github.com/${slug}/`); } catch { return false; } }).length : 0;
+add('Test run', 'A factory run is logged for this repository', 'optional', logged ? 'ok' : slug ? 'missing' : 'unknown',
+  logged ? `${logged} logged run${logged > 1 ? 's' : ''} for ${slug}` : slug ? 'none in the run log' : 'the repository could not be read',
+  logged ? '' : `In a fresh session, type: ${TEST_TASK}`);
 
 // ---- the draft profile ------------------------------------------------------
 // Fills the template with what the repository shows. A line it could not
