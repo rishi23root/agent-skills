@@ -28,19 +28,23 @@ owner's words and the diff. The proof and the merge gate are unchanged.
 
 A change that alters what a user sees or how they use the project reaches the
 gate with its words already updated: the README, the changelog and the text a
-user reads. For any other change, write "no docs pass: nothing user-facing
-changed" in the PR description and skip this section.
+user reads. The **Change** item of the PR description says that a docs pass
+ran. For any other change, write "no docs pass: nothing user-facing changed"
+there and skip the rest of this section.
 
 **When.** On the finished diff, after the build's proof and before the review
 that gates the merge. A verdict covers only the diff it saw (`review`,
 "Recording the verdict"), so a docs edit after an approval voids it. When a
 send-back fix changes behaviour, run the pass again before the recheck.
 
-**Who.** When the manager dispatches, a separate worker does it: the cheapest
-model that fits, from another provider than the builder's when one can run
-(`../dispatch/allocation.md`). A seat working alone in the top session does it
-itself. A worker never starts it. It reports that a docs pass is due. The docs
-worker's brief points to this section and to the finished diff.
+**Who.** When the manager dispatches, a separate worker does it, on the
+cheapest model that fits (`../dispatch/allocation.md`). That worker is an
+author too, so the reviewer is from a provider that wrote none of the diff.
+Give the docs worker another provider than the builder's only if a further one
+can run the review. With only two that can run, it uses the builder's. A seat
+working alone in the top session does the pass itself. A builder never starts
+it. Its report says a docs pass is due before the review. The docs worker's
+brief points to this section and to the finished diff.
 
 **What it may edit.** Only the docs paths in the repository's profile
 (`docs/agents/factory.md`). With no profile, or no docs paths line in it: the

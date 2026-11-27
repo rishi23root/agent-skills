@@ -134,12 +134,12 @@ flowchart TD
 | `handoff` | 83 | 3369 | 136 |
 | `improve` | 105 | 5061 | 145 |
 | `principles` | 35 | 1478 | 134 |
-| `review` | 169 | 7727 | 123 |
+| `review` | 169 | 7792 | 123 |
 | `runlog` | 124 | 4813 | 145 |
-| `ship` | 145 | 6379 | 130 |
+| `ship` | 149 | 6657 | 130 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **64178** | **2252** |
+| **Total** | | **64521** | **2252** |
 
 Descriptions of the 10 skills you can type: 1560 chars.
 
@@ -149,7 +149,7 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1600 | ~1600 | ~22600 |
+| `/factory` | ~1600 | ~1600 | ~22700 |
 | `/10x` | ~800 | ~800 | ~15400 |
 | `/junior` | ~600 | ~600 | ~9900 |
 | `/mid` | ~700 | ~700 | ~18900 |
@@ -157,7 +157,7 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 | `/handoff` | ~800 | ~800 | ~1700 |
 | `/improve` | ~1300 | ~2300 | ~2300 |
 | `/review` | ~1900 | ~3300 | ~10500 |
-| `/ship` | ~1600 | ~1600 | ~5200 |
+| `/ship` | ~1700 | ~1700 | ~5300 |
 | `/spec` | ~900 | ~900 | ~11700 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.

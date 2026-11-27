@@ -55,7 +55,7 @@ Review both. Report them separately. Do not blend them into one score.
 - Every acceptance check is met, with evidence. Run each check yourself when
   you can. The author's pasted output tells you what to run, not the result.
 - Nothing was built that the ticket did not ask for.
-- Edits stay inside `Touches`.
+- Edits stay inside `Touches`, or are ones `ship`'s "Docs pass" allows, if the PR says one ran.
 - Tests are at the agreed seam.
 
 **Standards.** Is it safe and sound?
