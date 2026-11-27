@@ -15,9 +15,9 @@ const LAYERS = { 0: 'Manager', 1: 'Seats', 2: 'Procedures' };
 const PROCEDURES = 2;
 // The procedures the owner may also type. Each says what it does when typed
 // with no ticket. Every other procedure is loaded only.
-const TYPED_PROCEDURES = ['improve', 'review', 'spec', 'ship', 'handoff', 'setup'];
+const TYPED_PROCEDURES = ['improve', 'review', 'spec', 'ship', 'handoff', 'factory-setup'];
 // Skills that nothing loads. The owner types them before the factory can run.
-const STANDALONE = ['setup'];
+const STANDALONE = ['factory-setup'];
 
 const errors = [];
 const warn = [];

@@ -57,7 +57,7 @@ carry them out, strictest first.
 
 ## Settings the factory relies on
 
-`setup` goes through this table with the owner. "Reads" names what shows an
+`factory-setup` goes through this table with the owner. "Reads" names what shows an
 agent the value. "By hand" means nothing does: give the owner the step and
 take their word. An agent never changes a default or an account-wide
 setting itself. What it passes on each start, such as the permission mode,

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The checks behind the setup skill (skills/setup/SKILL.md). It only reads:
+// The checks behind the factory-setup skill (skills/factory-setup/SKILL.md). It only reads:
 // it runs commands that report state, reads files, and writes nothing. The
 // skill does the asking and, on the owner's yes, the writing.
 //
@@ -232,7 +232,7 @@ const lost = SCRIPTS.filter((s) => !fs.existsSync(path.join(ROOT, 'scripts', s))
 add('Locations', 'Factory scripts', 'required', lost.length ? 'missing' : 'ok', lost.length ? `${repoPath}/scripts lacks ${lost.join(', ')}` : `${repoPath}/scripts`,
   lost.length ? 'This copy of the repository is incomplete. Install it again' : '');
 
-const localUp = (readText(path.join(ROOT, 'skills', 'setup', 'local.md')) || '').match(/^- upstream: `(.+?)`/m);
+const localUp = (readText(path.join(ROOT, 'skills', 'factory-setup', 'local.md')) || '').match(/^- upstream: `(.+?)`/m);
 const upstream = localUp ? localUp[1] : path.join(HOME, '.agent-skills', 'upstream');
 const sources = Object.entries(loadLock().sources);
 const pinned = sources.filter(([id, src]) => fs.existsSync(path.join(upstream, id, '.git'))
@@ -265,7 +265,7 @@ add('Providers', 'Two providers signed in', 'required', providers.length >= 2 ? 
   AGENTS.map((a) => `${a.name}: ${a.state}`).join('; '),
   providers.length >= 2 ? '' : `${GATE}. ${other.length ? `Sign in to another provider (${other.join(' or ')}), or let` : 'Let'} the setup skill ask the harness which providers it can run${signed.some((a) => !a.provider) ? ', Cursor\'s among them' : ''}`);
 add('Providers', 'A provider other than the builder\'s can run a review', 'required', 'unknown', 'signed in is not able to run, and a script cannot start a worker',
-  `${GATE}. The setup skill asks the harness and, on a yes, proves it with one small read-only run`);
+  `${GATE}. The factory-setup skill asks the harness and, on a yes, proves it with one small read-only run`);
 
 // On Linux, Codex runs each command of a worker inside a sandbox that needs
 // its own user namespace. Where AppArmor refuses that to a program without a
@@ -281,19 +281,19 @@ if (process.platform === 'linux' && codexState !== 'not found' && fs.existsSync(
   if (box.ok && /^ok$/m.test(box.out)) add('Providers', check, 'optional', 'ok', 'a test command ran inside it');
   else if (restricted && refused) add('Providers', check, 'optional', 'missing',
     'the sandbox cannot start: this system refuses it a user namespace, so a Codex worker can run no command',
-    `\`node ${repoPath}/scripts/setup.mjs --codex-apparmor\` prints an AppArmor profile that allows it. The setup skill shows it, and the two steps that need sudo are yours`);
+    `\`node ${repoPath}/scripts/setup.mjs --codex-apparmor\` prints an AppArmor profile that allows it. The factory-setup skill shows it, and the two steps that need sudo are yours`);
   else add('Providers', check, 'optional', 'unknown', box.slow ? 'the test command did not finish in time' : 'the test command failed for a reason the script does not know',
     'Run `codex sandbox -- echo ok` and read the error');
 }
 
 // ---- 6. harness settings ----------------------------------------------------
 add('Harness', 'Settings the factory relies on', 'optional', 'unknown', 'a script cannot read a harness\'s settings',
-  'The setup skill goes through them with you: "Settings the factory relies on" in skills/dispatch/harness.md');
+  'The factory-setup skill goes through them with you: "Settings the factory relies on" in skills/dispatch/harness.md');
 
 // ---- 7. project profile -----------------------------------------------------
 const draftCmd = `node ${repoPath}/scripts/setup.mjs --draft-profile --project ${projectPath}`;
 if (profile === null) add('Project', `Profile \`${PROFILE}\``, 'optional', 'missing', 'no profile: the factory guesses the commands and runs in pilot mode',
-  `\`${draftCmd}\` prints a draft. The setup skill asks for the rest and writes it on a yes`);
+  `\`${draftCmd}\` prints a draft. The factory-setup skill asks for the rest and writes it on a yes`);
 else {
   const mode = (profile.match(/\*\*Mode:\*\*\s*(pilot|steady)\b(?!\s*\|)/) || [])[1];
   add('Project', `Profile \`${PROFILE}\``, 'optional', mode ? 'ok' : 'missing', mode ? `present, mode ${mode}` : 'present, but its Mode line is not filled in',
@@ -386,14 +386,14 @@ if (!slug || !branch) {
 // Every page, one line of events per active webhook.
 const hooks = slug ? run('gh', ['api', '--paginate', `repos/${slug}/hooks`, '--jq', '.[] | select(.active) | .events | join(",")']) : null;
 const firing = hooks?.ok ? hooks.out.split('\n').filter((l) => l.split(',').some((e) => e === 'pull_request' || e === '*')).length : null;
-const WIRE = 'The setup skill wires templates/automation/pr-opened.md on a yes';
+const WIRE = 'The factory-setup skill wires templates/automation/pr-opened.md on a yes';
 if (firing === null) add('Automation', 'A webhook fires when a PR opens', 'optional', 'unknown',
   slug ? 'the webhooks could not be read: that needs an administrator' : 'the repository could not be read', slug ? `${WIRE}, with an administrator's token` : 'Fix the GitHub lines above, then run this again');
 else if (!firing) add('Automation', 'A webhook fires when a PR opens', 'optional', 'missing', 'no webhook: a PR opened outside the skills gets no review until someone starts one', WIRE);
 else add('Automation', 'A webhook fires when a PR opens', 'optional', 'unknown', `${firing} webhook${firing > 1 ? 's fire' : ' fires'} on pull requests. A script cannot tell that it starts the review task`,
-  'The setup skill finds the task in the harness\'s list. Do not add a second webhook before that: two would start two reviews');
+  'The factory-setup skill finds the task in the harness\'s list. Do not add a second webhook before that: two would start two reviews');
 add('Automation', 'Daily triage is scheduled', 'optional', 'unknown', 'a script cannot see a harness\'s schedule',
-  'The setup skill reads the harness\'s task list and offers templates/automation/daily-triage.md on a yes');
+  'The factory-setup skill reads the harness\'s task list and offers templates/automation/daily-triage.md on a yes');
 
 // ---- 10. run log ------------------------------------------------------------
 // Checked without writing: the file, or the nearest folder that exists above it.

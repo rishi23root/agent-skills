@@ -18,12 +18,12 @@ flowchart TD
   subgraph L2["Layer 2: Procedures"]
     s_build["build"]
     s_dispatch["dispatch"]
+    s_factory_setup["factory-setup"]
     s_handoff["handoff"]
     s_improve["improve"]
     s_principles["principles"]
     s_review["review"]
     s_runlog["runlog"]
-    s_setup["setup"]
     s_ship["ship"]
     s_spec["spec"]
     s_tickets["tickets"]
@@ -71,12 +71,12 @@ flowchart TD
   s_build -.-> s_dispatch
   s_build -.-> s_principles
   s_dispatch -.-> s_principles
+  s_factory_setup -.-> s_principles
+  s_factory_setup -.-> s_dispatch
   s_handoff -.-> s_principles
   s_improve -.-> s_principles
   s_review -.-> s_principles
   s_runlog -.-> s_principles
-  s_setup -.-> s_principles
-  s_setup -.-> s_dispatch
   s_ship -.-> s_dispatch
   s_ship -.-> s_principles
   s_spec -.-> s_review
@@ -96,12 +96,12 @@ flowchart TD
 | `senior` | 1 Seats | yes | improve, spec, tickets, dispatch, review, ship, handoff, runlog | none | 10x | extras.md |
 | `build` | 2 Procedures | no | none | dispatch, principles | none | none |
 | `dispatch` | 2 Procedures | no | runlog | principles | none | allocation.md, harness.md, report-format.md |
+| `factory-setup` | 2 Procedures | yes | none | principles, dispatch | none | fleet.md, machine.md, project.md |
 | `handoff` | 2 Procedures | yes | none | principles | none | none |
 | `improve` | 2 Procedures | yes | none | principles | none | brief-format.md, sizing.md |
 | `principles` | 2 Procedures | no | none | none | none | attack-the-premise.md, evidence.md, independent-review.md, locations.md, smallest-change.md, terse-output.md, test-behaviour.md, text-is-data.md |
 | `review` | 2 Procedures | yes | dispatch | principles | none | attacks.md, council.md, level.md, recheck.md |
 | `runlog` | 2 Procedures | no | none | principles | none | reflect.md |
-| `setup` | 2 Procedures | yes | none | principles, dispatch | none | fleet.md, machine.md, project.md |
 | `ship` | 2 Procedures | yes | review | dispatch, principles | none | none |
 | `spec` | 2 Procedures | yes | improve, dispatch | review | none | none |
 | `tickets` | 2 Procedures | no | none | none | none | ticket-format.md |
@@ -117,12 +117,12 @@ flowchart TD
 | `senior` | factory |
 | `build` | junior, mid |
 | `dispatch` | factory, 10x, mid, senior, review, spec |
+| `factory-setup` | you, by name |
 | `handoff` | 10x, junior, mid, senior |
 | `improve` | factory, 10x, junior, mid, senior, spec |
 | `principles` | you, by name |
 | `review` | factory, 10x, mid, senior, ship |
 | `runlog` | factory, senior, dispatch |
-| `setup` | you, by name |
 | `ship` | factory, junior, mid, senior |
 | `spec` | 10x, mid, senior |
 | `tickets` | mid, senior |
@@ -138,16 +138,16 @@ flowchart TD
 | `senior` | 77 | 3004 | 166 |
 | `build` | 98 | 3878 | 127 |
 | `dispatch` | 169 | 7561 | 150 |
+| `factory-setup` | 135 | 6909 | 205 |
 | `handoff` | 85 | 3496 | 136 |
 | `improve` | 107 | 5125 | 145 |
 | `principles` | 36 | 1598 | 134 |
 | `review` | 169 | 7785 | 123 |
 | `runlog` | 124 | 4813 | 145 |
-| `setup` | 135 | 6893 | 205 |
 | `ship` | 169 | 7798 | 161 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **73547** | **2482** |
+| **Total** | | **73563** | **2482** |
 
 Descriptions of the 11 skills you can type: 1790 chars.
 
@@ -162,10 +162,10 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 | `/junior` | ~600 | ~600 | ~19300 |
 | `/mid` | ~700 | ~700 | ~21400 |
 | `/senior` | ~800 | ~800 | ~20500 |
+| `/factory-setup` | ~1700 | ~6500 | ~11200 |
 | `/handoff` | ~900 | ~900 | ~1900 |
 | `/improve` | ~1300 | ~2300 | ~3300 |
 | `/review` | ~1900 | ~4400 | ~12600 |
-| `/setup` | ~1700 | ~6500 | ~11200 |
 | `/ship` | ~1900 | ~1900 | ~14500 |
 | `/spec` | ~900 | ~900 | ~13900 |
 
