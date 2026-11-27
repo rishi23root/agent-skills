@@ -16,6 +16,7 @@
 - **Glossary:** path, or none
 - **Decision records:** path, or none
 - **Notes outside the repo:** path to a hub or notes folder, or none
+- **Docs paths:** the files and folders the docs pass in `ship` may edit (default: the README, and a changelog if there is one)
 - **Checks folder:** path to the plain-English review checks, or none (default `checks/`)
 
 ## Tracker
