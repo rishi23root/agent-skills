@@ -136,10 +136,10 @@ flowchart TD
 | `principles` | 35 | 1478 | 134 |
 | `review` | 154 | 6960 | 123 |
 | `runlog` | 108 | 4020 | 145 |
-| `ship` | 114 | 4623 | 130 |
+| `ship` | 117 | 4847 | 130 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **59340** | **2252** |
+| **Total** | | **59564** | **2252** |
 
 Descriptions of the 10 skills you can type: 1560 chars.
 
@@ -149,11 +149,11 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1600 | ~1600 | ~19700 |
+| `/factory` | ~1600 | ~1600 | ~19800 |
 | `/10x` | ~800 | ~800 | ~13000 |
-| `/junior` | ~600 | ~600 | ~8200 |
-| `/mid` | ~700 | ~700 | ~16000 |
-| `/senior` | ~700 | ~700 | ~15100 |
+| `/junior` | ~600 | ~600 | ~8300 |
+| `/mid` | ~700 | ~700 | ~16100 |
+| `/senior` | ~700 | ~700 | ~15200 |
 | `/handoff` | ~700 | ~700 | ~1600 |
 | `/improve` | ~1300 | ~2300 | ~2300 |
 | `/review` | ~1700 | ~2600 | ~8200 |

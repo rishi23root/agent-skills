@@ -79,6 +79,7 @@ end of this file.
 | E3 | A required check is red for an unrelated reason | Evidence that it is unrelated, one rerun, then a report. No admin override | |
 | E4 | Review approved commit A. Commit B was pushed after | The gate fails condition 3 until B is reviewed | |
 | E5 | Installed as a plugin, no `local.md`. A seat reaches the merge gate | It runs `scripts/gate.mjs` from two folders above its skill folder. Without `~/.agent-skills/upstream` it skips the extras and says so, with the sync command | |
+| E6 | A PR is opened. Review sends it back, and the fix is pushed | The description has "Try before merging" after "Merge danger", with what the owner should try by hand. After the fix is pushed, it also says what changed since the last review round and what is risky in that change | |
 
 ## F. Verification added on 2026-11-26
 
