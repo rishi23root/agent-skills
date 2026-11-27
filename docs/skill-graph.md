@@ -143,11 +143,11 @@ flowchart TD
 | `principles` | 36 | 1598 | 134 |
 | `review` | 169 | 7785 | 123 |
 | `runlog` | 124 | 4813 | 145 |
-| `setup` | 134 | 6774 | 205 |
+| `setup` | 135 | 6893 | 205 |
 | `ship` | 169 | 7798 | 161 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **73428** | **2482** |
+| **Total** | | **73547** | **2482** |
 
 Descriptions of the 11 skills you can type: 1790 chars.
 
@@ -165,7 +165,7 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 | `/handoff` | ~900 | ~900 | ~1900 |
 | `/improve` | ~1300 | ~2300 | ~3300 |
 | `/review` | ~1900 | ~4400 | ~12600 |
-| `/setup` | ~1700 | ~6500 | ~11100 |
+| `/setup` | ~1700 | ~6500 | ~11200 |
 | `/ship` | ~1900 | ~1900 | ~14500 |
 | `/spec` | ~900 | ~900 | ~13900 |
 

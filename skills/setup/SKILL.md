@@ -115,7 +115,8 @@ harness reported or the owner confirmed in this run. Say which in its Found
 cell. Where the script printed one line for a group it cannot see, replace it
 with one line per item, as [fleet.md](fleet.md) says.
 
-Under the table, in this order:
+Under the table, in this order, written as `../principles/terse-output.md`
+says. A security warning or a step that needs sudo stays in full sentences:
 
 1. What you wrote or ran, and where, one line each.
 2. What the owner skipped.
