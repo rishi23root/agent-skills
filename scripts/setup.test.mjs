@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { ROOT } from './lib.mjs';
 
 const SETUP = path.join(ROOT, 'scripts', 'setup.mjs');
@@ -17,7 +17,15 @@ const TOKEN = 'gho_NEVERPRINTTHISTOKEN';
 const EMAIL = 'never-print@example.com';
 const LABELS = ['needs-triage', 'needs-info', 'ready-for-agent', 'ready-for-human', 'wontfix'];
 const PROTECTION = 'gh api repos/octo/demo/branches/main/protection';
-const whereIs = (cmd) => path.dirname(execFileSync(process.platform === 'win32' ? 'where' : 'which', [cmd], { encoding: 'utf8' }).split('\n')[0].trim());
+// Runs a command and returns its output. Only the exit code decides success:
+// inside some sandboxes a child that ran fine still comes back with an error
+// attached, and a helper that throws on that would fail every test there.
+const sh = (cmd, a, opts = {}) => {
+  const r = spawnSync(cmd, a, { encoding: 'utf8', ...opts });
+  if (r.status !== 0) throw new Error(`${cmd} ${a.join(' ')}: ${r.stderr || r.error?.message}`);
+  return r.stdout;
+};
+const whereIs = (cmd) => path.dirname(sh(process.platform === 'win32' ? 'where' : 'which', [cmd]).split('\n')[0].trim());
 
 // A stub answers from a table of "command line" -> { out, err, status }. A
 // key ending in * matches by prefix. Anything not in the table fails.
@@ -65,7 +73,7 @@ function world({ answers = {}, identity = true, files = {}, fresh = false, env: 
     HOME: home, USERPROFILE: home, STUB_TABLE: path.join(tmp, 'stubs.json'),
     GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: path.join(home, '.gitconfig'), ...extra,
   };
-  const git = (...a) => execFileSync('git', a, { cwd: proj, env, encoding: 'utf8' });
+  const git = (...a) => sh('git', a, { cwd: proj, env });
   git('init', '--quiet', '--initial-branch=main');
   if (identity) { git('config', 'user.name', 'Octo Cat'); git('config', 'user.email', 'octo@example.com'); }
   for (const [file, text] of Object.entries(files)) {
