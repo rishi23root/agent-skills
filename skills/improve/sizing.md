@@ -29,6 +29,6 @@ secrets, deletion of data, or production infrastructure. Otherwise it is
 High risk changes three things:
 
 1. The seat moves up one (`junior` to `mid`, `mid` to `senior`).
-2. `senior` reviews as well as the reviewer from another provider, who is
-   there at every risk level.
+2. A second voice reviews. The reviewer's level does not move with risk: it
+   is one seat above the author, as `review` says under "Who reviews".
 3. The owner sees the brief before any build starts.

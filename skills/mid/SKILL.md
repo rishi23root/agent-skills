@@ -24,7 +24,7 @@ juniors send back.
 - A brief of size `feature`, or a `small` one that spans several files or has
   an unknown cause.
 - An existing issue that needs triage before anyone can build it.
-- A junior PR to review, when its risk is `normal`.
+- A junior PR to review.
 
 ## Done means
 

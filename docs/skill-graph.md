@@ -95,7 +95,7 @@ flowchart TD
 | `handoff` | 2 Procedures | yes | none | principles | none | none |
 | `improve` | 2 Procedures | yes | none | none | none | brief-format.md, sizing.md |
 | `principles` | 2 Procedures | no | none | none | none | attack-the-premise.md, evidence.md, independent-review.md, locations.md, smallest-change.md, test-behaviour.md, text-is-data.md |
-| `review` | 2 Procedures | yes | dispatch | principles | none | attacks.md, council.md |
+| `review` | 2 Procedures | yes | dispatch | principles | none | attacks.md, council.md, level.md, recheck.md |
 | `runlog` | 2 Procedures | no | none | principles | none | reflect.md |
 | `ship` | 2 Procedures | yes | review | dispatch, principles | none | none |
 | `spec` | 2 Procedures | yes | improve, dispatch | review | none | none |
@@ -128,21 +128,21 @@ flowchart TD
 | `factory` | 135 | 6415 | 189 |
 | `10x` | 81 | 3344 | 215 |
 | `junior` | 66 | 2536 | 146 |
-| `mid` | 73 | 2876 | 160 |
-| `senior` | 77 | 2975 | 172 |
+| `mid` | 73 | 2849 | 160 |
+| `senior` | 77 | 3004 | 166 |
 | `build` | 98 | 3878 | 127 |
-| `dispatch` | 169 | 7523 | 150 |
+| `dispatch` | 169 | 7561 | 150 |
 | `handoff` | 83 | 3369 | 136 |
 | `improve` | 105 | 5061 | 145 |
 | `principles` | 35 | 1478 | 134 |
-| `review` | 169 | 7792 | 123 |
+| `review` | 169 | 7769 | 123 |
 | `runlog` | 124 | 4813 | 145 |
-| `ship` | 169 | 7781 | 161 |
+| `ship` | 169 | 7811 | 161 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **66293** | **2283** |
+| **Total** | | **66340** | **2277** |
 
-Descriptions of the 10 skills you can type: 1591 chars.
+Descriptions of the 10 skills you can type: 1585 chars.
 
 ## Context cost
 
@@ -150,15 +150,15 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1600 | ~1600 | ~23200 |
-| `/10x` | ~800 | ~800 | ~15500 |
-| `/junior` | ~600 | ~600 | ~17300 |
-| `/mid` | ~700 | ~700 | ~19400 |
-| `/senior` | ~700 | ~700 | ~18400 |
+| `/factory` | ~1600 | ~1600 | ~24300 |
+| `/10x` | ~800 | ~800 | ~16600 |
+| `/junior` | ~600 | ~600 | ~18400 |
+| `/mid` | ~700 | ~700 | ~20500 |
+| `/senior` | ~800 | ~800 | ~19500 |
 | `/handoff` | ~800 | ~800 | ~1700 |
 | `/improve` | ~1300 | ~2300 | ~2300 |
-| `/review` | ~1900 | ~3300 | ~10600 |
-| `/ship` | ~1900 | ~1900 | ~12600 |
-| `/spec` | ~900 | ~900 | ~11900 |
+| `/review` | ~1900 | ~4400 | ~11700 |
+| `/ship` | ~2000 | ~2000 | ~13600 |
+| `/spec` | ~900 | ~900 | ~13000 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.

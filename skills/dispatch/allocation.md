@@ -17,12 +17,12 @@ harness what is available today and place each model in a tier.
 |---|---|---|
 | Manager (`factory`, `senior` when dispatching) | frontier | high |
 | `10x`: framing, council voice, rescue | frontier | high |
-| `senior`: spec, risky review | frontier | high |
+| `senior`: spec, review of `mid` PRs | frontier | high |
 | `mid`: feature build, diagnosis, ticket slicing | workhorse | medium, or high when risk is high |
 | `junior`: one ready ticket | workhorse | medium. Use fast for a purely mechanical ticket |
 | Read-only search or locating code | fast | low |
 | Titles, branch names and commit messages the harness writes with its own model | fast | low |
-| Review, risk normal | at least the author's tier | medium |
+| Review, risk normal | the tier of the seat whose level it reviews at (`review/level.md`), and at least the author's tier | medium |
 | Review, risk high | frontier | high |
 
 Do not run the strongest model at its maximum effort by default: it costs far
