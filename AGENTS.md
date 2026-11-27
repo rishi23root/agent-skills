@@ -32,6 +32,10 @@ If you changed a skill's `metadata`, `upstream.lock.json` or a plan in
 `docs/plans`, also run `node scripts/graph.mjs`. It regenerates
 `docs/skill-graph.html`, which CI checks the same way.
 
+If you changed a skill's `description` or `metadata`, the install section of
+`README.md` or `scripts/site.template.html`, also run `node scripts/site.mjs`.
+It regenerates `docs/index.html`, which CI checks the same way.
+
 If you changed `upstream.lock.json`, also run it against the clones:
 
 ```
@@ -61,7 +65,7 @@ copies update only when it changes.
 ## Do not
 
 - Do not edit generated files by hand (`docs/skill-graph.md`,
-  `docs/skill-graph.html`, `extras.md`).
+  `docs/skill-graph.html`, `docs/index.html`, `extras.md`).
 - Do not copy third-party skill text into this repository. Reference it
   through `upstream.lock.json`.
 - Do not install these skills into a user-level skills folder as part of a
