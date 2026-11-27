@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The checks behind the setup skill (skills/setup/SKILL.md). It only reads:
+// The checks behind the factory-setup skill (skills/factory-setup/SKILL.md). It only reads:
 // it runs commands that report state, reads files, and writes nothing. The
 // skill does the asking and, on the owner's yes, the writing.
 //
@@ -226,7 +226,7 @@ const lost = SCRIPTS.filter((s) => !fs.existsSync(path.join(ROOT, 'scripts', s))
 add('Locations', 'Factory scripts', 'required', lost.length ? 'missing' : 'ok', lost.length ? `${repoPath}/scripts lacks ${lost.join(', ')}` : `${repoPath}/scripts`,
   lost.length ? 'This copy of the repository is incomplete. Install it again' : '');
 
-const localUp = (readText(path.join(ROOT, 'skills', 'setup', 'local.md')) || '').match(/^- upstream: `(.+?)`/m);
+const localUp = (readText(path.join(ROOT, 'skills', 'factory-setup', 'local.md')) || '').match(/^- upstream: `(.+?)`/m);
 const upstream = localUp ? localUp[1] : path.join(HOME, '.agent-skills', 'upstream');
 const sources = Object.entries(loadLock().sources);
 const pinned = sources.filter(([id, src]) => fs.existsSync(path.join(upstream, id, '.git'))
@@ -239,7 +239,7 @@ add('Locations', 'Extras, at their pinned commits', 'optional', extrasOk ? 'ok' 
 // ---- 7. project profile -----------------------------------------------------
 const draftCmd = `node ${repoPath}/scripts/setup.mjs --draft-profile --project ${projectPath}`;
 if (profile === null) add('Project', `Profile \`${PROFILE}\``, 'optional', 'missing', 'no profile: the factory guesses the commands and runs in pilot mode',
-  `\`${draftCmd}\` prints a draft. The setup skill asks for the rest and writes it on a yes`);
+  `\`${draftCmd}\` prints a draft. The factory-setup skill asks for the rest and writes it on a yes`);
 else {
   const mode = (profile.match(/\*\*Mode:\*\*\s*(pilot|steady)\b(?!\s*\|)/) || [])[1];
   add('Project', `Profile \`${PROFILE}\``, 'optional', mode ? 'ok' : 'missing', mode ? `present, mode ${mode}` : 'present, but its Mode line is not filled in',

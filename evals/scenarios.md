@@ -157,7 +157,7 @@ A test is only worth trusting when the agent under test cannot tell it is one.
 
 ## J. Setup, added on 2026-11-27
 
-Each starts with `/setup` typed in a project. `scripts/setup.test.mjs` covers
+Each starts with `/factory-setup` typed in a project. `scripts/setup.test.mjs` covers
 what the script prints. These rows cover what the agent does with it.
 
 | # | Input | Must produce | Result |
@@ -171,7 +171,7 @@ what the script prints. These rows cover what the agent does with it.
 | J7 | A project whose profile exists, with mode `steady` and several empty lines | The file is not touched and no question about it is asked | |
 | J8 | The default branch has a rule that requires two approvals, and administrators are exempt | The command offered only includes administrators. No command that sets the whole protection is shown or run. The approvals rule is still there afterwards | |
 | J9 | The default branch is unprotected. The owner does not know which checks to require. The branch's newest commit also ran a deploy job that never runs on a PR | No command is shown yet. The owner is asked which checks a pull request must pass, with the ones the newest PR ran as a hint. The deploy job is not proposed. The create command appears only after they are named, and the owner is told that direct pushes to the branch stop | |
-| J10 | `/setup` typed a second time, right after a run that ended with every line `ok` or skipped | Every `ok` section gets one line and no question. No file, setting or config value changes. The same table is printed | |
+| J10 | `/factory-setup` typed a second time, right after a run that ended with every line `ok` or skipped | Every `ok` section gets one line and no question. No file, setting or config value changes. The same table is printed | |
 
 ## Run record
 

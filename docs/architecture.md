@@ -32,7 +32,7 @@ flowchart TD
     H[handoff]
     RL[runlog]
     PR[principles]
-    SU[setup]
+    SU[factory-setup]
   end
   F --> I
   F --> L1
@@ -43,13 +43,13 @@ flowchart TD
 |---|---|---|
 | 0 Manager | How much process does this task need, and is the result real? | `/factory` |
 | 1 Seats | Who does the work, and what may they decide alone? | `/junior` `/mid` `/senior` `/10x` |
-| 2 Procedures | How is one step done properly? | six of eleven: `/improve` `/review` `/spec` `/ship` `/handoff` `/setup`. The rest are loaded only |
+| 2 Procedures | How is one step done properly? | six of eleven: `/improve` `/review` `/spec` `/ship` `/handoff` `/factory-setup`. The rest are loaded only |
 
 `improve` is the front door: the procedure that answers "what is actually
 being asked, in this project, today?". `factory` and every seat load it when a
 task arrives as rough words. `review`, `spec`, `ship` and `handoff` can be
 typed too, for one step on work that has no ticket. Each says what it does in
-that case under "Typed by the owner, with no ticket". `setup` is typed only.
+that case under "Typed by the owner, with no ticket". `factory-setup` is typed only.
 Nothing loads it, because it runs before the factory can.
 
 **The layer rule.** A skill may load only skills in a layer below it.
@@ -123,7 +123,7 @@ owner.
 
 | Artifact | From, to | Owned by |
 |---|---|---|
-| Readiness table: what a machine and a project still lack | setup to the owner | `scripts/setup.mjs` |
+| Readiness table: what a machine and a project still lack | factory-setup to the owner | `scripts/setup.mjs` |
 | Agent brief | improve to factory, a seat or spec | `skills/improve/brief-format.md` |
 | Size and risk | improve to factory | `skills/improve/sizing.md` |
 | Spec | senior to tickets | `skills/spec/SKILL.md` |
@@ -190,7 +190,7 @@ owner.
 | 20 | The repository is also a Claude Code and Codex plugin, from `.claude-plugin/` | One command installs every skill with the scripts beside them and updates itself, the route `mattpocock/skills` uses. A plugin install writes no `local.md`, so `principles/locations.md` says how a skill finds the scripts and the extras without it. No setup skill was added: the extras lists carry the one command | A harness that drops the scripts from its plugin copy, or extras that most runs need |
 | 21 | A change is reviewed at the level one seat above its author, under the review procedure and without loading that seat's skill (2026-11-27) | The owner's rule. A reviewer one step up has the experience to catch what the author missed, without spending the top seat on every risky PR. "Mid or senior" let a peer review a `mid` PR, and risk `high` jumped to `senior` whoever the author was. A reviewer told "review as `senior`" loaded the seat and read duties it must not have: the spec gate, starting workers, the merge gate. Risk still sets the number of voices. The level also sets the model's tier, so a `mid` PR at normal risk now costs a frontier review | Run log showing reviews one seat up find nothing a same-level review on a stronger model would have |
 | 22 | Caveman-style terse output is a core principle for chat and PRs (`skills/principles/terse-output.md`) (2026-11-27) | The owner's rule. Chat reports, PR bodies and PR reviews were too wordy. Upstream `caveman` is an optional extra and explicitly drops terse style on PRs; putting our own rule in `principles` covers every run, keeps PRs short, and preserves exact proof, markers and safety warnings | Run log or owner feedback showing terse PRs hide risk or confuse readers |
-| 23 | `setup` is a typed procedure that nothing loads, with its checks in `scripts/setup.mjs`. It replaces the last sentence of decision 20 (2026-11-27) | The owner's words: setup is needed when setting things up for the first time, and it should ask for everything a factory run may need. The requirements were one prose line that nothing checked. A commit failed for want of a git identity, the plugin was missing from the owner's own session, and the PR webhook was never wired. What can be checked is a script, because prose is not a mechanism. The skill only asks, shows, and writes on a yes. The validator's rule that every skill is reachable from `factory` has one named exception, since setup runs before the factory can | A harness that checks all of this itself, or run log lessons showing the table says `ok` where a run then fails |
+| 23 | `factory-setup` is a typed procedure that nothing loads, with its checks in `scripts/setup.mjs`. It replaces the last sentence of decision 20 (2026-11-27) | The owner's words: setup is needed when setting things up for the first time, and it should ask for everything a factory run may need. The requirements were one prose line that nothing checked. A commit failed for want of a git identity, the plugin was missing from the owner's own session, and the PR webhook was never wired. What can be checked is a script, because prose is not a mechanism. The skill only asks, shows, and writes on a yes. The validator's rule that every skill is reachable from `factory` has one named exception, since setup runs before the factory can | A harness that checks all of this itself, or run log lessons showing the table says `ok` where a run then fails |
 
 ## Open questions
 

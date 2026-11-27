@@ -1,5 +1,5 @@
 ---
-name: setup
+name: factory-setup
 description: >-
   First-run interview. Checks a machine and a project for what a factory run
   needs, asks only for what it cannot detect, writes on a yes, and ends with
@@ -12,7 +12,7 @@ metadata:
   reads: "principles"
 ---
 
-# setup
+# factory-setup
 
 Setup runs once on a new machine and once in each new project. It leaves both
 ready for `/factory` to run end to end, or it says exactly what is still in

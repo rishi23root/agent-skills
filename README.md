@@ -67,7 +67,7 @@ flowchart LR
 | | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
 | | `principles` | no | Short rules that several skills share, one file each |
-| | `setup` | yes | The first-run interview: checks a machine and a project, asks, and writes on a yes |
+| | `factory-setup` | yes | The first-run interview: checks a machine and a project, asks, and writes on a yes |
 
 Eleven skills are typed by you. Their descriptions total about 1,800 characters.
 Every skill is called by name only, so none of them is loaded until you ask.
@@ -140,7 +140,7 @@ them.
 
 Requirements: Node 20 or later, git, and an authenticated GitHub CLI (`gh`).
 Python 3 for tstack's `babysit-pr` extra. On a new machine or in a new
-project, type `/setup` first. It checks all of this, asks for what it cannot
+project, type `/factory-setup` first. It checks all of this, asks for what it cannot
 detect, and ends with a table of what is ready and how to fix what is not.
 
 ## Install from a clone (for working on the skills)
@@ -205,7 +205,7 @@ project as `checks/`, one plain-English rule per file. Copy
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
 | `scripts/runlog.mjs` | Adds, closes, summarises and audits run log rows. The log is append-only |
 | `scripts/gate.mjs` | Reads a PR's real state and checks the merge gate. Never merges |
-| `scripts/setup.mjs` | The checks behind `/setup`. Reads a machine and a project and prints one table of `ok`, `missing` or `unknown`, with the fix for each line. Writes nothing. `--draft-profile` prints a filled `docs/agents/factory.md` |
+| `scripts/setup.mjs` | The checks behind `/factory-setup`. Reads a machine and a project and prints one table of `ok`, `missing` or `unknown`, with the fix for each line. Writes nothing. `--draft-profile` prints a filled `docs/agents/factory.md` |
 | `scripts/call-graph.mjs` | Builds an interactive page of which skill calls which, across the core and every pinned library |
 
 ## What is proven and what is not
