@@ -50,19 +50,33 @@ the gate is weak: it passes with a note. With administrators exempt, the
 owner's own token can merge past a red check. So the line is `ok` only when
 the branch requires at least one check, for administrators too.
 
-- **Which checks.** When the owner names the checks CI must pass, give them
-  to the script: `--require-check <name,name>`. When they do not know, the
-  table proposes the checks that ran on the branch's newest commit. Ask
-  "require these?".
+- **Which checks.** The owner names the checks a pull request must pass. Give
+  them to the script: `--require-check <name,name>`. Until they are named,
+  the script builds no command. It lists what the newest pull request ran,
+  as a hint to ask about. Never require a check that runs only after a
+  merge, such as a deploy: no PR could pass it, and every merge would stop.
 - **Use the fix in the table, exactly.** For a branch that already has a
   rule, it only adds a check or includes administrators. Do not write a call
   of your own that sets the whole protection of such a branch: that call
   replaces every rule on it, including ones the owner set by hand.
 - **An unprotected branch** gets one command that creates the rule: the
-  checks, administrators included, and nothing else. It asks for no review
-  approval, because one account cannot approve its own PR.
-- **A fix "by hand"** appears when the rule exists but status checks are
-  off. Give the owner the steps. Do not look for a command.
+  named checks, administrators included. It asks for no review approval,
+  because one account cannot approve its own PR. Say what follows before the
+  yes: nobody pushes straight to the branch, force-pushes it or deletes it
+  any more, the owner included. Every change arrives through a PR whose
+  checks passed.
+- **Check again right before you run it.** The fix was built from how the
+  branch looked when the script ran. If time has passed, run the script
+  again first: a rule added in between would be replaced by the create
+  command.
+- **A refused command ends the attempt.** Show the refusal and stop. Do not
+  try another call in its place. A rule that covers the branch by a pattern
+  may not accept these calls: the owner then changes it in the settings.
+- **No command, only steps:** a name that is not plain text is never put in
+  a command, because it could change what the command does. The table then
+  gives the steps to do by hand.
+- **A fix "by hand"** also appears when the rule exists but status checks
+  are off. Give the owner the steps. Do not look for a command.
 - **A ruleset** shows as `unknown`. The script cannot see who may bypass
   it. The owner looks, and tells you.
 - **`unknown`, could not be read:** only an administrator can read branch
@@ -74,7 +88,8 @@ the branch requires at least one check, for administrators too.
 
 A ticket moves through five states, and each state is a label. The profile
 may rename them, in its "Used here" column. Fill that in first, so the script
-checks the names this project uses.
+checks the names this project uses. A cell left empty or `not set` means the
+default name.
 
 - On a yes, run the create commands from the table. They add labels. Never
   rename or delete a label that is already there.

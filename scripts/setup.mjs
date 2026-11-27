@@ -19,13 +19,28 @@ import { spawnSync } from 'node:child_process';
 import { ROOT, loadLock, parseArgs, posix } from './lib.mjs';
 
 const args = parseArgs(process.argv.slice(2));
-const project = path.resolve(typeof args.project === 'string' ? args.project : process.cwd());
-if (!fs.existsSync(project)) { console.error('no such folder: ' + project); process.exit(2); }
+// An option that is misspelled or has no value must not be dropped in silence:
+// the table would then answer a question the owner did not ask.
+const OPTIONS = { project: true, 'require-check': true, json: false, 'draft-profile': false };
+const usage = (why) => { console.error(`${why}\nusage: setup.mjs [--project <dir>] [--require-check <name,name>] [--json] | --draft-profile [--project <dir>]`); process.exit(2); };
+if (args._.length) usage(`unexpected argument: ${args._[0]}`);
+for (const [name, value] of Object.entries(args)) {
+  if (name === '_') continue;
+  if (!(name in OPTIONS)) usage(`unknown option --${name}${name.includes('=') ? ': write the value after a space, not after "="' : ''}`);
+  if (OPTIONS[name] !== (typeof value === 'string')) usage(OPTIONS[name] ? `--${name} needs a value` : `--${name} takes no value`);
+}
+const project = path.resolve(args.project || process.cwd());
+if (!fs.existsSync(project)) usage('no such folder: ' + project);
 const HOME = os.homedir();
-// Paths go into commands the owner may paste, so one with a space is quoted.
-const shown = (p) => (/\s/.test(p) ? `"${posix(p)}"` : posix(p));
-const repoPath = shown(ROOT);
-const projectPath = shown(project);
+// The fixes are commands the owner or an agent may paste. Names and paths in
+// them come from the project, from GitHub and from the machine, so they are
+// data (skills/principles/text-is-data.md). Only a plain one goes into a
+// command: letters, digits, spaces and . _ : / @ + -. Anything else could
+// change what the pasted command does, so it gets a stand-in or a by-hand fix.
+const plain = (s) => typeof s === 'string' && /^[\p{L}\p{N}_ .:/@+-]+$/u.test(s);
+const shown = (p, standIn) => { const s = posix(p); return !plain(s.replace(/^~/, '')) ? standIn : /\s/.test(s) ? `"${s}"` : s; };
+const repoPath = shown(ROOT, '<repo>');
+const projectPath = shown(project, '<project>');
 const readJson = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } };
 const readText = (file) => { try { return fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'); } catch { return null; } };
 
@@ -74,7 +89,7 @@ const gitName = hasGit ? run('git', ['config', 'user.name']).out : '';
 const gitEmail = hasGit ? run('git', ['config', 'user.email']).out : '';
 if (gitName && gitEmail) add('Machine', 'git identity', 'required', 'ok', `${gitName} <${gitEmail}>`);
 else {
-  const name = user?.login ? (user.name || user.login).replace(/"/g, '') : '<your name>';
+  const name = user?.login ? (plain(user.name) ? user.name : user.login) : '<your name>';
   const email = user?.login ? `${user.id}+${user.login}@users.noreply.github.com` : '<your email>';
   add('Machine', 'git identity', 'required', hasGit ? 'missing' : 'unknown',
     !hasGit ? 'git not found' : [gitName ? '' : 'no user.name', gitEmail ? '' : 'no user.email'].filter(Boolean).join(', '),
@@ -100,8 +115,10 @@ const SCOPES = [
 let scopes = null;
 if (signedIn) {
   const st = run('gh', ['auth', 'status']);
-  const blocks = `${st.out}\n${st.err}`.split(/\n(?=.*Logged in to )/);
-  const active = blocks.find((b) => /Active account:\s*true/.test(b)) || blocks[0] || '';
+  // Several hosts and accounts can be signed in. Read the one that answered above.
+  const host = process.env.GH_HOST || 'github.com';
+  const mine = `${st.out}\n${st.err}`.split(/\n(?=.*Logged in to )/).filter((b) => b.includes(`Logged in to ${host} account ${user.login} `) || b.includes(`Logged in to ${host} as ${user.login} `));
+  const active = mine.find((b) => /Active account:\s*true/.test(b)) || mine[0] || '';
   const line = active.match(/Token scopes:\s*(.*)/);
   if (line) scopes = line[1].split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
 }
@@ -154,7 +171,10 @@ function folder(dir) {
 }
 // What an agent's own plugin list says about this plugin: `on`, `off`
 // (listed, but not installed or not enabled), `absent`, `unclear`, or `no-cli`.
-function pluginState(cmd) {
+// An agent that never ran on this machine has no plugins, and asking its
+// CLI would make it create its own state folder. So it is not asked.
+function pluginState(cmd, cliHome) {
+  if (!fs.existsSync(cliHome)) return run(cmd, ['--version']).gone ? 'no-cli' : 'absent';
   const r = run(cmd, ['plugin', 'list', '--json'], { timeout: 10000 });
   if (r.gone) return 'no-cli';
   const data = json(r);
@@ -169,10 +189,10 @@ function pluginState(cmd) {
   return mine.length ? 'unclear' : 'absent';
 }
 const reach = [];
-function agent(name, cmd, dirs, installFix, offFix = installFix) {
+function agent(name, cmd, cliHome, dirs, installFix, offFix = installFix) {
   const found = dirs.map(folder).filter(Boolean);
   const good = found.find((f) => f.leads);
-  const p = cmd ? pluginState(cmd) : 'none';
+  const p = cmd ? pluginState(cmd, cliHome) : 'none';
   let state = 'missing', what, fix = installFix;
   if (p === 'on') { state = 'ok'; what = `plugin ${pluginId}`; fix = ''; }
   else if (good) { state = 'ok'; what = `skills folder ${good.dir}`; fix = ''; }
@@ -185,11 +205,11 @@ function agent(name, cmd, dirs, installFix, offFix = installFix) {
   reach.push(state);
 }
 const at = (...p) => path.join(...p, 'skills');
-agent('Claude Code', 'claude', [at(project, '.claude'), at(HOME, '.claude')],
+agent('Claude Code', 'claude', process.env.CLAUDE_CONFIG_DIR || path.join(HOME, '.claude'), [at(project, '.claude'), at(HOME, '.claude')],
   `claude plugin install ${plugin.name} --marketplace ${marketRepo}`, `claude plugin enable ${pluginId}`);
-agent('Codex', 'codex', [at(project, '.agents'), at(HOME, '.agents'), at(HOME, '.codex')],
+agent('Codex', 'codex', process.env.CODEX_HOME || path.join(HOME, '.codex'), [at(project, '.agents'), at(HOME, '.agents'), at(HOME, '.codex')],
   `codex plugin marketplace add ${marketRepo} ; codex plugin add ${pluginId}`);
-agent('agents that read `.agents/skills`', null, [at(project, '.agents'), at(HOME, '.agents')], linkCmd);
+agent('agents that read `.agents/skills`', null, null, [at(project, '.agents'), at(HOME, '.agents')], linkCmd);
 const anyReach = reach.includes('ok');
 add('Skills', 'Reachable in at least one agent', 'required', anyReach ? 'ok' : reach.includes('unknown') ? 'unknown' : 'missing',
   anyReach ? 'yes' : 'no agent on this machine can be shown to load the skills',
@@ -209,7 +229,7 @@ const pinned = sources.filter(([id, src]) => fs.existsSync(path.join(upstream, i
 const extrasOk = pinned.length === sources.length;
 add('Locations', 'Extras, at their pinned commits', 'optional', extrasOk ? 'ok' : 'missing',
   `${pinned.length} of ${sources.length} in ${posix(upstream)}`,
-  extrasOk ? '' : `node ${repoPath}/scripts/sync-upstream.mjs --dir ${shown(upstream)}`);
+  extrasOk ? '' : `node ${repoPath}/scripts/sync-upstream.mjs --dir ${shown(upstream, '<extras folder>')}`);
 
 // ---- 7. project profile -----------------------------------------------------
 const draftCmd = `node ${repoPath}/scripts/setup.mjs --draft-profile --project ${projectPath}`;
@@ -222,63 +242,82 @@ else {
 }
 
 // ---- 8. repository guards ---------------------------------------------------
-const want = typeof args['require-check'] === 'string' ? args['require-check'].split(',').map((s) => s.trim()).filter(Boolean) : [];
+const want = args['require-check'] ? args['require-check'].split(',').map((s) => s.trim()).filter(Boolean) : [];
 if (!slug || !branch) {
   add('Guards', 'Default branch protected', 'optional', 'unknown', 'the repository could not be read', 'Fix the GitHub lines above, then run this again');
   add('Guards', 'Tracker labels', 'optional', 'unknown', 'the repository could not be read', 'Fix the GitHub lines above, then run this again');
 } else {
+  const settings = `the settings of ${plain(slug) ? slug : 'the repository'}`;
+  const named = (xs) => xs.filter(plain).join(', ');
   const base = `repos/${slug}/branches/${encodeURIComponent(branch)}`;
+  // A command is offered only when every name in it is plain. Otherwise the fix is by hand.
+  const canCommand = plain(slug) && plain(branch) && want.every(plain);
   const classic = run('gh', ['api', `${base}/protection`]);
   const rules = json(run('gh', ['api', `repos/${slug}/rules/branches/${encodeURIComponent(branch)}`]));
-  const ruleChecks = (Array.isArray(rules) ? rules : []).filter((r) => r.type === 'required_status_checks')
-    .flatMap((r) => r.parameters?.required_status_checks || []).map((c) => c.context);
-  const check = `\`${branch}\` protected: checks required, administrators included`;
-  // Names to offer when nothing is required yet: the checks that ran on the branch's newest commit.
-  const seen = () => uniq((json(run('gh', ['api', `repos/${slug}/commits/${encodeURIComponent(branch)}/check-runs`]))?.check_runs || []).map((c) => c.name));
-  const byHand = `In the settings of ${slug}, open the rule for \`${branch}\`, turn on "Require status checks to pass" and add`;
+  const ruleChecks = uniq((Array.isArray(rules) ? rules : []).filter((r) => r.type === 'required_status_checks')
+    .flatMap((r) => r.parameters?.required_status_checks || []).map((c) => c.context));
+  const check = `\`${plain(branch) ? branch : 'default branch'}\` protected: checks required, administrators included`;
+  // Which checks to require is the owner's call. The script only says what
+  // the newest pull request ran, as text: a check seen on the default branch
+  // can be one that runs after a merge, and requiring it would block every PR.
+  const nameThem = () => {
+    const pr = json(run('gh', ['pr', 'list', '--repo', slug, '--state', 'all', '--limit', '1', '--json', 'statusCheckRollup']));
+    const ran = named(uniq((pr?.[0]?.statusCheckRollup || []).map((c) => c.name || c.context).filter(Boolean)));
+    return `Name the checks a pull request must pass, then run this again with --require-check <name,name>${ran ? `. The newest pull request ran: ${ran}` : ''}`;
+  };
+  const bypass = `A ruleset can let administrators bypass it, and a script cannot read that list. In ${settings}, under Rules, confirm the bypass list is empty`;
   const p = classic.ok ? json(classic) : null;
   if (p) {
     const rsc = p.required_status_checks;
-    const have = uniq([...(rsc?.contexts || []), ...(rsc?.checks || []).map((c) => c.context), ...ruleChecks]);
+    const own = uniq([...(rsc?.contexts || []), ...(rsc?.checks || []).map((c) => c.context)]);
+    const have = uniq([...own, ...ruleChecks]);
     const admins = p.enforce_admins?.enabled === true;
-    const lacking = have.length || want.length ? want.filter((w) => !have.includes(w)) : seen();
+    const lacking = want.filter((w) => !have.includes(w));
     const fixes = [];
-    if (!have.length || lacking.length) {
-      const names = lacking.length ? lacking : ['<check name>'];
-      fixes.push(rsc ? `gh api -X POST ${base}/protection/required_status_checks/contexts ${names.map((n) => `-f "contexts[]=${n}"`).join(' ')}`
-        : `${byHand} ${names.map((n) => `\`${n}\``).join(', ')}`);
-    }
-    if (!admins) fixes.push(`gh api -X POST ${base}/protection/enforce_admins`);
-    add('Guards', check, 'optional', fixes.length ? 'missing' : 'ok',
-      `requires ${have.length ? have.join(', ') : 'no checks'}; administrators ${admins ? 'included' : 'exempt'}`, fixes.join(' ; '));
+    if (lacking.length) fixes.push(rsc && canCommand
+      ? `gh api -X POST ${base}/protection/required_status_checks/contexts ${lacking.map((n) => `-f "contexts[]=${n}"`).join(' ')}`
+      : `In ${settings}, open the rule for the default branch, turn on "Require status checks to pass" and add: ${named(lacking) || 'the checks you named'}`);
+    else if (!have.length) fixes.push(nameThem());
+    if (!admins) fixes.push(canCommand ? `gh api -X POST ${base}/protection/enforce_admins`
+      : `In ${settings}, open the rule for the default branch and turn on "Do not allow bypassing the above settings"`);
+    // A check that only a ruleset requires is not known to hold for administrators.
+    const leans = want.length ? want.some((w) => !own.includes(w)) : !own.length;
+    const found = `requires ${have.length ? named(have) : 'no checks'}; administrators ${admins ? 'included' : 'exempt'}`;
+    if (!fixes.length && leans) add('Guards', check, 'optional', 'unknown', `${found} in the branch rule, but the checks come from a ruleset`, bypass);
+    else add('Guards', check, 'optional', fixes.length ? 'missing' : 'ok', found, fixes.join(' ; '));
   } else if (/Branch not protected/i.test(classic.out + classic.err)) {
     const lacking = want.filter((w) => !ruleChecks.includes(w));
-    if (ruleChecks.length && !lacking.length) add('Guards', check, 'optional', 'unknown', `a ruleset requires ${uniq(ruleChecks).join(', ')}`,
-      `A ruleset can let administrators bypass it. In the settings of ${slug}, under Rules, confirm the bypass list is empty`);
-    else if (ruleChecks.length) add('Guards', check, 'optional', 'missing', `a ruleset requires ${uniq(ruleChecks).join(', ')}`,
-      `Add ${lacking.map((n) => `\`${n}\``).join(', ')} to that ruleset, in the settings of ${slug} under Rules`);
+    if (ruleChecks.length && !lacking.length) add('Guards', check, 'optional', 'unknown', `a ruleset requires ${named(ruleChecks)}`, bypass);
+    else if (ruleChecks.length) add('Guards', check, 'optional', 'missing', `a ruleset requires ${named(ruleChecks)}`,
+      `Add ${named(lacking) || 'the checks you named'} to that ruleset, in ${settings} under Rules`);
     else {
-      const names = want.length ? want : seen();
-      const contexts = (names.length ? names : ['<check name>']).map((n) => `-f "required_status_checks[contexts][]=${n}"`).join(' ');
-      add('Guards', check, 'optional', 'missing', 'not protected: the merge gate has no required check to read',
-        `gh api -X PUT ${base}/protection -F "required_status_checks[strict]=false" ${contexts} -F "enforce_admins=true" -F "required_pull_request_reviews=null" -F "restrictions=null"`);
+      const found = 'not protected: the merge gate has no required check to read';
+      if (!want.length) add('Guards', check, 'optional', 'missing', found, nameThem());
+      else if (!canCommand) add('Guards', check, 'optional', 'missing', found,
+        `In ${settings}, add a rule for the default branch that requires the checks you named and does not allow bypassing`);
+      else add('Guards', check, 'optional', 'missing', found,
+        `gh api -X PUT ${base}/protection -F "required_status_checks[strict]=false" ${want.map((n) => `-f "required_status_checks[contexts][]=${n}"`).join(' ')} -F "enforce_admins=true" -F "required_pull_request_reviews=null" -F "restrictions=null"`);
     }
   } else add('Guards', check, 'optional', 'unknown', classic.slow ? 'GitHub did not answer in time' : 'branch protection could not be read',
-    `Only an administrator of ${slug} can read it. Ask one to confirm that \`${branch}\` requires its checks, for administrators too`);
+    `Only an administrator can read it. Ask one to confirm, in ${settings}, that the default branch requires its checks, for administrators too`);
 
-  // Label names: the defaults from the template, or what the profile says is used here.
+  // Label names: the defaults from the template, or what the profile says is
+  // used here. A cell that only says the line is open is not a name.
+  const OPEN = /^(not set|none|same|n\/a|-)?$/i;
   const labelRows = (text) => [...(text || '').matchAll(/^\| `([^`]+)` \|([^|\n]*)\|/gm)].map((m) => [m[1], m[2].trim().replace(/^`|`$/g, '')]);
-  const usedHere = new Map(labelRows(profile));
+  const usedHere = new Map(labelRows(profile).filter(([, used]) => !OPEN.test(used)));
   const labels = labelRows(template).map(([name]) => usedHere.get(name) || name);
   if (!repo.hasIssuesEnabled) add('Guards', 'Tracker labels', 'optional', 'ok', 'issues are off in this repository, so tickets are files and need no labels');
   else {
-    const list = run('gh', ['label', 'list', '--repo', slug, '--limit', '500', '--json', 'name']);
+    const list = plain(slug) ? run('gh', ['label', 'list', '--repo', slug, '--limit', '500', '--json', 'name']) : { ok: false };
     const there = (json(list) || []).map((l) => l.name);
     const absent = labels.filter((l) => !there.includes(l));
-    if (!list.ok) add('Guards', 'Tracker labels', 'optional', 'unknown', 'the labels could not be read', `Run \`gh label list --repo ${slug}\` and compare with: ${labels.join(', ')}`);
+    const odd = absent.filter((l) => !plain(l)).length;
+    if (!list.ok) add('Guards', 'Tracker labels', 'optional', 'unknown', 'the labels could not be read', `Open the labels page in ${settings} and compare with: ${named(labels)}`);
     else add('Guards', 'Tracker labels', 'optional', absent.length ? 'missing' : 'ok',
-      absent.length ? `absent: ${absent.join(', ')}` : `all ${labels.length} present`,
-      absent.map((l) => `gh label create "${l}" --repo ${slug}`).join(' ; '));
+      absent.length ? `absent: ${named(absent)}${odd ? `${absent.length > odd ? ', and ' : ''}${odd} whose name is not plain text` : ''}` : `all ${labels.length} present`,
+      [...absent.filter(plain).map((l) => `gh label create "${l}" --repo ${slug}`),
+        ...(odd ? [`${odd} name${odd > 1 ? 's' : ''} in the profile's "Used here" column hold${odd > 1 ? '' : 's'} characters that are not safe in a command: correct the column, or create the label by hand in ${settings}`] : [])].join(' ; '));
   }
 }
 

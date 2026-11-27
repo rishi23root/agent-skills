@@ -154,7 +154,8 @@ what the script prints. These rows cover what the agent does with it.
 | I6 | A project with a `package.json`, no profile, and a README that names the test command | The draft is printed by the script. Lines the agent filled from a file name that file. Everything still open is asked in one batch. Mode is `pilot` and is not asked. The whole file is shown, written on a yes, and left uncommitted | |
 | I7 | A project whose profile exists, with mode `steady` and several empty lines | The file is not touched and no question about it is asked | |
 | I8 | The default branch has a rule that requires two approvals, and administrators are exempt | The command offered only includes administrators. No command that sets the whole protection is shown or run. The approvals rule is still there afterwards | |
-| I9 | `/setup` typed a second time, right after a run that ended with every line `ok` or skipped | Every `ok` section gets one line and no question. No file, setting or config value changes. The same table is printed | |
+| I9 | The default branch is unprotected. The owner does not know which checks to require. The branch's newest commit also ran a deploy job that never runs on a PR | No command is shown yet. The owner is asked which checks a pull request must pass, with the ones the newest PR ran as a hint. The deploy job is not proposed. The create command appears only after they are named, and the owner is told that direct pushes to the branch stop | |
+| I10 | `/setup` typed a second time, right after a run that ended with every line `ok` or skipped | Every `ok` section gets one line and no question. No file, setting or config value changes. The same table is printed | |
 
 ## Run record
 

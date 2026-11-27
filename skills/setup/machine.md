@@ -55,6 +55,9 @@ to load the skills, or `/factory` cannot be typed anywhere.
 - Skip a line for an agent the owner does not use. One agent is enough.
 - `unknown` means the agent's own plugin list did not answer. Ask the owner
   to run the command in the table and say what it shows.
+- The script asks an agent for its plugin list only when that agent has run
+  on this machine before. Asking one that never ran would make it create
+  its own settings folder.
 - A harness that drives other agents shows a thread the skills its
   provider's agent can load. The lines for those agents are the ones that
   count there.

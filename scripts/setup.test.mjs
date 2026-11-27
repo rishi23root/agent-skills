@@ -2,7 +2,7 @@
 // throwaway home folder and project, and puts stub `gh`, `claude` and `codex`
 // commands first on PATH, so nothing here touches the real machine or account.
 //
-//   node --test scripts/
+//   node --test scripts/setup.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
@@ -34,10 +34,12 @@ const repoView = (over = {}) => say({ nameWithOwner: 'octo/demo', defaultBranchR
 
 // A machine and a project with everything in place. `answers` replaces stub
 // answers; a null answer makes that command fail.
-function world({ answers = {}, identity = true, files = {} } = {}) {
+function world({ answers = {}, identity = true, files = {}, fresh = false } = {}) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-test-'));
   const [home, proj, bin] = ['home', 'proj', 'bin'].map((d) => path.join(tmp, d));
   for (const d of [home, proj, bin]) fs.mkdirSync(d);
+  // Both agents have run on this machine before, unless a test says otherwise.
+  if (!fresh) for (const d of ['.claude', '.codex']) fs.mkdirSync(path.join(home, d));
   for (const cmd of ['gh', 'claude', 'codex']) fs.writeFileSync(path.join(bin, cmd), STUB, { mode: 0o755 });
   const table = {
     'gh --version': say('gh version 2.50.0 (2024-05-01)'),
@@ -110,6 +112,15 @@ test('a token without the repo scope: the fix is the refresh line, and the scrip
   assert.equal(code, 1);
 });
 
+test('scopes are read from the account that answered, not from another host or account', () => {
+  const two = say(`ghe.example.com\n  ✓ Logged in to ghe.example.com account octo (keyring)\n  - Active account: true\n  - Token: ${TOKEN}\n  - Token scopes: 'repo', 'workflow'\n`
+    + `github.com\n  ✓ Logged in to github.com account other (keyring)\n  - Active account: false\n  - Token scopes: 'repo'\n`
+    + `  ✓ Logged in to github.com account octo (keyring)\n  - Active account: true\n  - Token: ${TOKEN}\n  - Token scopes: 'gist'\n`);
+  const { rows } = world({ answers: { 'gh auth status': two } }).rows();
+  const r = find(rows, 'Token scope `repo`');
+  assert.deepEqual([r.state, r.found], ['missing', 'gist']);
+});
+
 test('a token that lists no scopes is unknown, not missing', () => {
   const { code, rows } = world({ answers: { 'gh auth status': status('') } }).rows();
   assert.equal(find(rows, 'Token scope `repo`').state, 'unknown');
@@ -130,17 +141,49 @@ test('read-only access to the repository is a required line that is missing', ()
   assert.equal(code, 1);
 });
 
-test('an unprotected branch: the fix protects it with the checks seen on the branch', () => {
-  const { code, rows } = world({ answers: {
-    [PROTECTION]: say({ message: 'Branch not protected', status: '404' }, { status: 1, err: 'gh: Branch not protected (HTTP 404)' }),
-    'gh api repos/octo/demo/commits/main/check-runs': say({ check_runs: [{ name: 'validate' }, { name: 'validate' }] }),
-  } }).rows();
-  const r = find(rows, 'protected');
-  assert.equal(r.state, 'missing');
-  assert.match(r.fix, /^gh api -X PUT repos\/octo\/demo\/branches\/main\/protection /);
-  assert.match(r.fix, /"required_status_checks\[contexts\]\[\]=validate"/);
-  assert.match(r.fix, /"enforce_admins=true"/);
-  assert.equal(code, 0, 'a guard is optional: it never fails the script');
+const UNPROTECTED = say({ message: 'Branch not protected', status: '404' }, { status: 1, err: 'gh: Branch not protected (HTTP 404)' });
+
+test('an unprotected branch: the owner names the checks, and only then is there a command', () => {
+  const answers = { [PROTECTION]: UNPROTECTED, 'gh pr list *': say([{ statusCheckRollup: [{ name: 'validate' }, { context: 'lint' }] }]) };
+  const asked = world({ answers }).rows();
+  const a = find(asked.rows, 'protected');
+  assert.equal(a.state, 'missing');
+  assert.doesNotMatch(a.fix, /gh api/, 'no command is built from checks the script only saw');
+  assert.match(a.fix, /--require-check <name,name>\. The newest pull request ran: validate, lint$/);
+  assert.equal(asked.code, 0, 'a guard is optional: it never fails the script');
+
+  const b = find(world({ answers }).rows('--require-check', 'validate').rows, 'protected');
+  assert.match(b.fix, /^gh api -X PUT repos\/octo\/demo\/branches\/main\/protection /);
+  assert.match(b.fix, /"required_status_checks\[contexts\]\[\]=validate"/);
+  assert.doesNotMatch(b.fix, /lint/, 'only the named check is required');
+  assert.match(b.fix, /"enforce_admins=true"/);
+});
+
+test('a name that is not plain text never reaches a command', () => {
+  const evil = 'agent-ready$(touch pwned)';
+  const profile = `- **Mode:** pilot\n\n| Default | Used here |\n|---|---|\n| \`ready-for-agent\` | \`${evil}\` |\n`;
+  const w = world({ answers: { 'gh label list *': say([]), [PROTECTION]: UNPROTECTED }, files: { 'docs/agents/factory.md': profile } });
+  const labels = find(w.rows().rows, 'Tracker labels');
+  assert.equal(labels.fix.match(/gh label create/g).length, 4, 'the four plain names still get their command');
+  assert.match(labels.fix, /1 name in the profile's "Used here" column/);
+  const check = find(w.rows('--require-check', 'ci`id`,$(id)').rows, 'protected');
+  assert.doesNotMatch(check.fix, /gh api/);
+  for (const a of [[], ['--require-check', 'ci`id`,$(id)']]) {
+    const out = w.setup(...a).out;
+    assert.ok(!out.includes('$(') && !out.includes('`id`'), 'nothing a shell would run is printed');
+  }
+  const named = world({ answers: { 'gh api user': say({ login: 'octo', id: 42, name: 'Octo"; rm -rf ~ #' }) }, identity: false }).rows();
+  assert.match(find(named.rows, 'git identity').fix, /user\.name "octo" ;/, 'an account name that is not plain falls back to the login');
+});
+
+test('an option that is misspelled, glued with "=", or missing its value stops the script', () => {
+  const w = world();
+  for (const a of [['--require-check=validate'], ['--requre-check', 'validate'], ['--require-check'], ['--json', 'yes'], ['stray']]) {
+    const r = w.setup(...a);
+    assert.equal(r.code, 2, `setup ${a.join(' ')}`);
+    assert.match(r.err, /usage: setup\.mjs/);
+    assert.equal(r.out, '');
+  }
 });
 
 test('a protected branch is fixed in place: no command replaces the rules already there', () => {
@@ -154,10 +197,16 @@ test('a protected branch is fixed in place: no command replaces the rules alread
   assert.equal(b.state, 'missing');
   assert.equal(b.fix, 'gh api -X POST repos/octo/demo/branches/main/protection/required_status_checks/contexts -f "contexts[]=validate"');
 
-  const noChecks = world({ answers: { [PROTECTION]: say({ enforce_admins: { enabled: true } }), 'gh api repos/octo/demo/commits/main/check-runs': say({ check_runs: [] }) } }).rows();
+  const noChecks = world({ answers: { [PROTECTION]: say({ enforce_admins: { enabled: true } }) } }).rows();
   const c = find(noChecks.rows, 'protected');
   assert.equal(c.state, 'missing');
-  assert.doesNotMatch(c.fix, /gh api/, 'with no status checks turned on, the fix is by hand');
+  assert.match(c.fix, /^Name the checks a pull request must pass/);
+
+  const off = world({ answers: { [PROTECTION]: say({ enforce_admins: { enabled: true } }) } }).rows('--require-check', 'ci');
+  const d = find(off.rows, 'protected');
+  assert.equal(d.state, 'missing');
+  assert.doesNotMatch(d.fix, /gh api/, 'with status checks turned off in the rule, the fix is by hand');
+  assert.match(d.fix, /turn on "Require status checks to pass" and add: ci/);
 });
 
 test('protection that only a ruleset gives is unknown: its bypass list is checked by hand', () => {
@@ -168,6 +217,15 @@ test('protection that only a ruleset gives is unknown: its bypass list is checke
   const r = find(rows, 'protected');
   assert.equal(r.state, 'unknown');
   assert.match(r.fix, /bypass list/);
+
+  // A branch rule with no checks of its own, leaning on a ruleset for them: same doubt.
+  const leaning = world({ answers: {
+    [PROTECTION]: say({ enforce_admins: { enabled: true } }),
+    'gh api repos/octo/demo/rules/branches/main': say([{ type: 'required_status_checks', parameters: { required_status_checks: [{ context: 'ci' }] } }]),
+  } }).rows();
+  const l = find(leaning.rows, 'protected');
+  assert.equal(l.state, 'unknown');
+  assert.match(l.fix, /bypass list/);
 });
 
 test('missing labels are named, each with its create command; the profile can rename them', () => {
@@ -181,6 +239,12 @@ test('missing labels are named, each with its create command; the profile can re
   const renamed = find(world({ answers: some, files: { 'docs/agents/factory.md': profile } }).rows().rows, 'Tracker labels');
   assert.doesNotMatch(renamed.fix, /ready-for-agent|agent-ready/);
   assert.equal(renamed.fix.split(' ; ').length, 3);
+
+  // A "Used here" cell that only says the line is open is not a label name.
+  const open = '- **Mode:** pilot\n\n| Default | Used here |\n|---|---|\n| `needs-info` | not set |\n| `needs-triage` | none |\n';
+  const left = find(world({ answers: some, files: { 'docs/agents/factory.md': open } }).rows().rows, 'Tracker labels');
+  assert.match(left.fix, /gh label create "needs-info"/);
+  assert.doesNotMatch(left.fix, /"not set"|"none"/);
 });
 
 test('the profile line: missing, present with a mode, present with the mode left open', () => {
@@ -211,6 +275,14 @@ test('skills are reachable through the plugin, or a skills folder that leads to 
 
   const off = find(world({ answers: { 'claude plugin list --json': say([{ id: 'agent-skills@rishi23root', enabled: false }]) } }).rows().rows, 'Reachable in Claude Code');
   assert.deepEqual([off.state, off.fix], ['missing', 'claude plugin enable agent-skills@rishi23root']);
+});
+
+test('an agent that never ran on this machine is not asked for its plugins', () => {
+  // The stub would say the plugin is on. A fresh home has no agent folder, so the stub is never run.
+  const w = world({ fresh: true });
+  const r = find(w.rows().rows, 'Reachable in Claude Code');
+  assert.deepEqual([r.state, r.found], ['missing', 'no plugin and no skills folder']);
+  assert.deepEqual(fs.readdirSync(w.home), [], 'and nothing appeared in the home folder');
 });
 
 test('the draft profile fills what the repository shows and leaves the rest open', () => {
