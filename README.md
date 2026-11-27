@@ -28,7 +28,8 @@ You usually type one of two commands.
 Behind those are four **seats** you can also call directly (`/junior`, `/mid`,
 `/senior`, `/10x`) and ten **procedures** that the seats load one at a time,
 only when a step needs them. `improve` is one of the ten: a seat loads it
-when you hand it rough words.
+when you hand it rough words. Whichever door you use, the review of a PR
+starts by itself once its checks settle. You are not asked first.
 
 ```mermaid
 flowchart LR
@@ -63,7 +64,7 @@ flowchart LR
 | | `dispatch` | no | The orchestration layer: caps, placement, models, worker brief |
 | | `build` | no | One ticket, failing check first, observed proof |
 | | `review` | yes | Independent review on two axes, capped fix loop, and the council |
-| | `ship` | yes | PR, checks, merge gate |
+| | `ship` | yes | PR, checks, review start, merge gate |
 | | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
 | | `principles` | no | Six rules that several skills share, one short file each |

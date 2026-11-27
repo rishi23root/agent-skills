@@ -30,8 +30,10 @@ what to do when it is missing, is in `../build/SKILL.md`.
 
 ## Done means
 
-A PR is open, its checks are green, and your report shows the commands you ran
-with their output. You do not approve it and you do not merge it.
+A PR is open, its checks are green, and its review is started: by you when you
+are the top session, reported as due when you are a worker (`../ship/SKILL.md`,
+"Start the review"). Started is not approved. Your report shows the commands
+you ran with their output. You do not approve the PR and you do not merge it.
 
 ## Stop and escalate to `mid` when
 
@@ -45,8 +47,8 @@ with their output. You do not approve it and you do not merge it.
 ## Limits
 
 - You never start builders, never copy yourself, and never open extra tickets.
-- You may start one read-only helper to find where a symbol lives. Nothing
-  else.
+- You may start one read-only helper to find where a symbol lives and, as the
+  top session, the reviewer that `ship` calls for. Nothing else.
 - You do not widen the ticket. A problem you notice outside it goes in your
   report as a note.
 
@@ -58,7 +60,7 @@ Read each one when its step starts.
 |---|---|
 | The task is rough words, not a ticket or a brief | `../improve/SKILL.md` |
 | Build the ticket and prove it | `../build/SKILL.md` |
-| Open the PR and watch its checks (stop before the merge gate) | `../ship/SKILL.md` |
+| Open the PR, watch its checks, start the review (stop before the merge gate) | `../ship/SKILL.md` |
 | Context past about 60 percent, or bounced from review | `../handoff/SKILL.md` |
 
 Optional extras for this seat are listed in [extras.md](extras.md).

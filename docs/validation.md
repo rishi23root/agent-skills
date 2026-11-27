@@ -91,7 +91,8 @@ which is which.
 | Project rules are applied to every diff | The project's `checks/` folder, read by the reviewer | Prose, with a fixed PASS or FAIL output |
 | A skill is changed only after three matching lessons and the owner's yes | `skills/runlog/reflect.md` | Prose |
 | Required checks green, approval on the head commit, no changes requested, no conflicts | `scripts/gate.mjs` reads the PR | **Mechanism**, once it is called. Weak where a repository requires no checks, and where author and reviewer share one account |
-| A junior does not dispatch or approve | Its seat lists no `dispatch` or `review`. Nothing stops an agent reading the file anyway | Prose |
+| A junior starts no builder and does not approve | Its seat lists no `dispatch` or `review`. The one worker it starts, as a top session, is the reviewer `ship` calls for. Nothing stops an agent reading the file anyway | Prose |
+| A review starts by itself once a PR is open and its checks settle | Instruction in `ship`, "Start the review". A PR made outside the skills is covered by the `pr-opened` prompt in `templates/automation`, once the owner wires it | **Prose only** |
 | Builders stay inside `Touches` | Reviewer checks the diff against the ticket | Prose, checked by a second agent |
 | The author does not review their own work | Reviewer is started fresh by the manager | Prose |
 | Proof was actually observed | Reviewer and gate read the quoted output | Prose, checked by a second agent |

@@ -152,8 +152,9 @@ Stop a worker you no longer need. Do not leave it running.
 
 1. Read the status code first ([report-format.md](report-format.md)).
 2. `DONE`: check that the evidence the brief asked for is there
-   (`../principles/evidence.md`), then send it to review. If it is missing,
-   ask the same worker for it once. A second miss is a gap, never a pass.
+   (`../principles/evidence.md`), then start the review at once, as `ship`
+   says under "Start the review". If it is missing, ask the same worker for
+   it once. A second miss is a gap, never a pass.
 3. `DONE_WITH_CONCERNS`: read the concerns. Decide whether they block before
    review, and record the decision in the ledger, or in your report when the
    work is too small to have one.
