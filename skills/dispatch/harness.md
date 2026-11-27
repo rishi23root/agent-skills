@@ -20,7 +20,7 @@ without telling the owner.
 
 ## Permission modes
 
-The role rules are in section 5 of `SKILL.md`. These are the names that
+The role rules are in [brief.md](brief.md). These are the names that
 carry them out, strictest first.
 
 | Behaviour | Who | T3 Code (`runtimeMode`) | Claude Code (`permissionMode`) | Codex (`--sandbox`, `--ask-for-approval`) |
