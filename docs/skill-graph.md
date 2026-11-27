@@ -136,10 +136,10 @@ flowchart TD
 | `principles` | 35 | 1478 | 134 |
 | `review` | 169 | 7727 | 123 |
 | `runlog` | 124 | 4813 | 145 |
-| `ship` | 114 | 4623 | 130 |
+| `ship` | 117 | 4847 | 130 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **62027** | **2252** |
+| **Total** | | **62251** | **2252** |
 
 Descriptions of the 10 skills you can type: 1560 chars.
 
@@ -157,7 +157,7 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 | `/handoff` | ~700 | ~700 | ~1600 |
 | `/improve` | ~1300 | ~2300 | ~2300 |
 | `/review` | ~1900 | ~3300 | ~10000 |
-| `/ship` | ~1200 | ~1200 | ~4300 |
+| `/ship` | ~1200 | ~1200 | ~4400 |
 | `/spec` | ~900 | ~900 | ~11300 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.

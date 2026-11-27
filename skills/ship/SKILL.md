@@ -37,7 +37,10 @@ The description, in this order:
    the pass after. For something visible: a screenshot or the steps to see it.
 4. **Merge danger.** What this could break, what is hard to undo, and how to
    roll it back. "None" is an answer only after you have thought about it.
-5. **Not included.** What a reader might expect and will not find.
+5. **Try before merging.** What the owner should try by hand before they merge.
+   After a send-back, add what changed since the last review round and what is
+   risky in that change, so the owner knows where to look again.
+6. **Not included.** What a reader might expect and will not find.
 
 One ticket, one PR. Aim for 100 to 200 changed lines. A larger PR needs a
 reason in the description.
