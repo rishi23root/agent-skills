@@ -95,8 +95,32 @@ if (planFile) {
   }
 }
 
+const template = fs.readFileSync(TEMPLATE, 'utf8').replace(/\r\n/g, '\n');
+
+// The walkthrough's steps are written in the template. A {name} in a step is a
+// skill the page lights, so a name that is not a skill would light nothing.
+const walkBlock = template.match(/<script type="application\/json" id="walk-steps">([\s\S]*?)<\/script>/);
+const walkErrors = [];
+let steps = [];
+if (!walkBlock) walkErrors.push('the walk-steps block is missing');
+else {
+  try { steps = JSON.parse(walkBlock[1]); } catch (e) { walkErrors.push(`the walk-steps block is not valid JSON: ${e.message}`); }
+}
+if (!walkErrors.length && (!Array.isArray(steps) || !steps.length)) walkErrors.push('the walk-steps block has no steps');
+steps.forEach((step, i) => {
+  const names = [...String(step.text || '').matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]);
+  if (!step.title || !names.length) walkErrors.push(`step ${i + 1} needs a title and a text that names at least one {skill}`);
+  for (const name of names) {
+    if (!skillNames.has(name)) walkErrors.push(`step ${i + 1} names "${name}", which is not a skill in the graph`);
+  }
+});
+if (walkErrors.length) {
+  console.error(`scripts/graph.template.html, the walkthrough:\n  ${walkErrors.join('\n  ')}`);
+  process.exit(1);
+}
+
 const data = JSON.stringify({ repo: REPO, nodes, edges, plan }).replace(/</g, '\\u003c');
-const html = fs.readFileSync(TEMPLATE, 'utf8').replace(/\r\n/g, '\n').replace('__DATA__', () => data);
+const html = template.replace('__DATA__', () => data);
 
 if (parseArgs(process.argv.slice(2)).check) {
   const onDisk = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8').replace(/\r\n/g, '\n') : '';
