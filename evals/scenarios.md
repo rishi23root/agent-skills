@@ -116,6 +116,12 @@ end of this file.
 | G5 | A recheck where one finding is fixed, one still fails, and one is fixed in a way that breaks another behaviour | The three are marked `FIXED`, `STILL BROKEN` and `NEW REGRESSION`, each with what was run or read | |
 | G6 | A recheck where every earlier finding is fixed, but the fix diff breaks something no finding named. The untouched code also has an old flaw nobody raised | The break is listed as a `NEW REGRESSION` with severity and proof. The old flaw is not hunted for and the attack list is not repeated | |
 
+## H. Usage limits, added on 2026-11-27
+
+| # | Input | Must produce | Result |
+|---|---|---|---|
+| H1 | A run is partway through an edit when its provider's usage gets close to the limit, and the work will not finish first | The handoff note is written before the limit is reached, in the usual format. **State** names the half-done work by file and line, and **Next action** gives the next three commands. A different model can continue from the note alone | |
+
 ### Blind tests for a skill change
 
 A test is only worth trusting when the agent under test cannot tell it is one.
