@@ -80,6 +80,9 @@ which is which.
 | Run rows have valid fields | `scripts/runlog.mjs` rejects bad values | **Mechanism**, once it is called |
 | A logged row is never rewritten | `runlog.mjs close` appends a closing line | **Mechanism**, once it is called |
 | Rows with weak evidence are visible | `runlog.mjs audit` lists them and exits non-zero | **Mechanism**, once it is called |
+| A revert or a later defect is recorded only on a merged ticket | `runlog.mjs` rejects `reverted` and `defect-after-merge` from `add`, and from `close` when the ticket has no merged row | **Mechanism**, once it is called |
+| How often a merged PR stayed good is visible, per task type and model | `runlog.mjs summary`, column `stayed good` | **Mechanism**, for what was logged |
+| A revert or a later defect gets logged | Instruction in `runlog` | **Prose only** |
 | A run that hit the round cap is counted as such | Outcome `capped`, shown by `runlog.mjs summary` | **Mechanism**, once it is logged that way |
 | A shared rule exists once, is short, and is cited | `validate.mjs` checks every file in `skills/principles/` | **Mechanism** |
 | An approval survives a rebase only if the change is identical | `gate.mjs` compares the patch id in the verdict with the PR's current diff | **Mechanism**, once it is called |
