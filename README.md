@@ -55,7 +55,7 @@ flowchart LR
 | 0 Manager | `factory` | yes | Runs the whole loop and owns the ledger |
 | 1 Seats | `junior` | yes | One ready ticket, one small PR |
 | | `mid` | yes | Owns a feature: tickets, build, junior review |
-| | `senior` | yes | Spec gate, fan-out, risky review, merge gate |
+| | `senior` | yes | Spec gate, fan-out, mid review, merge gate |
 | | `10x` | yes | Unblocks: fog, design forks, council, rescue |
 | 2 Procedures | `improve` | yes | The front door. Rough words in, agent brief out. Stops |
 | | `spec` | yes | The spec and its gate |

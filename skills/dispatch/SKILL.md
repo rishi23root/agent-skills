@@ -108,9 +108,9 @@ procedure applies.
 For a read-only worker (search, review, research, a council voice), replace
 the Seat line with the one thing it must produce, and Boundaries with "Read
 only. Change nothing." A reviewer is the exception: it changes nothing on the
-branch, but it may run checks in its own worktree of the PR's head. A worker
-that only locates code replies in the locator format in
-[report-format.md](report-format.md).
+branch, but it may run checks in its own worktree of the PR's head.
+`review/level.md` has its first line. A worker that only locates code replies
+in the locator format in [report-format.md](report-format.md).
 
 The role sets the permission mode. Start the worker in it
 ([harness.md](harness.md)): the line in the brief only tells the worker, and

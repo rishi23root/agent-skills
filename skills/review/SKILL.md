@@ -30,22 +30,30 @@ owner.
 
 | Change | Reviewer |
 |---|---|
-| Junior PR, risk normal | `mid` |
-| Mid PR, risk normal | another `mid` or `senior` |
-| Any PR, risk high | `senior`, plus a second review by a model from a different provider than the author's |
+| Junior PR | at `mid` level |
+| Mid PR | at `senior` level |
+| Senior PR | at `10x` level |
+| Any PR, risk high | the same level, plus a second review by a model from a different provider than the author's |
 | A decision, or a change that cannot be rolled back once merged | a council, sized by [council.md](council.md) |
 
-The reviewer's model is at least as strong as the author's. That comes first:
-a model from another provider on a weaker tier does not count as the
+The reviewer is one seat above the author, at every risk: that seat catches
+what the author's seat misses. A level is the experience and the bar you
+judge with, not a seat: you work under this procedure and load no seat's
+skill. [level.md](level.md) has each level's bar and the cases the table
+leaves out. Write `Level: <level>, author <seat>` in your report.
+
+The reviewer's model is at least as strong as the author's, and on at least
+the tier `../dispatch/allocation.md` gives the level. That comes first: a
+model from another provider on a weaker tier does not count as the
 other-provider review.
 
 **Another provider, every time** (`../principles/independent-review.md`).
 Before you review, pick the row of [council.md](council.md) that fits and
 write the `Voices:` line in your report. The same file says who starts the
 voices. A council voice skips this step. When no other provider can run above
-the quota floor (`../dispatch/allocation.md`) at the author's tier, a fresh agent on the strongest
-model available reviews, and the verdict says "same provider". Condition 7
-of the merge gate, in `ship`, says what follows.
+the quota floor (`../dispatch/allocation.md`) on a model that meets the rule
+above, a fresh agent on the strongest model available reviews, and the
+verdict says "same provider". Gate condition 7, in `ship`, says what follows.
 
 ## Two axes
 
@@ -137,16 +145,8 @@ a normal GitHub review.
 
 1. The original author fixes what was sent back, with a clean context: the
    ticket, the PR and the findings.
-2. The same reviewer rechecks and marks every earlier finding:
-   - `FIXED`: its case no longer happens, shown the way the finding was.
-   - `STILL BROKEN`: its case still happens, or you could not show that it
-     stopped. Say which.
-   - `NEW REGRESSION`: its case is gone, but that fix broke something else.
-
-   Then look once through the fix diff (the changes since your last verdict)
-   for regressions, because a fix is new code. List any other break there as
-   `NEW REGRESSION`. Each one gets its own severity and proof. This is still
-   not a fresh sweep, and the attack list is not repeated.
+2. The same reviewer rechecks: it marks every earlier finding and looks once
+   through the fix diff, as [recheck.md](recheck.md) says.
 3. Cap: **three rounds**. Five when risk is `high`. This is the only place
    the number is written. A round is one send-back and the recheck of its
    fixes. The cap is hit when the recheck of the last round still has a

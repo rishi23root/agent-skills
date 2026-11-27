@@ -125,6 +125,7 @@ owner.
 | Size and risk | improve to factory | `skills/improve/sizing.md` |
 | Spec | senior to tickets | `skills/spec/SKILL.md` |
 | Review voices: how many, from which providers, how a council runs | review, spec and 10x to the top session | `skills/review/council.md` |
+| Reviewer's level: one seat above the author, and the line its brief carries | manager to reviewer | `skills/review/SKILL.md`, "Who reviews", and `skills/review/level.md` |
 | Ticket and its Technical Dependencies block | mid to a builder | `skills/tickets/ticket-format.md` |
 | Worker brief | manager to worker | `skills/dispatch/SKILL.md` |
 | Worker report and status code | worker to manager | `skills/dispatch/report-format.md` |
@@ -184,6 +185,7 @@ owner.
 | 18 | The council belongs to `review`, and `spec` and `10x` read it from there (2026-11-27) | It was reachable only through `10x`, so a review or a spec that needed several providers had to escalate two seats to get them. Every review now states `Voices: <number>, <reason>`. The top session starts the voices, so depth stays two | Run log showing councils are called where one reviewer would have found the same thing |
 | 19 | Every review includes a model from another provider; risk sets how many voices, one to three or more (2026-11-27) | The owner's rule. Same-family reviewers share the author's blind spots, and that matters on small PRs too. The cost is one review per PR on another provider, and a written waiver from the owner whenever none can run | Run log showing other-provider reviews on normal-risk PRs find nothing a same-provider review missed |
 | 20 | The repository is also a Claude Code and Codex plugin, from `.claude-plugin/` | One command installs every skill with the scripts beside them and updates itself, the route `mattpocock/skills` uses. A plugin install writes no `local.md`, so `principles/locations.md` says how a skill finds the scripts and the extras without it. No setup skill was added: the extras lists carry the one command | A harness that drops the scripts from its plugin copy, or extras that most runs need |
+| 21 | A change is reviewed at the level one seat above its author, under the review procedure and without loading that seat's skill (2026-11-27) | The owner's rule. A reviewer one step up has the experience to catch what the author missed, without spending the top seat on every risky PR. "Mid or senior" let a peer review a `mid` PR, and risk `high` jumped to `senior` whoever the author was. A reviewer told "review as `senior`" loaded the seat and read duties it must not have: the spec gate, starting workers, the merge gate. Risk still sets the number of voices. The level also sets the model's tier, so a `mid` PR at normal risk now costs a frontier review | Run log showing reviews one seat up find nothing a same-level review on a stronger model would have |
 
 ## Open questions
 
