@@ -95,12 +95,12 @@ flowchart TD
 | `mid` | 1 Seats | yes | improve, spec, tickets, build, review, ship, dispatch, handoff | none | senior | extras.md |
 | `senior` | 1 Seats | yes | improve, spec, tickets, dispatch, review, ship, handoff, runlog | none | 10x | extras.md |
 | `build` | 2 Procedures | no | none | dispatch, principles | none | none |
-| `dispatch` | 2 Procedures | no | runlog | principles | none | allocation.md, harness.md, report-format.md |
+| `dispatch` | 2 Procedures | no | runlog | principles | none | allocation.md, brief.md, harness.md, report-format.md |
 | `factory-setup` | 2 Procedures | yes | none | principles, dispatch | none | fleet.md, machine.md, project.md |
 | `handoff` | 2 Procedures | yes | none | principles | none | none |
 | `improve` | 2 Procedures | yes | none | principles | none | brief-format.md, sizing.md |
 | `principles` | 2 Procedures | no | none | none | none | attack-the-premise.md, evidence.md, independent-review.md, locations.md, smallest-change.md, terse-output.md, test-behaviour.md, text-is-data.md |
-| `review` | 2 Procedures | yes | dispatch | principles | none | attacks.md, council.md, level.md, recheck.md |
+| `review` | 2 Procedures | yes | dispatch | principles | none | attacks.md, council.md, fix-loop.md, level.md, recheck.md, verdict.md |
 | `runlog` | 2 Procedures | no | none | principles | none | reflect.md |
 | `ship` | 2 Procedures | yes | review | dispatch, principles | none | none |
 | `spec` | 2 Procedures | yes | improve, dispatch | review | none | none |
@@ -137,17 +137,17 @@ flowchart TD
 | `mid` | 73 | 2849 | 160 |
 | `senior` | 77 | 3004 | 166 |
 | `build` | 98 | 3878 | 127 |
-| `dispatch` | 169 | 7561 | 150 |
+| `dispatch` | 137 | 5784 | 150 |
 | `factory-setup` | 135 | 6909 | 205 |
 | `handoff` | 85 | 3496 | 136 |
 | `improve` | 107 | 5125 | 145 |
 | `principles` | 36 | 1598 | 134 |
-| `review` | 169 | 7785 | 123 |
+| `review` | 143 | 6362 | 123 |
 | `runlog` | 124 | 4813 | 145 |
 | `ship` | 169 | 7798 | 161 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **73563** | **2482** |
+| **Total** | | **70363** | **2482** |
 
 Descriptions of the 11 skills you can type: 1790 chars.
 
@@ -157,16 +157,16 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1600 | ~1600 | ~25300 |
-| `/10x` | ~800 | ~800 | ~17500 |
-| `/junior` | ~600 | ~600 | ~19300 |
-| `/mid` | ~700 | ~700 | ~21400 |
-| `/senior` | ~800 | ~800 | ~20500 |
-| `/factory-setup` | ~1700 | ~6500 | ~11200 |
+| `/factory` | ~1600 | ~1600 | ~25500 |
+| `/10x` | ~800 | ~800 | ~17800 |
+| `/junior` | ~600 | ~600 | ~19500 |
+| `/mid` | ~700 | ~700 | ~21600 |
+| `/senior` | ~800 | ~800 | ~20700 |
+| `/factory-setup` | ~1700 | ~6500 | ~11700 |
 | `/handoff` | ~900 | ~900 | ~1900 |
 | `/improve` | ~1300 | ~2300 | ~3300 |
-| `/review` | ~1900 | ~4400 | ~12600 |
-| `/ship` | ~1900 | ~1900 | ~14500 |
-| `/spec` | ~900 | ~900 | ~13900 |
+| `/review` | ~1600 | ~4500 | ~12800 |
+| `/ship` | ~1900 | ~1900 | ~14700 |
+| `/spec` | ~900 | ~900 | ~14500 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.
