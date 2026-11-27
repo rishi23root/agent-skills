@@ -1,7 +1,8 @@
 # Plan: align the factory with the T3 multi-agent note (2026-11-27)
 
-Status: **accepted 2026-11-27.** Each ticket runs in its own thread and
-opens its own PR. Written by the manager
+Status: **accepted 2026-11-27, Phases 0 to 4 mostly merged the same day.**
+Each ticket runs in its own thread and opens its own PR. Phase 6 lists the
+follow-ups. Written by the manager
 after a second, closer reading of *T3 Code: Building Multi-Agent Workflows*
 (Nov 2026), against the skills as they stand after PR 2 and PR 3.
 
@@ -91,6 +92,40 @@ is missing, with the step to fix each. It installs nothing on its own; it asks.
 Output: one table of `ok` or `missing`, and for each missing line the exact
 step. It needs a Decisions row, because decision 20 said no setup skill was
 added. It gets its own plan after this one ships.
+
+## Phase 6: follow-ups from the first run (added 2026-11-27)
+
+Phases 1 to 4 ran on 2026-11-27. Ten PRs merged that day (3, 5 to 13). What
+the run itself showed needs fixing:
+
+| # | Ticket | Seat | Touches | Done when |
+|---|---|---|---|---|
+| T14 | **A verdict survives a regenerated file.** Four PRs conflicted in `docs/skill-graph.md`, and each update voided an approval. The patch id in a verdict, and the one the gate computes, leave out the generated files. This is safe only while three things hold, and the ticket proves each: the left-out files are rebuilt whole from reviewed sources and hold nothing written by hand; the `validate` check, which runs every generator's `--check`, is required on `main` for administrators too; and the gate reads that check on the PR's current head, not an earlier commit. Reviewed by two providers, because it changes the gate | senior | `scripts/gate.mjs`, `skills/review/SKILL.md`, `skills/ship/SKILL.md`, `scripts/lib.mjs`, `docs/validation.md`, `docs/architecture.md` (decision 14), `evals/scenarios.md` | Four runs, each pasted: a PR whose only change since its verdict is a regenerated file passes condition 3; one hand-written character more and it fails; a hand edit to a generated file fails the required check on that head, so the gate fails condition 2; the gate fails when branch protection does not require the check |
+| T15 | **Room in the two full skills.** `review` is at 169 of 170 lines and `dispatch` at 168. Move detail to a reference file next to each, changing no rule | mid | `skills/review/`, `skills/dispatch/` | Both under 150 lines; `validate.mjs` passes; every line removed from a `SKILL.md` appears in the reference file next to it, shown by a diff that pairs them |
+| T16 | **Two owner decisions with no home.** The join onto one integration branch as an option for `feature` size, and the lead that splits and assigns but may build a piece when needed (owner decisions 2 and 3) | mid | `skills/tickets/SKILL.md`, `skills/senior/SKILL.md`, `docs/architecture.md`, `evals/scenarios.md` | Each is written once, with its reason, and has a Decisions row |
+| T17 | **The docs catch up.** README status and "What is proven" table, the "not taken" rows in `docs/research/pstack.md`, Decisions rows for this round, the dispatcher on the fleet page, which PR group wins in the triage prompt, and the plugin version raised so installed copies update | mid | `README.md`, `docs/research/pstack.md`, `docs/architecture.md`, `docs/fleet.md`, `templates/automation/daily-triage.md`, `.claude-plugin/plugin.json` | Nothing in those files contradicts what merged; `validate.mjs` passes |
+| T18 | **This repository gets a profile.** `docs/agents/factory.md` from the template, with mode `steady` (the owner's decision, to take effect once T4, T5, T6 and T12 have merged) and its docs paths | junior | new `docs/agents/factory.md` | The file exists and the manager reads the mode from it |
+
+Order for everything still open in this plan. One chain, each ticket after
+the one before it, never two at once: **T15, T4, T6, T14, T16, T17**. T18
+shares no file with the others and may run at any time.
+
+Why one chain. Every pair that shares a file, checked row by row: T15 with T4
+and T6 (`skills/review/`, `skills/dispatch/`), and T15 makes the room they
+need; T4 with T6 (`skills/dispatch/SKILL.md`); T4 and T15 with T14
+(`skills/review/SKILL.md`); T14 with T16 (`docs/architecture.md`,
+`evals/scenarios.md`); T14 and T16 with T17 (`docs/architecture.md`). Across
+plans: the website plan's T2 shares `scripts/lib.mjs` and
+`evals/scenarios.md` with T14 and T16, so it runs after them; its T3 shares
+`README.md` with T17, so those two never run at once.
+
+A PR that changes a skill also changes the generated `docs/skill-graph.md`.
+Until T14 merges, open each such PR on the branch of the one before it, so the
+generated file does not conflict.
+
+Also decided on 2026-11-27: `main` is protected (the `validate` check is
+required, for administrators too), and reviews alternate between the other
+providers that can run, with two voices on a change to the gate.
 
 ## Order and cost
 
