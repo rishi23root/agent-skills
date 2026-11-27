@@ -123,40 +123,14 @@ Exactly one:
 
 ## Recording the verdict
 
-Post findings and verdict on the PR, not in chat. Keep prose terse, and keep
-`Level:`, `Voices:`, `PASS`/`FAIL`, suspicion count and the final line exact
-(commit reviewed and patch id):
-
-```
-Factory-Review: APPROVE <head commit> patch <patch id>
-```
-
-The patch id is the first field of `gh pr diff <PR> | git patch-id --stable`.
-Use `SEND-BACK` or `COMMENT` in place of `APPROVE` as needed. The merge gate
-reads this line. A verdict covers a patch, not a commit: after a rebase that
-leaves the diff unchanged the patch id is the same and the verdict stands. If
-the diff changed at all, the verdict is void and the new diff is reviewed.
-When the reviewer has a different GitHub account from the author, also submit
-a normal GitHub review.
+Post findings and verdict as [verdict.md](verdict.md) says. Read it before
+you post: it has the exact final line the merge gate reads, and when a
+verdict stands or is void.
 
 ## The fix loop
 
-1. The original author fixes what was sent back, with a clean context: the
-   ticket, the PR and the findings.
-2. The same reviewer rechecks: it marks every earlier finding and looks once
-   through the fix diff, as [recheck.md](recheck.md) says.
-3. Cap: **three rounds**. Five when risk is `high`. This is the only place
-   the number is written. A round is one send-back and the recheck of its
-   fixes. The cap is hit when the recheck of the last round still has a
-   Critical or Important finding.
-4. At the cap, stop. Move the ticket up one seat or to a stronger model, and
-   record the unresolved findings in the ledger, or in the report to the owner
-   when the work is too small to have one. The manager closes the run's log
-   row with outcome `capped`, not `sent-back`.
-   The same finding sent back twice is a sign the cause is misread:
-   `../principles/attack-the-premise.md`.
-5. The manager does not advance a ticket while a Critical or Important finding
-   is open.
+After a send-back, follow [fix-loop.md](fix-loop.md). It holds the steps and
+the round cap.
 
 ## Reviewing as a worker
 
@@ -164,4 +138,4 @@ When a review is dispatched to you, you read, run and report. You do not edit
 the branch, push, or fix anything. You may run checks and the product, in a
 worktree of the PR's head commit, on the port and database the ticket names in
 `Runs on`. Remove the worktree when you finish. Your report is the findings
-and the verdict, in the format above.
+and the verdict, in the format above and in [verdict.md](verdict.md).
