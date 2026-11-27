@@ -146,16 +146,33 @@ the skills you already use.
 git clone https://github.com/rishi23root/agent-skills.git
 cd agent-skills
 node scripts/validate.mjs                       # check the skills and the graph
-node scripts/install.mjs --target <project>/.claude/skills --dry-run
-node scripts/install.mjs --target <project>/.claude/skills
+node scripts/install.mjs --project <project> --dry-run
+node scripts/install.mjs --project <project>
 ```
+
+`--project` makes the skills available to every agent that opens that project.
+It links them into two folders:
+
+| Folder | Read by |
+|---|---|
+| `<project>/.claude/skills` | Claude Code (also Cursor, Copilot and OpenCode) |
+| `<project>/.agents/skills` | Codex, Cursor, Antigravity, Gemini CLI, Copilot, OpenCode, Windsurf |
 
 Restart the agent session in that project, then type `/improve` or `/factory`
-followed by a task. To take it out again:
+followed by a task (`$factory` in Codex, `@factory` in OpenCode). To take it
+out again:
 
 ```
-node scripts/install.mjs --target <project>/.claude/skills --remove
+node scripts/install.mjs --project <project> --remove
 ```
+
+To install into one folder only, name it: `--target <skills dir>`.
+
+Two limits to know. "Called by name only" is a frontmatter flag that Claude
+Code, Cursor, Copilot and OpenCode honour; Codex, Antigravity, Gemini CLI and
+Windsurf do not document it, so there the model may load a skill from its
+description. And an agent that reads both folders (Cursor) may list each skill
+twice.
 
 Optional third-party extras, pinned to known commits. Fetch them before you
 install, so `local.md` records the folder:
