@@ -69,7 +69,7 @@ flowchart LR
 | | `principles` | no | Short rules that several skills share, one file each |
 | | `factory-setup` | yes | The first-run interview: checks a machine and a project, asks, and writes on a yes |
 
-Eleven skills are typed by you. Their descriptions total about 710 characters.
+Eleven skills are typed by you. Their descriptions total 711 characters.
 Every skill is called by name only, so none of them is loaded until you ask.
 
 ### Cost at a glance
