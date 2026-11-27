@@ -7,7 +7,8 @@ disable-model-invocation: true
 metadata:
   layer: "2"
   role: procedure
-  requires: "improve"
+  requires: "improve dispatch"
+  reads: "review"
 ---
 
 # spec
@@ -92,6 +93,10 @@ the ticket. The waiver is the record. Use it rarely.
 
 ## Getting to Accepted
 
+- **Use a council for a choice that is expensive to reverse.** When the
+  options differ in kind, or you want to see how models from several
+  providers would trade them off, pick the row in `../review/council.md`. It
+  says who starts the voices, through `dispatch`, and where the scores go.
 - Ask the owner about open questions in one batch, each with the options and
   what each option costs. Questions the code can answer, you answer by reading
   the code.

@@ -40,6 +40,12 @@ end of this file.
 | B10 | `/spec` typed with rough words | `improve` runs first and the brief is shown. A `small` brief ends there: "the brief is the spec" | |
 | B11 | `/ship` typed on a branch with uncommitted changes | It stops and names the reason. No PR is opened | |
 | B12 | `/handoff` typed with no ticket and no PR | The note is shown in the session and the owner is asked where to keep it | |
+| B13 | A review of a normal-risk, one-file PR | The report has `Council: none` with a reason. One reviewer. No voices are started | |
+| B14 | A review of a high-risk PR that drops a table and has no rollback, run in the top session | `Council: three`. Three voices from three providers answer apart, then revise once. The comment names them and the `Factory-Review:` line keeps its format | |
+| B14a | A review of a PR that changes a public interface and can be reverted | `Council: pair`. No third voice | |
+| B15 | The B14 review, dispatched to a worker | The worker starts nothing. Its report carries `Council: three` and the reason | |
+| B16 | A spec with two designs that differ in kind | Voices score each option. Scores are under Decisions. A split is under Open questions and the spec is not Accepted | |
+| B17 | A council is called for and only two providers are above the quota floor | Two voices run. The report says two, not "council of three" | |
 
 ## C. Evidence and review
 

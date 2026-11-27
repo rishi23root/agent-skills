@@ -141,7 +141,7 @@ Sources:
 |---|---|---|---|
 | Automatic or by name | Superpowers triggers automatically. Pocock makes side-effecting skills explicit. Theo uses trigger phrases | Everything by name | A measured audit here found most automatic triggering was noise |
 | Parallel builders | Pocock runs them in parallel worktrees. Superpowers forbids it | Allowed, behind a gate and caps, starting in pilot mode at one | Parallel work raised total tokens here, and review is the bottleneck |
-| Shape of review | Pocock: two axes, no verdict. Superpowers: one reviewer, hard gate. Theo: cross-provider council to agreement | Two axes, one verdict, hard gate. Cross-provider only for high risk. Council only through `10x` | A verdict is needed to gate. A council on every PR costs too much |
+| Shape of review | Pocock: two axes, no verdict. Superpowers: one reviewer, hard gate. Theo: cross-provider council to agreement | Two axes, one verdict, hard gate. Cross-provider only for high risk. Council by the table in `review/council.md` (until 2026-11-27: only through `10x`) | A verdict is needed to gate. A council on every PR costs too much |
 | Enforcement | Mostly prose. Only Anthropic's docs push rules into hooks | Scripts for what can be checked, and an honest table of what is still prose | "Prose is not a mechanism" was this project's own finding |
 | How many skills | Pocock about 27. Theo 9. Superpowers about 15 | 14, of which 6 are typed | The owner wanted a small set of main skills |
 | Router | Pocock has `ask-matt`. Theo has none | `factory` routes and also manages | The owner wanted one command that manages everything |
@@ -157,7 +157,7 @@ Sources:
 | Two review axes | Pocock | `review` |
 | A merge gate of checkable conditions, and "leave it open" | Theo | `ship`, `scripts/gate.mjs` |
 | Stop at the gate by default, merge only on a word | Theo (`full-stop`, `full-send`) | `ship` |
-| Council of three providers | Theo | `10x` |
+| Council of three providers | Theo | `review/council.md` |
 | Status codes for worker reports | Superpowers | `dispatch/report-format.md` |
 | A ledger in a file | Superpowers | `factory` |
 | A capped fix loop that escalates | Superpowers | `review` |

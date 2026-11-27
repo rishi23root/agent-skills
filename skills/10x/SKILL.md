@@ -25,8 +25,8 @@ tickets, you have stayed too long.
    unclear for one spec.
 2. **A fork in kind.** Two or more designs that differ in shape, not detail,
    and the choice is expensive to reverse.
-3. **A council is needed.** A decision or a high-stakes review that is worth
-   three strong models from three different providers.
+3. **A council that needs framing.** `review` and `spec` call their own. You
+   come in when nobody can state the question, or a council split.
 4. **A wide change.** A rename, retype or migration that reaches a large share
    of the callers and needs sequencing.
 5. **A rescue.** A bug or a PR that `senior` could not close.
@@ -51,13 +51,7 @@ Then hand back to whoever called you, the manager or `senior`, using
 - **Design it twice.** For a fork in kind, get two or three different
   interfaces drafted independently, by separate workers who do not see each
   other's answer. Prefer the one with the smallest surface that hides the most.
-- **Council.** Three models, three providers, the same question and the same
-  evidence. They answer separately first. Each gives every option a score
-  from 1 to 10 with its reasons. Show them each other's answers once and let
-  them revise. That is the second and last round. If they still disagree, the
-  disagreement is the finding, and the owner decides. A council reads and
-  advises. It does not edit. With fewer than three providers available, say
-  so and use what there is. Do not call it a council of three.
+- **Council.** Run it as `../review/council.md` says.
 - **Prototype to decide, then throw it away.** A prototype answers one
   question. It never becomes the product.
 - **Primary sources.** Send read-only scouts for evidence and require a source

@@ -122,6 +122,7 @@ owner.
 | Agent brief | improve to factory, a seat or spec | `skills/improve/brief-format.md` |
 | Size and risk | improve to factory | `skills/improve/sizing.md` |
 | Spec | senior to tickets | `skills/spec/SKILL.md` |
+| Council: when to call one, how many voices, how it runs | review, spec and 10x to the top session | `skills/review/council.md` |
 | Ticket and its Technical Dependencies block | mid to a builder | `skills/tickets/ticket-format.md` |
 | Worker brief | manager to worker | `skills/dispatch/SKILL.md` |
 | Worker report and status code | worker to manager | `skills/dispatch/report-format.md` |
@@ -177,6 +178,7 @@ owner.
 | 15 | The run log is append-only | A row that can be rewritten cannot be audited | n/a |
 | 16 | `improve` is a procedure that stays typeable (2026-11-27) | A seat typed directly with rough words had no way to get a brief: the layer rule stopped it loading a skill above it. As a procedure every seat may load it, and it stays typeable | n/a |
 | 17 | `review`, `spec`, `ship` and `handoff` are typeable; `tickets`, `dispatch`, `build`, `runlog` and `principles` are not (2026-11-27) | Each of the four is a whole step the owner sometimes wants alone, on work with no ticket. The five hidden ones need a ticket, a ledger or a caller to mean anything. The list is one constant in `scripts/validate.mjs` | Run log showing a typed procedure is never typed, or a hidden one is wanted alone |
+| 18 | The council belongs to `review`, and `spec` and `10x` read it from there (2026-11-27) | It was reachable only through `10x`, so a review or a spec that needed several providers had to escalate two seats to get them. Every review now states `Council: none, pair or three` with a reason. The top session starts the voices, so depth stays two | Run log showing councils are called where one reviewer would have found the same thing |
 
 ## Open questions
 

@@ -7,8 +7,8 @@ disable-model-invocation: true
 metadata:
   layer: "2"
   role: procedure
-  requires: ""
-  reads: "dispatch principles"
+  requires: "dispatch"
+  reads: "principles"
 ---
 
 # review
@@ -33,9 +33,14 @@ owner.
 | Junior PR, risk normal | `mid` |
 | Mid PR, risk normal | another `mid` or `senior` |
 | Any PR, risk high | `senior`, plus a second review by a model from a different provider than the author's |
-| A decision, or a change that is very expensive to get wrong | a council of three, through `10x` |
+| A decision, or a change that is very expensive to get wrong | a council of three |
 
 The reviewer's model is at least as strong as the author's.
+
+**Decide on a council every time.** Before you review, pick the row of
+[council.md](council.md) that fits and write the `Council:` line in your
+report. Most reviews need none. The same file says who starts the voices.
+A council voice skips this step.
 
 **Prefer a different provider.** A model from the author's own family tends to
 share its blind spots. When another provider can run a review and is above the

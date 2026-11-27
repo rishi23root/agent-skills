@@ -19,7 +19,7 @@ the same session during a trial.
 | `junior-dev` | `junior` | Same contract. The playbooks it loaded by absolute path are now core procedures (`build`, `ship`, `handoff`), with the originals as optional extras |
 | `mid-dev` | `mid` | Same contract. Client intake moved to `improve` |
 | `senior-dev` | `senior` | Same contract. The clone gate and caps moved into `dispatch`, where they have one copy |
-| `10x-dev` | `10x` | Same entry conditions. Council and design-twice are described in the seat, with the originals as extras |
+| `10x-dev` | `10x` | Same entry conditions. Design-twice is described in the seat. The council is in `skills/review/council.md`. The originals are extras |
 | `fleet-model-allocator` | `dispatch` and `dispatch/allocation.md` | Model names replaced by tiers. One quota floor. The placement test is now defined. Run record moved to `runlog` |
 | The run record section of the allocator | `runlog` and `scripts/runlog.mjs` | A script validates and appends the row. Outcome is separate from the worker's status |
 | The "Log rule" in each role skill (`use-log.jsonl`, and "Skills used:" at the end of a reply) | The `extras` field of the run row | One log instead of two. Core procedures are not logged per load. Extras are, because that is the data that decides whether an extra should move into the core |

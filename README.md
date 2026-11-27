@@ -59,7 +59,7 @@ flowchart LR
 | | `tickets` | no | Vertical slices with file ownership |
 | | `dispatch` | no | The orchestration layer: caps, placement, models, worker brief |
 | | `build` | no | One ticket, failing check first, observed proof |
-| | `review` | yes | Independent review on two axes, capped fix loop |
+| | `review` | yes | Independent review on two axes, capped fix loop, and the council |
 | | `ship` | yes | PR, checks, merge gate |
 | | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
@@ -74,7 +74,7 @@ Every skill is called by name only, so none of them is loaded until you ask.
 |---|---|---|
 | `/improve` | about 2,300 tokens | about 2,300 |
 | `/junior` | about 600, plus the procedures it uses | about 8,100 |
-| `/factory` | about 1,600, plus one stage at a time | about 18,600 |
+| `/factory` | about 1,600, plus one stage at a time | about 19,500 |
 
 Standing cost is zero. These are bytes divided by 4, not measurements; the
 full table is generated into [docs/skill-graph.md](docs/skill-graph.md).
