@@ -6,33 +6,35 @@ It exists because models from one family share blind spots, and because a
 second opinion that was written after reading the first is not a second
 opinion. `review` and `spec` both use it. So does `10x`.
 
-## Decide every time
+## How many voices
 
 Every review, and every spec with a design choice in it, writes one line in
-its report: `Council: <none | pair | three>, <reason>`. Read the table from
-the top and take the first row that fits.
+its report: `Voices: <number>, <reason>`. Read the table from the top and take
+the first row that fits. Each voice is from a different provider, and at
+least one is not the author's provider. Three or more voices is a council.
 
 | The work | Voices |
 |---|---|
+| A review at risk `high` of a change that cannot be rolled back once merged: a deletion of data, a migration that drops something, money moved, a secret exposed | **Three or more.** Every provider above the quota floor, up to the caps |
 | Two reviewers disagree on a blocking finding | **Three** |
 | A spec or a decision where the options differ in kind, or the choice is expensive to reverse | **Three** |
-| A review at risk `high` of a change that cannot be rolled back once merged, such as a deletion of data | **Three** |
-| Any other review at risk `high` | **Pair.** The two reviewers the "Who reviews" table in `SKILL.md` already requires |
-| Anything else | **None.** One independent reviewer, from another provider when one can run |
+| Any other review at risk `high` | **Two.** `senior`, and a model from another provider |
+| Anything else | **One**, from another provider than the author's |
 
-A council costs several times one review. Say so in the report, and do not
-pick a higher row to be safe. The quota floor in `../dispatch/allocation.md`
-applies to every voice.
+The owner can ask for more voices on any piece of work. Each voice past one
+costs about one more review. Say so in the report, and do not pick a higher
+row to be safe. The quota floor in `../dispatch/allocation.md` applies to
+every voice. With fewer providers than the row asks for, say so and use what
+there is. Do not call it a council of three.
 
 ## How it runs
 
 1. **Who starts it.** The top session, through `../dispatch/SKILL.md` and
-   inside its caps. If you are a worker, do not start one: put the `Council:`
+   inside its caps. If you are a worker, do not start one: put the `Voices:`
    line and your reason in your report, and the manager starts it. A review
    already written counts as that provider's answer in round one.
-2. **The voices.** Three models from three providers, each at the tier the
-   allocation table gives a council voice. With fewer than three providers,
-   say so and use what there is. Do not call it a council of three.
+2. **The voices.** One model per provider, each at the tier the allocation
+   table gives a council voice.
 3. **Round one, apart.** Each voice gets the same question and the same
    evidence, and nothing from the others. For a review that is the ticket, the
    spec section and the diff. For a spec it is the brief, the options and what

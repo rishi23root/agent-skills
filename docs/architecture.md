@@ -122,7 +122,7 @@ owner.
 | Agent brief | improve to factory, a seat or spec | `skills/improve/brief-format.md` |
 | Size and risk | improve to factory | `skills/improve/sizing.md` |
 | Spec | senior to tickets | `skills/spec/SKILL.md` |
-| Council: when to call one, how many voices, how it runs | review, spec and 10x to the top session | `skills/review/council.md` |
+| Review voices: how many, from which providers, how a council runs | review, spec and 10x to the top session | `skills/review/council.md` |
 | Ticket and its Technical Dependencies block | mid to a builder | `skills/tickets/ticket-format.md` |
 | Worker brief | manager to worker | `skills/dispatch/SKILL.md` |
 | Worker report and status code | worker to manager | `skills/dispatch/report-format.md` |
@@ -179,13 +179,14 @@ owner.
 | 16 | `improve` is a procedure that stays typeable (2026-11-27) | A seat typed directly with rough words had no way to get a brief: the layer rule stopped it loading a skill above it. As a procedure every seat may load it, and it stays typeable | n/a |
 | 17 | `review`, `spec`, `ship` and `handoff` are typeable; `tickets`, `dispatch`, `build`, `runlog` and `principles` are not (2026-11-27) | Each of the four is a whole step the owner sometimes wants alone, on work with no ticket. The five hidden ones need a ticket, a ledger or a caller to mean anything. The list is one constant in `scripts/validate.mjs` | Run log showing a typed procedure is never typed, or a hidden one is wanted alone |
 | 18 | The council belongs to `review`, and `spec` and `10x` read it from there (2026-11-27) | It was reachable only through `10x`, so a review or a spec that needed several providers had to escalate two seats to get them. Every review now states `Council: none, pair or three` with a reason. The top session starts the voices, so depth stays two | Run log showing councils are called where one reviewer would have found the same thing |
+| 19 | Every review includes a model from another provider; risk sets how many voices, one to three or more (2026-11-27) | The owner's rule. Same-family reviewers share the author's blind spots, and that matters on small PRs too. The cost is one review per PR on another provider, and a written waiver from the owner whenever none can run | Run log showing other-provider reviews on normal-risk PRs find nothing a same-provider review missed |
 
 ## Open questions
 
 - Does the sizing table route correctly on real tasks? Only the pilot can say.
 - Is three review rounds the right cap? It is borrowed, not measured here.
-- High-risk review asks for a second provider. On a machine with only one
-  provider that condition can only be waived by the owner. Is that too strict?
+- Every review needs another provider. On a machine with only one provider,
+  the owner must waive that on every PR. Is that too strict?
 - Does proof-by-run let real defects through as suspicions? A reviewer that
   cannot run the product can prove little. Watch the suspicion counts.
 - Project checks cost reviewer tokens on every PR. How many files before the

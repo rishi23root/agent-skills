@@ -74,9 +74,10 @@ condition 3.
 5. No person has requested changes.
 6. The branch has no conflicts with its base, and is up to date wherever the
    repository requires that.
-7. For risk `high`: `senior` reviewed, and so did a model from a different
-   provider than the author's. If no second provider could run, this
-   condition is unmet. Tell the owner, who may waive it in writing on the PR.
+7. A model from a different provider than the author's reviewed, and so did
+   every voice the review's `Voices:` line called for. For risk `high`,
+   `senior` reviewed as well. If no other provider could run, this condition
+   is unmet. Tell the owner, who may waive it in writing on the PR.
 
 When the factory scripts are installed, run the gate check and paste its
 output on the PR. The repository path is in `local.md` next to this file. If

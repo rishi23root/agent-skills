@@ -29,6 +29,6 @@ secrets, deletion of data, or production infrastructure. Otherwise it is
 High risk changes three things:
 
 1. The seat moves up one (`junior` to `mid`, `mid` to `senior`).
-2. Review comes from `senior`, and from a model made by a different provider
-   than the author's.
+2. `senior` reviews as well as the reviewer from another provider, who is
+   there at every risk level.
 3. The owner sees the brief before any build starts.
