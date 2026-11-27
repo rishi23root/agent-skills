@@ -90,12 +90,10 @@ Sibling skills are in the folders next to this one. Load one by reading its
    its row, and add one sentence on what would make the next run of this kind
    cheaper or safer.
 
-8. **Report.** Tell the owner, in plain words and in this order: what was
-   done, the proof, what is still open and who has to act on it, and what it
-   cost (workers, models, rough tokens or time). No stage names and no
-   internal labels. List every decision that only the owner can make, each
-   with its link, the evidence, the risk and your recommendation, so they can
-   decide from this message alone.
+8. **Report.** Write under `../principles/terse-output.md`, in this order:
+   done, proof, open items (with owner), cost (workers, models, rough tokens
+   or time). No stage names or internal labels. List owner-only decisions as
+   tight bullets: link, evidence, risk, recommendation.
 
 ## The ledger
 
@@ -133,3 +131,5 @@ write in the ledger goes in your report to the owner instead.
   Do not restate it in a brief from memory.
 - **When blocked, stop cleanly.** Leave any PR open, write down where things
   stand, and tell the owner. Do not work around a gate.
+- **Say less.** Follow `../principles/terse-output.md` in chat and PR output.
+  Keep proof, links and safety warnings clear.

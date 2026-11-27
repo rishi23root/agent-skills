@@ -55,7 +55,7 @@ flowchart LR
 | 0 Manager | `factory` | yes | Runs the whole loop and owns the ledger |
 | 1 Seats | `junior` | yes | One ready ticket, one small PR |
 | | `mid` | yes | Owns a feature: tickets, build, junior review |
-| | `senior` | yes | Spec gate, fan-out, risky review, merge gate |
+| | `senior` | yes | Spec gate, fan-out, mid review, merge gate |
 | | `10x` | yes | Unblocks: fog, design forks, council, rescue |
 | 2 Procedures | `improve` | yes | The front door. Rough words in, agent brief out. Stops |
 | | `spec` | yes | The spec and its gate |
@@ -66,7 +66,7 @@ flowchart LR
 | | `ship` | yes | PR, checks, review start, merge gate |
 | | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
-| | `principles` | no | Six rules that several skills share, one short file each |
+| | `principles` | no | Short rules that several skills share, one file each |
 | | `setup` | yes | The first-run interview: checks a machine and a project, asks, and writes on a yes |
 
 Eleven skills are typed by you. Their descriptions total about 1,800 characters.
@@ -221,7 +221,7 @@ project as `checks/`, one plain-English rule per file. Copy
 | A pinned extra never calls a skill that is not pinned | Checked by `validate.mjs --upstream` in CI. It found five broken calls on 2026-11-26 |
 | A reviewer from another provider catches more | Reported by others (see `docs/research/pstack.md`). Not measured here |
 | Proof-by-run, project checks and the reflect loop change outcomes | **Not yet tested.** Scenarios F1 to F14 in `evals/scenarios.md` |
-| A machine and a project have what a factory run needs | Checked by `scripts/setup.mjs`, once it is run. Its tests run in CI against stub commands. The interview itself is **not yet tested**: scenarios I1 to I10 in `evals/scenarios.md` |
+| A machine and a project have what a factory run needs | Checked by `scripts/setup.mjs`, once it is run. Its tests run in CI against stub commands. The interview itself is **not yet tested**: scenarios J1 to J10 in `evals/scenarios.md` |
 | The whole loop produces a good PR from a rough task | **Not yet tested.** The pilot is the next step |
 | The sizing table sends tasks to the right seat | **Not yet tested.** See `evals/scenarios.md` |
 

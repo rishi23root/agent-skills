@@ -26,3 +26,4 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | Before reporting any measured speed-up or regression | `<upstream>/pstack/pstack/skills/benchmark-checklist/SKILL.md` | pstack |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |
+| Stricter caveman voice for a long session (core terse-output already covers chat and PRs) | `<upstream>/caveman/skills/caveman/SKILL.md` | caveman |

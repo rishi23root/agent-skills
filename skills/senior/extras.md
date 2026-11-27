@@ -40,3 +40,4 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | Upkeep of the verification map that create-verification-skill wrote | `<upstream>/pstack/pstack/skills/maintain-verification-skill/SKILL.md` | pstack |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |
+| Stricter caveman voice for a long session (core terse-output already covers chat and PRs) | `<upstream>/caveman/skills/caveman/SKILL.md` | caveman |

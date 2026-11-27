@@ -13,13 +13,13 @@ flowchart BT
   X -- hands back a map, decision or spec --> S
   S -- stops for --> O[Owner]
   M -- reviews --> J
-  S -- reviews risky work of --> M
+  S -- reviews --> M
 ```
 
 | Seat | Decides alone | Must ask |
 |---|---|---|
 | junior | How to implement inside `Touches` | Anything outside the ticket, any missing fact |
-| mid | Ticket slicing, file ownership, normal-risk review | High-risk changes, running builders in parallel |
+| mid | Ticket slicing, file ownership, review of junior PRs | High-risk changes, running builders in parallel |
 | senior | Spec waivers for tiny fixes, fan-out, whether the gate is met | Open design questions, and the word to merge |
 | 10x | How to frame a hard problem | Nothing routine. It hands back and leaves |
 | owner | Accepting a spec, answering design questions, merging | n/a |
@@ -90,6 +90,7 @@ which is which.
 | An approval survives a rebase only if the change is identical | `gate.mjs` compares the patch id in the verdict with the PR's current diff | **Mechanism**, once it is called |
 | A blocking finding comes with a command and its output | `skills/review/SKILL.md`. The author and owner can rerun the command | Prose, but checkable by anyone |
 | A reviewer is from another provider, at every risk | `skills/principles/independent-review.md`, gate condition 7 in `skills/ship/SKILL.md` | Prose. `gate.mjs` cannot see providers; the owner confirms condition 7 |
+| A review is at the level one seat above the author, and the reviewer loads no seat skill | `skills/review/SKILL.md`, "Who reviews", `skills/review/level.md`, gate condition 7 | Prose. The review's `Level:` line is what the owner of the gate reads |
 | Project rules are applied to every diff | The project's `checks/` folder, read by the reviewer | Prose, with a fixed PASS or FAIL output |
 | A skill is changed only after three matching lessons and the owner's yes | `skills/runlog/reflect.md` | Prose |
 | Required checks green, approval on the head commit, no changes requested, no conflicts | `scripts/gate.mjs` reads the PR | **Mechanism**, once it is called. Weak where a repository requires no checks, and where author and reviewer share one account |

@@ -59,21 +59,21 @@ short sentences with no hype. A changelog entry is three lines or fewer.
 
 ## 1. Open the PR
 
-Open a real PR, not a draft, so checks and review bots run.
+Open a real PR, not a draft, so checks and review bots run. Write the body
+and PR comments under `../principles/terse-output.md`: short fragments or
+bullets, one or two lines per item, no filler. Keep proof output and
+irreversible rollback steps clear.
 
 The description, in this order:
 
-1. **Problem.** What was wrong or missing, in one or two sentences. Link the
-   ticket.
-2. **Change.** What is different now, as behaviour.
-3. **Proof.** What you ran and what you saw. For a bug: the failure before and
-   the pass after. For something visible: a screenshot or the steps to see it.
-4. **Merge danger.** What this could break, what is hard to undo, and how to
-   roll it back. "None" is an answer only after you have thought about it.
-5. **Try before merging.** What the owner should try by hand before they merge.
-   After a send-back, add what changed since the last review round and what is
-   risky in that change, so the owner knows where to look again.
-6. **Not included.** What a reader might expect and will not find.
+1. **Problem.** Broken or missing behaviour, plus the ticket link.
+2. **Change.** Behaviour diff as tight bullets. Note whether a docs pass ran.
+3. **Proof.** Commands and quoted output (fail then pass for bugs;
+   screenshot or steps for UI).
+4. **Merge danger.** Breakage risk and rollback ("None" only after checking).
+5. **Try before merging.** Manual checks for the owner. After a send-back,
+   add what changed since the last round and what is risky in that change.
+6. **Not included.** Expected items left out (omit when none).
 
 One ticket, one PR. Aim for 100 to 200 changed lines. A larger PR needs a
 reason in the description.
@@ -130,10 +130,10 @@ condition 3.
 6. The branch has no conflicts with its base, and is up to date wherever the
    repository requires that.
 7. A model from a different provider than the author's reviewed, and so did
-   every voice the review's `Voices:` line called for. For risk `high`,
-   `senior` reviewed as well. If no other provider could run, or fewer voices
-   ran than the line called for, this condition is unmet. Tell the owner, who
-   may waive it in writing on the PR.
+   every voice the review's `Voices:` line called for, at the level and on a
+   model `review` gives under "Who reviews". If no other provider could run,
+   fewer voices ran, or the level or the model fell short, this condition is
+   unmet. Tell the owner, who may waive it in writing on the PR.
 
 When the factory scripts are installed, run the gate check and paste its
 output on the PR. Find the repository as `../principles/locations.md` says:
