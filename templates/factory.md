@@ -49,7 +49,7 @@
 ## Rules for this repository
 
 - **Never touch:** paths or modules that are off limits to agents
-- **High risk here:** anything beyond the default list that needs a senior review
+- **High risk here:** anything beyond the default list that needs a second reviewing voice
 - **Merge method:** squash | merge | rebase
 - **Release note:** how a change reaches users, and anything a merge triggers
 

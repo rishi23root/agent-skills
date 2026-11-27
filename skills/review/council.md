@@ -18,7 +18,7 @@ least one is not the author's provider. Three or more voices is a council.
 | A review at risk `high` of a change that cannot be rolled back once merged: a deletion of data, a migration that drops something, money moved, a secret exposed | **Three or more.** Every provider above the quota floor, up to the caps |
 | Two reviewers disagree on a blocking finding | **Three** |
 | A spec or a decision where the options differ in kind, or the choice is expensive to reverse | **Three** |
-| Any other review at risk `high` | **Two.** `senior`, and a model from another provider |
+| Any other review at risk `high` | **Two.** The reviewer one seat above the author, and a model from another provider |
 | Anything else | **One**, from another provider than the author's |
 
 The owner can ask for more voices on any piece of work. Each voice past one
