@@ -137,10 +137,10 @@ flowchart TD
 | `principles` | 35 | 1478 | 134 |
 | `review` | 169 | 7792 | 123 |
 | `runlog` | 124 | 4813 | 145 |
-| `ship` | 169 | 7780 | 161 |
+| `ship` | 169 | 7781 | 161 |
 | `spec` | 109 | 3687 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **66292** | **2283** |
+| **Total** | | **66293** | **2283** |
 
 Descriptions of the 10 skills you can type: 1591 chars.
 

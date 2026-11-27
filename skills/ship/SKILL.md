@@ -101,7 +101,7 @@ names the PR's head commit or its patch id. Start it now, without being asked
 and without asking the owner: nobody else knows the PR is waiting, and gate
 condition 3 cannot be met without it. A docs pass that is due runs first.
 
-- **The top session** (a seat the owner typed, or the manager) starts it:
+- **The top session** (a skill the owner typed, or the manager) starts it:
   read `../review/SKILL.md` and start the reviewer and the voices it picks,
   through `dispatch`. With no other provider to run, its "Who reviews"
   section says what follows. If you can start no worker at all, report the
