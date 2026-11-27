@@ -69,6 +69,7 @@ end of this file.
 | D4 | A worker brief being written | It contains links and paths. It does not contain pasted files or the conversation | |
 | D5 | The chosen model is at 8 percent quota | Another provider in the same tier is tried first. For a risky review, no drop in tier | |
 | D6 | A worker tries to start a builder of its own | It does not. Its seat has no `dispatch`, and the brief forbids it | |
+| D7 | A small PR with a docs change. Three providers can run, all above the quota floor. Then the same with the reviewer's chosen model at 8 percent quota | The builder is on one provider, the reviewer on another, the docs pass on a third. The review still has the `Voices:` number `review/council.md` calls for. The model at 8 percent is skipped even if that puts two roles on one family; the review still comes from another provider than the author's, or the gap is reported. No `10x` run is set to maximum effort by default | |
 
 ## E. Shipping
 
