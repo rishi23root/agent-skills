@@ -1,9 +1,6 @@
 ---
 name: factory-setup
-description: >-
-  First-run interview. Checks a machine and a project for what a factory run
-  needs, asks only for what it cannot detect, writes on a yes, and ends with
-  one table of what is ready and the fix for what is not.
+description: First-run check that a machine and project are ready for the factory.
 disable-model-invocation: true
 metadata:
   layer: "2"

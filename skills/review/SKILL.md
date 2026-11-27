@@ -1,8 +1,6 @@
 ---
 name: review
-description: >-
-  Procedure. Independent review of a change on two axes, spec and standards,
-  with severity, a verdict, and a capped fix loop.
+description: Independent review on spec and standards, with a capped fix loop.
 disable-model-invocation: true
 metadata:
   layer: "2"

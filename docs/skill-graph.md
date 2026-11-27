@@ -131,25 +131,25 @@ flowchart TD
 
 | Skill | Lines | Bytes | Description chars |
 |---|---|---|---|
-| `factory` | 135 | 6415 | 189 |
-| `10x` | 81 | 3344 | 215 |
-| `junior` | 66 | 2536 | 146 |
-| `mid` | 73 | 2849 | 160 |
-| `senior` | 77 | 3004 | 166 |
+| `factory` | 132 | 6286 | 69 |
+| `10x` | 78 | 3188 | 68 |
+| `junior` | 64 | 2446 | 63 |
+| `mid` | 70 | 2749 | 69 |
+| `senior` | 74 | 2898 | 69 |
 | `build` | 98 | 3878 | 127 |
 | `dispatch` | 137 | 5784 | 150 |
-| `factory-setup` | 135 | 6909 | 205 |
-| `handoff` | 85 | 3496 | 136 |
-| `improve` | 107 | 5125 | 145 |
+| `factory-setup` | 132 | 6764 | 69 |
+| `handoff` | 83 | 3413 | 60 |
+| `improve` | 105 | 5035 | 62 |
 | `principles` | 36 | 1598 | 134 |
-| `review` | 143 | 6362 | 123 |
+| `review` | 141 | 6297 | 65 |
 | `runlog` | 124 | 4813 | 145 |
-| `ship` | 169 | 7798 | 161 |
-| `spec` | 109 | 3687 | 144 |
+| `ship` | 166 | 7683 | 55 |
+| `spec` | 107 | 3598 | 62 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **70363** | **2482** |
+| **Total** | | **69195** | **1403** |
 
-Descriptions of the 11 skills you can type: 1790 chars.
+Descriptions of the 11 skills you can type: 711 chars.
 
 ## Context cost
 
@@ -157,16 +157,16 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1600 | ~1600 | ~25500 |
-| `/10x` | ~800 | ~800 | ~17800 |
-| `/junior` | ~600 | ~600 | ~19500 |
-| `/mid` | ~700 | ~700 | ~21600 |
-| `/senior` | ~800 | ~800 | ~20700 |
+| `/factory` | ~1600 | ~1600 | ~25200 |
+| `/10x` | ~800 | ~800 | ~17600 |
+| `/junior` | ~600 | ~600 | ~19400 |
+| `/mid` | ~700 | ~700 | ~21500 |
+| `/senior` | ~700 | ~700 | ~20600 |
 | `/factory-setup` | ~1700 | ~6500 | ~11700 |
-| `/handoff` | ~900 | ~900 | ~1900 |
+| `/handoff` | ~900 | ~900 | ~1800 |
 | `/improve` | ~1300 | ~2300 | ~3300 |
 | `/review` | ~1600 | ~4500 | ~12800 |
 | `/ship` | ~1900 | ~1900 | ~14700 |
-| `/spec` | ~900 | ~900 | ~14500 |
+| `/spec` | ~900 | ~900 | ~14400 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.
