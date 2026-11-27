@@ -4,12 +4,11 @@ description: >-
   Procedure. Independent review of a change on two axes, spec and standards,
   with severity, a verdict, and a capped fix loop.
 disable-model-invocation: true
-user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
-  requires: ""
-  reads: "dispatch principles"
+  requires: "dispatch"
+  reads: "principles"
 ---
 
 # review
@@ -18,6 +17,15 @@ A review is only worth something when the reviewer is independent
 (`../principles/independent-review.md`). The reviewer gets the ticket, the
 spec section and the diff. Nothing else.
 
+## Typed by the owner, with no ticket
+
+Review the PR the owner names, else the current branch against its base. With
+no ticket there is nothing to check the Spec axis against: review Standards
+and the project checks only, and say "no ticket: spec axis not checked". If
+this session wrote the change, say so and stop: a fresh session reviews it.
+Record the verdict on the PR when there is one. Otherwise report it to the
+owner.
+
 ## Who reviews
 
 | Change | Reviewer |
@@ -25,16 +33,19 @@ spec section and the diff. Nothing else.
 | Junior PR, risk normal | `mid` |
 | Mid PR, risk normal | another `mid` or `senior` |
 | Any PR, risk high | `senior`, plus a second review by a model from a different provider than the author's |
-| A decision, or a change that is very expensive to get wrong | a council of three, through `10x` |
+| A decision, or a change that cannot be rolled back once merged | a council, sized by [council.md](council.md) |
 
-The reviewer's model is at least as strong as the author's.
+The reviewer's model is at least as strong as the author's. That comes first:
+a model from another provider on a weaker tier does not count as the
+other-provider review.
 
-**Prefer a different provider.** A model from the author's own family tends to
-share its blind spots. When another provider can run a review and is above the
-quota floor (`../dispatch/allocation.md`), use it, at any risk level. When
-none can, a fresh agent on the strongest model available reviews, and the
-verdict says "same provider". For risk `high` the merge gate treats "same
-provider" as unmet until the owner waives it.
+**Another provider, every time** (`../principles/independent-review.md`).
+Before you review, pick the row of [council.md](council.md) that fits and
+write the `Voices:` line in your report. The same file says who starts the
+voices. A council voice skips this step. When no other provider can run above
+the quota floor (`../dispatch/allocation.md`) at the author's tier, a fresh agent on the strongest
+model available reviews, and the verdict says "same provider". Condition 7
+of the merge gate, in `ship`, says what follows.
 
 ## Two axes
 

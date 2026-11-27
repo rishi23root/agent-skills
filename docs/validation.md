@@ -58,9 +58,9 @@ the spec section and the diff. It reviews two axes separately: does the diff do
 what was asked, and is it sound. It reports findings with a severity and a
 concrete case, skips style, and gives one verdict. A send-back goes to the
 original author, up to the round cap written in `skills/review/SKILL.md`. Then
-the ticket moves up a seat. High-risk changes also get a review by a model from a
-different provider, so that one model's blind spot is not shared by its
-reviewer.
+the ticket moves up a seat. Every review includes a model from a different
+provider, so that one model's blind spot is not shared by its reviewer. Higher
+risk adds more voices (`skills/review/council.md`).
 
 ## Mechanism or prose
 
@@ -84,7 +84,7 @@ which is which.
 | A shared rule exists once, is short, and is cited | `validate.mjs` checks every file in `skills/principles/` | **Mechanism** |
 | An approval survives a rebase only if the change is identical | `gate.mjs` compares the patch id in the verdict with the PR's current diff | **Mechanism**, once it is called |
 | A blocking finding comes with a command and its output | `skills/review/SKILL.md`. The author and owner can rerun the command | Prose, but checkable by anyone |
-| The reviewer is from another provider when one can run | `skills/review/SKILL.md`, `allocation.md` | Prose. Required only for high risk |
+| A reviewer is from another provider, at every risk | `skills/principles/independent-review.md`, gate condition 7 in `skills/ship/SKILL.md` | Prose. `gate.mjs` cannot see providers; the owner confirms condition 7 |
 | Project rules are applied to every diff | The project's `checks/` folder, read by the reviewer | Prose, with a fixed PASS or FAIL output |
 | A skill is changed only after three matching lessons and the owner's yes | `skills/runlog/reflect.md` | Prose |
 | Required checks green, approval on the head commit, no changes requested, no conflicts | `scripts/gate.mjs` reads the PR | **Mechanism**, once it is called. Weak where a repository requires no checks, and where author and reviewer share one account |

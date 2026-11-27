@@ -4,9 +4,8 @@ description: >-
   Procedure. Writes the note that lets a fresh session continue the work, when
   context is filling up, a seat changes, or a review bounces.
 disable-model-invocation: true
-user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
   requires: ""
   reads: "principles"
@@ -25,6 +24,12 @@ needs, then stop. The next session starts clean and reads only the note.
 - The work is moving to a different seat.
 - A PR came back from review and the author's session is already long.
 - You are stopping for the day with work in flight.
+
+## Typed by the owner, with no ticket
+
+Write the note for the work in this session. Put it on the branch's PR when
+there is one. Otherwise ask the owner where to keep it before you stop,
+because a note left only in the chat is lost.
 
 ## Where the note goes
 

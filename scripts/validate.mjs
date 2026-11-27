@@ -10,8 +10,12 @@ import path from 'node:path';
 import { ROOT, SKILLS, posix, loadSkills, loadLock, parseArgs } from './lib.mjs';
 
 const args = parseArgs(process.argv.slice(2));
-const LIMITS = { descChars: 300, commandDescTotal: 1500, lines: 170, bytes: 9000 };
-const LAYERS = { 0: 'Manager', 1: 'Front door', 2: 'Seats', 3: 'Procedures' };
+const LIMITS = { descChars: 300, commandDescTotal: 2000, lines: 170, bytes: 9000 };
+const LAYERS = { 0: 'Manager', 1: 'Seats', 2: 'Procedures' };
+const PROCEDURES = 2;
+// The procedures the owner may also type. Each says what it does when typed
+// with no ticket. Every other procedure is loaded only.
+const TYPED_PROCEDURES = ['improve', 'review', 'spec', 'ship', 'handoff'];
 
 const errors = [];
 const warn = [];
@@ -32,9 +36,11 @@ for (const s of skills) {
   if (!s.description) err(s.dir, 'no description');
   if (s.description.length > LIMITS.descChars) err(s.dir, `description is ${s.description.length} chars (limit ${LIMITS.descChars})`);
   if (d['disable-model-invocation'] !== 'true') err(s.dir, 'must set disable-model-invocation: true (every skill is called by name)');
-  if (!(s.layer in LAYERS)) err(s.dir, 'metadata.layer must be 0, 1, 2 or 3');
-  if (s.layer === 3 && d['user-invocable'] !== 'false') err(s.dir, 'procedures must set user-invocable: false');
-  if (s.layer < 3 && d['user-invocable'] === 'false') err(s.dir, 'commands and seats must stay user-invocable');
+  if (!(s.layer in LAYERS)) err(s.dir, 'metadata.layer must be 0, 1 or 2');
+  const mayType = s.layer < PROCEDURES || TYPED_PROCEDURES.includes(s.dir);
+  if (!mayType && s.typed) err(s.dir, 'this procedure is loaded only: set user-invocable: false, or add it to TYPED_PROCEDURES');
+  if (mayType && !s.typed) err(s.dir, 'the manager, the seats and the typed procedures must stay user-invocable');
+  if (s.layer === PROCEDURES && s.typed && s.dir !== 'improve' && !s.body.includes('## Typed by the owner, with no ticket')) err(s.dir, 'a typed procedure needs a "## Typed by the owner, with no ticket" section');
 
   const lines = s.text.trimEnd().split('\n').length;
   const bytes = Buffer.byteLength(s.text);
@@ -48,7 +54,7 @@ for (const s of skills) {
       const t = byName.get(dep);
       if (!t) { err(s.dir, `${kind} "${dep}", which does not exist`); continue; }
       if (dep === s.dir) err(s.dir, `${kind} itself`);
-      const ok = t.layer > s.layer || (s.layer === 3 && t.layer === 3);
+      const ok = t.layer > s.layer || (s.layer === PROCEDURES && t.layer === PROCEDURES);
       if (!ok) err(s.dir, `${kind} "${dep}" (layer ${t.layer}) from layer ${s.layer}; edges must point down`);
     }
   }
@@ -64,6 +70,13 @@ for (const s of skills) {
     const declared = file === 'SKILL.md' ? s.requires : [...s.requires, ...s.reads];
     if (!declared.includes(target)) err(s.dir, `uses ../${target}/${file} but does not declare "${target}" in metadata.${file === 'SKILL.md' ? 'requires' : 'requires or reads'}`);
   }
+  // Links from this skill's reference files must point at files that exist.
+  for (const f of fs.readdirSync(path.join(SKILLS, s.dir)).filter((x) => x.endsWith('.md') && !['SKILL.md', 'local.md', 'extras.md'].includes(x))) {
+    const refText = fs.readFileSync(path.join(SKILLS, s.dir, f), 'utf8');
+    for (const [, target, file] of refText.matchAll(/\.\.\/([a-z0-9-]+)\/([A-Za-z0-9._-]+)/g)) {
+      if (!fs.existsSync(path.join(SKILLS, target, file))) err(s.dir, `${f} links to ../${target}/${file}, which does not exist`);
+    }
+  }
   // Every declared dependency must actually be used.
   for (const dep of [...s.requires, ...s.reads]) {
     if (!s.body.includes(`../${dep}/`) && !s.body.includes('`' + dep + '`')) err(s.dir, `declares "${dep}" but never uses it`);
@@ -76,8 +89,8 @@ for (const s of skills) {
 }
 
 // ---- whole-graph checks -----------------------------------------------------
-const commandTotal = skills.filter((s) => s.layer < 3).reduce((n, s) => n + s.description.length, 0);
-if (commandTotal > LIMITS.commandDescTotal) errors.push(`descriptions of commands and seats total ${commandTotal} chars (limit ${LIMITS.commandDescTotal})`);
+const commandTotal = skills.filter((s) => s.typed).reduce((n, s) => n + s.description.length, 0);
+if (commandTotal > LIMITS.commandDescTotal) errors.push(`descriptions of typed skills total ${commandTotal} chars (limit ${LIMITS.commandDescTotal})`);
 
 // Cycle check over requires + reads.
 const state = new Map();
@@ -102,7 +115,7 @@ const PRINCIPLE_BYTES = 600;
 const pdir = path.join(SKILLS, 'principles');
 if (fs.existsSync(pdir)) {
   const index = byName.get('principles')?.body || '';
-  for (const f of fs.readdirSync(pdir).filter((x) => x.endsWith('.md') && x !== 'SKILL.md')) {
+  for (const f of fs.readdirSync(pdir).filter((x) => x.endsWith('.md') && !['SKILL.md', 'local.md'].includes(x))) {
     const text = fs.readFileSync(path.join(pdir, f), 'utf8').replace(/\r\n/g, '\n');
     const bytes = Buffer.byteLength(text);
     if (bytes > PRINCIPLE_BYTES) err('principles', `${f} is ${bytes} bytes (limit ${PRINCIPLE_BYTES}); a principle is one rule`);
@@ -196,7 +209,7 @@ function graphDoc() {
     '| Skill | Layer | Typed by you | Loads | Reads a file from | Escalates to | Reference files |', '|---|---|---|---|---|---|---|');
   for (const s of skills) {
     const refs = fs.readdirSync(path.join(SKILLS, s.dir)).filter((f) => f.endsWith('.md') && !['SKILL.md', 'local.md'].includes(f));
-    out.push(`| \`${s.dir}\` | ${s.layer} ${LAYERS[s.layer]} | ${s.layer < 3 ? 'yes' : 'no'} | ${s.requires.join(', ') || 'none'} | ${s.reads.join(', ') || 'none'} | ${s.escalates.join(', ') || 'none'} | ${refs.join(', ') || 'none'} |`);
+    out.push(`| \`${s.dir}\` | ${s.layer} ${LAYERS[s.layer]} | ${s.typed ? 'yes' : 'no'} | ${s.requires.join(', ') || 'none'} | ${s.reads.join(', ') || 'none'} | ${s.escalates.join(', ') || 'none'} | ${refs.join(', ') || 'none'} |`);
   }
   out.push('', '## Used by', '', '| Skill | Loaded by |', '|---|---|');
   for (const s of skills) {
@@ -210,7 +223,7 @@ function graphDoc() {
     out.push(`| \`${s.dir}\` | ${s.text.trimEnd().split('\n').length} | ${b} | ${s.description.length} |`);
   }
   out.push(`| **Total** | | **${tb}** | **${tc}** |`, '');
-  out.push(`Descriptions of the ${skills.filter((s) => s.layer < 3).length} skills you can type: ${commandTotal} chars.`, '');
+  out.push(`Descriptions of the ${skills.filter((s) => s.typed).length} skills you can type: ${commandTotal} chars.`, '');
 
   // Context cost. Bytes divided by 4 is a rough token estimate, not a measurement.
   const refBytes = (s) => fs.readdirSync(path.join(SKILLS, s.dir))
@@ -221,7 +234,7 @@ function graphDoc() {
   out.push('## Context cost', '',
     'What a session reads when you call a skill. **Standing cost is zero**: every skill sets `disable-model-invocation: true`, so nothing sits in the model\'s context until it is called. Tokens are bytes divided by 4, rounded to 100. That is an estimate. The run log holds measured numbers.', '',
     '| You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |', '|---|---|---|---|');
-  for (const s of skills.filter((x) => x.layer < 3)) {
+  for (const s of skills.filter((x) => x.typed)) {
     const own = Buffer.byteLength(s.text);
     const loaded = closure(s.dir);
     const readOnly = new Set([...loaded].flatMap((n) => byName.get(n).reads).filter((n) => !loaded.has(n)));

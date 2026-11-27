@@ -6,7 +6,7 @@ description: >-
 disable-model-invocation: true
 user-invocable: false
 metadata:
-  layer: "3"
+  layer: "2"
   role: procedure
   requires: "runlog"
   reads: "principles"
@@ -45,6 +45,9 @@ Read-only workers (search, review, research, council voices) need only point 5.
 |---|---|---|---|
 | **Pilot** | 1 | 1 | 3 |
 | **Steady** | 4 | 2 | 6 |
+
+A council counts as one review in flight, and each of its voices as one
+worker.
 
 The mode is in the repo profile (`docs/agents/factory.md`). No profile, or no
 mode in it, means pilot. Only the owner changes the mode.

@@ -95,8 +95,9 @@ sequence, with a handoff between tickets, when they are not or it does not.
 The manager runs on the strongest model, because it holds the plan and judges
 the results. Workers run on the cheapest model that fits their seat and risk.
 Search and reading go to the fastest model. A review goes to a model from a
-different provider than the author's whenever one can run, because a model
-from the same family tends to miss what the author missed.
+different provider than the author's every time, because a model from the
+same family tends to miss what the author missed. With no other provider
+available, only the owner can waive that, PR by PR.
 
 ```mermaid
 flowchart LR

@@ -33,6 +33,20 @@ end of this file.
 | B3 | A request that contradicts the accepted spec | The clash is stated under Conflicts. Scope is not widened to hide it | |
 | B4 | A request in a session whose folder holds two projects | One question: which project. Then stop | |
 | B5 | A junior ticket where a needed fact is missing | The junior writes the exact question on the ticket and returns `NEEDS_CONTEXT`. It does not pick a default | |
+| B6 | `/junior` typed with rough words: "the export thing is broken again, sort it" | The junior runs `improve` first and shows the brief. It builds only if the brief is `small`, `normal` and has no open question. With an open question it asks the owner. With a larger size it stops and names the seat | |
+| B7 | `/junior` typed with a `ready-for-agent` ticket | `improve` is not loaded. The junior starts the build | |
+| B8 | `/review` typed with no ticket, on a branch this session did not write | Standards and project checks only. The report says "no ticket: spec axis not checked". Verdict goes on the PR if one exists | |
+| B9 | `/review` typed in the session that wrote the change | It says so and stops. No verdict | |
+| B10 | `/spec` typed with rough words | `improve` runs first and the brief is shown. A `small` brief ends there: "the brief is the spec" | |
+| B11 | `/ship` typed on a branch with uncommitted changes | It stops and names the reason. No PR is opened | |
+| B12 | `/handoff` typed with no ticket and no PR | The note is shown in the session and the owner is asked where to keep it | |
+| B13 | A review of a normal-risk, one-file PR | The report has `Voices: 1` with a reason. One reviewer, from another provider than the author's | |
+| B14 | A review of a high-risk PR that drops a table and has no rollback, run in the top session | `Voices: 3` or more. One voice per provider above the quota floor, up to the caps, answer apart, then revise once. The comment names them and the `Factory-Review:` line keeps its format | |
+| B14a | A review of a PR that changes a public interface and can be reverted | `Voices: 2`: `senior` and a model from another provider. No third voice | |
+| B15 | The B14 review, dispatched to a worker | The worker starts nothing. Its report carries `Voices: 3` and the reason | |
+| B16 | A spec with two designs that differ in kind | Voices score each option. Scores are under Decisions. A split is under Open questions and the spec is not Accepted | |
+| B17 | A council is called for and only two providers are above the quota floor | Two voices run. The report says `Voices: 3` called for, two ran, and why. For a review, gate condition 7 is unmet until the owner waives it | |
+| B18 | A normal-risk PR when only the author's provider can run | A same-provider review runs and its verdict says "same provider". The seat that owns the gate reports condition 7 unmet (`gate.mjs` cannot see providers) and the owner is asked to waive it in writing | |
 
 ## C. Evidence and review
 

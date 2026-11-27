@@ -6,9 +6,9 @@ description: >-
   owns the merge gate.
 disable-model-invocation: true
 metadata:
-  layer: "2"
+  layer: "1"
   role: seat
-  requires: "spec tickets dispatch review ship handoff runlog"
+  requires: "improve spec tickets dispatch review ship handoff runlog"
   escalates: "10x"
 ---
 
@@ -65,6 +65,7 @@ gate" is a finished state for you.
 
 | Step | Read |
 |---|---|
+| The task is rough words, not a ticket or a brief | `../improve/SKILL.md` |
 | Write the spec and take it through the gate | `../spec/SKILL.md` |
 | Check tickets before they are marked ready | `../tickets/SKILL.md` |
 | Pass the clone gate, pick models, start workers | `../dispatch/SKILL.md` |

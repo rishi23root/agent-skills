@@ -5,9 +5,9 @@ description: >-
   small PR and watches its checks. Stops and asks when a fact is missing.
 disable-model-invocation: true
 metadata:
-  layer: "2"
+  layer: "1"
   role: seat
-  requires: "build ship handoff"
+  requires: "improve build ship handoff"
   escalates: "mid"
 ---
 
@@ -56,6 +56,7 @@ Read each one when its step starts.
 
 | Step | Read |
 |---|---|
+| The task is rough words, not a ticket or a brief | `../improve/SKILL.md` |
 | Build the ticket and prove it | `../build/SKILL.md` |
 | Open the PR and watch its checks (stop before the merge gate) | `../ship/SKILL.md` |
 | Context past about 60 percent, or bounced from review | `../handoff/SKILL.md` |

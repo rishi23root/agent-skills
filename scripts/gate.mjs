@@ -84,7 +84,7 @@ check(6, 'open, not a draft, no conflicts', mergeOk, `state ${d.state}${d.isDraf
 
 console.log(`Merge gate for #${d.number} at ${head.slice(0, 10)}  ${d.url}`);
 for (const r of results) console.log(`  ${r.ok ? 'PASS' : 'FAIL'}  ${r.n}. ${r.name}: ${r.detail}`);
-console.log('  ----  1, 4 and 7 are confirmed by the seat that owns the gate: proof covers the diff, no open findings, risk review done.');
+console.log('  ----  1, 4 and 7 are confirmed by the seat that owns the gate: proof covers the diff, no open findings, other-provider review and every voice the review called for.');
 const ok = results.every((r) => r.ok);
 console.log(ok ? 'Checked conditions hold. This script does not merge.' : 'Gate not met. Leave the PR open.');
 process.exit(ok ? 0 : 1);

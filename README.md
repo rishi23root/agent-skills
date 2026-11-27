@@ -12,7 +12,7 @@ has to pass its pilot. See [What is proven and what is not](#what-is-proven-and-
 
 ## The idea
 
-You type one of two commands.
+You usually type one of two commands.
 
 - **`/improve <task>`** is the front door only. It works out what you are
   asking, checks it against the project as it is today, and writes a clear
@@ -23,8 +23,9 @@ You type one of two commands.
   reports back.
 
 Behind those are four **seats** you can also call directly (`/junior`, `/mid`,
-`/senior`, `/10x`) and eight **procedures** that the seats load one at a time,
-only when a step needs them.
+`/senior`, `/10x`) and ten **procedures** that the seats load one at a time,
+only when a step needs them. `improve` is one of the ten: a seat loads it
+when you hand it rough words.
 
 ```mermaid
 flowchart LR
@@ -49,31 +50,31 @@ flowchart LR
 | Layer | Skill | You type it | What it is |
 |---|---|---|---|
 | 0 Manager | `factory` | yes | Runs the whole loop and owns the ledger |
-| 1 Front door | `improve` | yes | Rough words in, agent brief out. Stops |
-| 2 Seats | `junior` | yes | One ready ticket, one small PR |
+| 1 Seats | `junior` | yes | One ready ticket, one small PR |
 | | `mid` | yes | Owns a feature: tickets, build, junior review |
 | | `senior` | yes | Spec gate, fan-out, risky review, merge gate |
 | | `10x` | yes | Unblocks: fog, design forks, council, rescue |
-| 3 Procedures | `spec` | no | The spec and its gate |
+| 2 Procedures | `improve` | yes | The front door. Rough words in, agent brief out. Stops |
+| | `spec` | yes | The spec and its gate |
 | | `tickets` | no | Vertical slices with file ownership |
 | | `dispatch` | no | The orchestration layer: caps, placement, models, worker brief |
 | | `build` | no | One ticket, failing check first, observed proof |
-| | `review` | no | Independent review on two axes, capped fix loop |
-| | `ship` | no | PR, checks, merge gate |
-| | `handoff` | no | The note that lets a fresh session continue |
+| | `review` | yes | Independent review on two axes, capped fix loop, and the council |
+| | `ship` | yes | PR, checks, merge gate |
+| | `handoff` | yes | The note that lets a fresh session continue |
 | | `runlog` | no | One row per run, the lesson, and how a lesson becomes a change |
 | | `principles` | no | Six rules that several skills share, one short file each |
 
-Six skills are typed by you. Their descriptions total about 1,000 characters.
+Ten skills are typed by you. Their descriptions total about 1,600 characters.
 Every skill is called by name only, so none of them is loaded until you ask.
 
 ### Cost at a glance
 
 | You type | Reads at once | Upper bound if it loaded everything |
 |---|---|---|
-| `/improve` | about 2,200 tokens | about 2,200 |
-| `/junior` | about 600, plus the procedures it uses | about 5,600 |
-| `/factory` | about 1,500, plus one stage at a time | about 18,200 |
+| `/improve` | about 2,300 tokens | about 2,300 |
+| `/junior` | about 600, plus the procedures it uses | about 8,100 |
+| `/factory` | about 1,600, plus one stage at a time | about 19,500 |
 
 Standing cost is zero. These are bytes divided by 4, not measurements; the
 full table is generated into [docs/skill-graph.md](docs/skill-graph.md).
