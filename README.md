@@ -77,10 +77,15 @@ Every skill is called by name only, so none of them is loaded until you ask.
 
 Standing cost is zero. These are bytes divided by 4, not measurements; the
 full table is generated into [docs/skill-graph.md](docs/skill-graph.md).
+`claude plugin details` reports an always-on cost for these skills, but it
+counts every description and ignores `disable-model-invocation`. To see the
+real cost, run `/context` in a session.
 
 The full dependency graph, generated from the skills themselves, is in
 [docs/skill-graph.md](docs/skill-graph.md). An interactive version you can
-drag, filter and click through is `docs/skill-graph.html`: open it in a browser.
+drag, filter and click through is
+[online](https://rishi23root.github.io/agent-skills/skill-graph.html), built
+from `docs/skill-graph.html` on `main`.
 
 ## Read next
 
@@ -167,7 +172,7 @@ project as `checks/`, one plain-English rule per file. Copy
 | Script | What it does |
 |---|---|
 | `scripts/validate.mjs` | Checks every skill against the rules. Regenerates the graph and the per-seat extras lists with `--write`. Runs in CI |
-| `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. Open the file in a browser |
+| `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. [Published here](https://rishi23root.github.io/agent-skills/skill-graph.html) from `main` |
 | `scripts/install.mjs` | Links or copies the skills into a skills folder you name. Refuses to overwrite anything it did not install |
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
 | `scripts/runlog.mjs` | Adds, closes, summarises and audits run log rows. The log is append-only |
