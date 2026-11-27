@@ -247,20 +247,23 @@ add('Locations', 'Extras, at their pinned commits', 'optional', extrasOk ? 'ok' 
 // command: its text can hold an email address, which is never printed.
 const said = (r) => { const t = `${r.out}\n${r.err}`; return r.ok && /logged in/i.test(t) && !/not logged in/i.test(t); };
 const AGENTS = [
-  ['Claude Code (Anthropic)', 'claude', ['auth', 'status'], (r) => json(r)?.loggedIn === true, 'claude auth login', claudeHome],
-  ['Codex (OpenAI)', 'codex', ['login', 'status'], said, 'codex login', codexHome],
-  ['Cursor (several providers)', 'cursor-agent', ['status'], said, 'cursor-agent login', null],
-].map(([name, cmd, statusArgs, yes, login, cliHome]) => {
+  ['Claude Code (Anthropic)', 'anthropic', 'claude', ['auth', 'status'], (r) => json(r)?.loggedIn === true, 'claude auth login', claudeHome],
+  ['Codex (OpenAI)', 'openai', 'codex', ['login', 'status'], said, 'codex login', codexHome],
+  // Cursor runs models from several providers, so it cannot count as one of its own.
+  ['Cursor (several providers)', null, 'cursor-agent', ['status'], said, 'cursor-agent login', null],
+].map(([name, provider, cmd, statusArgs, yes, login, cliHome]) => {
   // As with the plugin lists: an agent that never ran here is not signed in, and is not asked.
-  if (cliHome && !fs.existsSync(cliHome)) return { name, login, state: run(cmd, ['--version']).gone ? 'not found' : 'not signed in' };
+  if (cliHome && !fs.existsSync(cliHome)) return { name, provider, login, state: run(cmd, ['--version']).gone ? 'not found' : 'not signed in' };
   const r = run(cmd, statusArgs, { timeout: 10000 });
-  return { name, login, state: r.gone ? 'not found' : yes(r) ? 'signed in' : 'not signed in' };
+  return { name, provider, login, state: r.gone ? 'not found' : yes(r) ? 'signed in' : 'not signed in' };
 });
 const signed = AGENTS.filter((a) => a.state === 'signed in');
+const providers = uniq(signed.map((a) => a.provider).filter(Boolean));
 const GATE = 'The merge gate needs a reviewer from another provider than the builder\'s (condition 7 in the ship skill)';
-add('Providers', 'Agents from two providers signed in', 'required', signed.length >= 2 ? 'ok' : 'unknown',
+const other = AGENTS.filter((a) => a.state !== 'signed in' && a.provider && !providers.includes(a.provider)).map((a) => `\`${a.login}\``);
+add('Providers', 'Two providers signed in', 'required', providers.length >= 2 ? 'ok' : 'unknown',
   AGENTS.map((a) => `${a.name}: ${a.state}`).join('; '),
-  signed.length >= 2 ? '' : `${GATE}. Sign in to a second agent (${AGENTS.filter((a) => a.state !== 'signed in').map((a) => `\`${a.login}\``).join(' or ')}), or let the setup skill ask the harness what else it can run`);
+  providers.length >= 2 ? '' : `${GATE}. ${other.length ? `Sign in to another provider (${other.join(' or ')}), or let` : 'Let'} the setup skill ask the harness which providers it can run${signed.some((a) => !a.provider) ? ', Cursor\'s among them' : ''}`);
 add('Providers', 'A provider other than the builder\'s can run a review', 'required', 'unknown', 'signed in is not able to run, and a script cannot start a worker',
   `${GATE}. The setup skill asks the harness and, on a yes, proves it with one small read-only run`);
 
@@ -271,8 +274,12 @@ const codexState = AGENTS.find((a) => a.login === 'codex login').state;
 if (process.platform === 'linux' && codexState !== 'not found' && fs.existsSync(codexHome)) {
   const box = run('codex', ['sandbox', '--', 'echo', 'ok']);
   const check = 'Codex can run a command in its sandbox';
+  // AppArmor is the cause only when the system restricts user namespaces and
+  // bwrap failed in the way that restriction makes it fail.
+  const restricted = (readText('/proc/sys/kernel/apparmor_restrict_unprivileged_userns') || '').trim() === '1';
+  const refused = /RTM_NEWADDR|setting up uid map|No permissions to create new namespace|creating new namespace failed/i.test(`${box.out}\n${box.err}`);
   if (box.ok && /^ok$/m.test(box.out)) add('Providers', check, 'optional', 'ok', 'a test command ran inside it');
-  else if (/RTM_NEWADDR|user namespace|Operation not permitted/i.test(`${box.out}\n${box.err}`)) add('Providers', check, 'optional', 'missing',
+  else if (restricted && refused) add('Providers', check, 'optional', 'missing',
     'the sandbox cannot start: this system refuses it a user namespace, so a Codex worker can run no command',
     `\`node ${repoPath}/scripts/setup.mjs --codex-apparmor\` prints an AppArmor profile that allows it. The setup skill shows it, and the two steps that need sudo are yours`);
   else add('Providers', check, 'optional', 'unknown', box.slow ? 'the test command did not finish in time' : 'the test command failed for a reason the script does not know',
@@ -376,8 +383,9 @@ if (!slug || !branch) {
 // ---- 9. automation ----------------------------------------------------------
 // Only the events of each active webhook are read. A webhook's address can
 // carry a token, so it is never asked for.
-const hooks = slug ? run('gh', ['api', `repos/${slug}/hooks`, '--jq', '[.[] | select(.active) | .events]']) : null;
-const firing = hooks?.ok ? (json(hooks) || []).filter((events) => events.includes('pull_request') || events.includes('*')).length : null;
+// Every page, one line of events per active webhook.
+const hooks = slug ? run('gh', ['api', '--paginate', `repos/${slug}/hooks`, '--jq', '.[] | select(.active) | .events | join(",")']) : null;
+const firing = hooks?.ok ? hooks.out.split('\n').filter((l) => l.split(',').some((e) => e === 'pull_request' || e === '*')).length : null;
 const WIRE = 'The setup skill wires templates/automation/pr-opened.md on a yes';
 if (firing === null) add('Automation', 'A webhook fires when a PR opens', 'optional', 'unknown',
   slug ? 'the webhooks could not be read: that needs an administrator' : 'the repository could not be read', slug ? `${WIRE}, with an administrator's token` : 'Fix the GitHub lines above, then run this again');
@@ -390,15 +398,20 @@ add('Automation', 'Daily triage is scheduled', 'optional', 'unknown', 'a script 
 // ---- 10. run log ------------------------------------------------------------
 // Checked without writing: the file, or the nearest folder that exists above it.
 const logFile = runlogFile();
-const logText = readText(logFile);
+const isDir = (p) => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
+const may = (p, mode) => { try { fs.accessSync(p, mode); return true; } catch { return false; } };
+const logIsDir = isDir(logFile);
+const logText = logIsDir ? null : readText(logFile);
 let logDir = path.dirname(logFile);
 while (!fs.existsSync(logDir) && path.dirname(logDir) !== logDir) logDir = path.dirname(logDir);
-const may = (p, mode) => { try { fs.accessSync(p, mode); return true; } catch { return false; } };
-const canLog = logText !== null ? may(logFile, fs.constants.W_OK) : may(logDir, fs.constants.W_OK | fs.constants.X_OK);
+const blocked = logIsDir ? `${posix(logFile)} is a folder: the run log is a file`
+  : logText === null && !isDir(logDir) ? `${posix(logDir)} is a file where a folder is needed` : '';
+const canLog = !blocked && (logText !== null ? may(logFile, fs.constants.W_OK) : may(logDir, fs.constants.W_OK | fs.constants.X_OK));
 const logLines = (logText || '').split('\n').filter(Boolean);
 add('Run log', 'A row can be written', 'required', canLog ? 'ok' : 'missing',
-  `${posix(logFile)}${process.env.AGENT_RUNLOG ? ' (from AGENT_RUNLOG)' : ''}, ${logText !== null ? `${logLines.length} lines` : 'made with the first row'}`,
-  canLog ? '' : `Make ${shown(logText !== null ? logFile : logDir, 'the run log\'s folder')} writable, or set AGENT_RUNLOG to a file you can write`);
+  `${posix(logFile)}${process.env.AGENT_RUNLOG ? ' (from AGENT_RUNLOG)' : ''}, ${blocked || (logText !== null ? `${logLines.length} lines` : 'made with the first row')}`,
+  canLog ? '' : blocked ? 'Set AGENT_RUNLOG to a file in a folder you can write'
+    : `Make ${shown(logText !== null ? logFile : logDir, 'the run log\'s folder')} writable, or set AGENT_RUNLOG to a file you can write`);
 
 // ---- 11. test run -----------------------------------------------------------
 const TEST_TASK = '/factory Setup test run. Add the file docs/agents/setup-test.md holding one line with today\'s date. Treat it as size small, not trivial: '
@@ -413,6 +426,7 @@ add('Test run', 'A factory run is logged for this repository', 'optional', logge
 // The path is found on this machine, never written in the repository. Version
 // folders become * so the profile survives an upgrade of Node or of Codex.
 function codexProfile() {
+  const ancestors = (p) => { const out = []; for (let d = path.dirname(p); d !== path.dirname(d); d = path.dirname(d)) out.push(d); return out; };
   const bin = (process.env.PATH || '').split(path.delimiter).map((d) => path.join(d, 'codex')).find((f) => fs.existsSync(f));
   let dir = bin ? path.dirname(fs.realpathSync(bin)) : '';
   while (dir && path.dirname(dir) !== dir && !fs.existsSync(path.join(dir, 'node_modules', '@openai'))) dir = path.dirname(dir);
@@ -422,15 +436,20 @@ function codexProfile() {
     return (fs.existsSync(vendor) ? fs.readdirSync(vendor) : []).map((triple) => path.join(vendor, triple, 'codex-resources', 'bwrap'));
   }).find((f) => fs.existsSync(f));
   if (!found) { console.error('Codex\'s bundled bwrap was not found from the `codex` on PATH. Find it with: find / -path "*codex-resources/bwrap" 2>/dev/null'); process.exit(1); }
-  if (/[\s"{}\[\]*?,]/.test(found)) { console.error('The path of Codex\'s bwrap holds characters an AppArmor profile cannot take as they are: ' + found); process.exit(1); }
+  if (/[\s"{}\[\]*?,#^]/.test(found)) { console.error('The path of Codex\'s bwrap holds characters an AppArmor profile cannot take as they are: ' + found); process.exit(1); }
+  const ownedByRoot = [found, ...ancestors(found)].every((p) => fs.statSync(p).uid === 0);
   const glob = posix(found).replace(/\/versions\/node\/[^/]+\//, '/versions/node/*/').replace(/\/vendor\/[^/]+\//, '/vendor/*/');
   return [
-    '# Lets the bwrap bundled with the Codex CLI create the user namespace its',
-    '# sandbox needs. Some Linux systems refuse that to any program without a',
+    '# Lets the bwrap bundled with the Codex CLI create user namespaces, which its',
+    '# sandbox needs. Some Linux systems refuse them to any program without a',
     '# profile like this one (kernel.apparmor_restrict_unprivileged_userns=1).',
-    '# A program with no profile already runs unconfined: this adds only the',
-    '# right to create user namespaces. The path is in your home folder, so',
-    '# anything that runs as you could place a program there and use it.',
+    '# What it allows: that program, and every program it starts, may hold all',
+    '# capabilities inside their own user namespace, as on a Linux without the',
+    '# restriction. The system\'s bwrap-userns-restrict profile shows a stricter',
+    '# form, which takes the capabilities away from what bwrap starts.',
+    ...(ownedByRoot ? [] : [
+      '# Warning: this path is owned by you, not by root. Anything that runs as',
+      '# you can put a program there and use this profile.']),
     'abi <abi/4.0>,',
     'include <tunables/global>',
     '',

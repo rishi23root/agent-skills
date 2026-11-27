@@ -40,14 +40,19 @@ that in writing, PR by PR. So this section comes before anything is built.
    that line is `missing`, the system refuses the sandbox a user namespace,
    and every Codex worker fails before its first command. The fix is one
    AppArmor profile and one reload, both as root, so both are the owner's:
-   - Print the profile with the command in that line and show it whole. Say
-     what it changes. A program with no profile already runs unconfined, so
-     the profile adds one right: creating user namespaces. It is the form
-     the system's own AppArmor package uses for programs that need them.
-   - Say what it costs. The path is in the owner's home folder, so anything
-     that runs as the owner can put a program there and get that right too.
-     The system's restriction exists to deny it to such programs. The owner
-     weighs that against Codex reviewing unattended.
+   - Print the profile with the command in that line and show it whole.
+   - Say what it allows, in these words or plainer: Codex's sandbox helper,
+     and every program it starts, may hold all capabilities inside their own
+     user namespace. That is how Linux works without this restriction. The
+     restriction exists to take that from programs, because a capability in
+     a user namespace is a way to reach kernel bugs.
+   - Say what it costs. When the profile carries the warning that the path
+     is owned by the owner and not by root, anything that runs as the owner
+     can put a program there and use the profile.
+   - Name the stricter form: the system's own `bwrap-userns-restrict`
+     profile takes the capabilities away from what the helper starts. The
+     script does not print one for Codex, because nobody has tested it with
+     Codex. The owner weighs this against Codex reviewing unattended.
    - On a yes, the owner saves it as the file its first line of `profile`
      names, in the system's AppArmor folder, and reloads it with
      `sudo apparmor_parser -r <that file>`. You run neither: you have no
@@ -87,8 +92,12 @@ it starts agents from other people's text, and has blanks only the owner can
 fill.
 
 First read the harness's list of scheduled and webhook tasks for this
-project. A task whose prompt is a template's block is already wired: say so
-and do not create a second one.
+project. A task whose prompt is a template's block exists: do not create a
+second one. The daily triage is then wired: say so. The PR review webhook is
+wired only when the script's webhook line also counts one. A task with no
+webhook is half wired: the owner adds the webhook from the harness's
+settings, where its address is shown, so the address stays out of the
+conversation.
 
 **The PR review webhook** (`pr-opened.md`). Without it, a PR opened outside
 the skills gets no review until someone starts one.

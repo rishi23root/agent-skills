@@ -59,7 +59,9 @@ carry them out, strictest first.
 
 `setup` goes through this table with the owner. "Reads" names what shows an
 agent the value. "By hand" means nothing does: give the owner the step and
-take their word. An agent never changes one of these itself.
+take their word. An agent never changes a default or an account-wide
+setting itself. What it passes on each start, such as the permission mode,
+and a task the owner said yes to, are its to set.
 
 | Setting | Why | T3 Code | Claude Code | Codex |
 |---|---|---|---|---|

@@ -164,8 +164,8 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 | `/handoff` | ~800 | ~800 | ~1700 |
 | `/improve` | ~1300 | ~2300 | ~2300 |
 | `/review` | ~1900 | ~3300 | ~11300 |
-| `/setup` | ~1700 | ~6300 | ~10700 |
-| `/ship` | ~1900 | ~1900 | ~13200 |
-| `/spec` | ~900 | ~900 | ~12500 |
+| `/setup` | ~1700 | ~6500 | ~10900 |
+| `/ship` | ~1900 | ~1900 | ~13300 |
+| `/spec` | ~900 | ~900 | ~12600 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.

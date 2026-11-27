@@ -60,7 +60,7 @@ function world({ answers = {}, identity = true, files = {}, fresh = false, env: 
     'gh label list *': say(LABELS.map((name) => ({ name }))),
     'claude plugin list --json': say([{ id: 'agent-skills@rishi23root', enabled: true }]),
     'codex plugin list --json': null,
-    'gh api repos/octo/demo/hooks *': say([]),
+    'gh api --paginate repos/octo/demo/hooks *': say(''),
     'claude auth status': say({ loggedIn: true, email: EMAIL }),
     'codex login status': say('Logged in using ChatGPT'),
     'cursor-agent status': say(`Not logged in`, { status: 1 }),
@@ -338,7 +338,7 @@ test('no output ever holds the token or an account email', () => {
 
 test('providers: two signed in is ok, one is unknown, and able-to-run is never claimed', () => {
   const two = world().rows();
-  const a = find(two.rows, 'two providers signed in');
+  const a = find(two.rows, 'Two providers signed in');
   assert.equal(a.state, 'ok');
   assert.match(a.found, /Claude Code \(Anthropic\): signed in; Codex \(OpenAI\): signed in; Cursor \(several providers\): not signed in/);
   const run = find(two.rows, 'can run a review');
@@ -346,19 +346,33 @@ test('providers: two signed in is ok, one is unknown, and able-to-run is never c
   assert.match(run.fix, /condition 7/);
 
   const one = world({ answers: { 'codex login status': say('Not logged in', { status: 1 }) } }).rows();
-  const b = find(one.rows, 'two providers signed in');
+  const b = find(one.rows, 'Two providers signed in');
   assert.equal(b.state, 'unknown');
   assert.match(b.fix, /condition 7/);
   assert.match(b.fix, /`codex login`/);
   assert.equal(one.code, 0, 'unknown is not missing');
+
+  // Cursor runs several providers, so with Claude Code it does not make two.
+  const cursor = world({ answers: { 'codex login status': say('Not logged in', { status: 1 }), 'cursor-agent status': say('Logged in') } }).rows();
+  const c = find(cursor.rows, 'Two providers signed in');
+  assert.equal(c.state, 'unknown');
+  assert.match(c.fix, /Cursor's among them/);
 });
 
 test('Codex sandbox on Linux: ok when a command runs, missing with the profile command when it cannot start', { skip: process.platform !== 'linux' }, () => {
   assert.equal(find(world().rows().rows, 'Codex can run a command').state, 'ok');
   const blocked = say('', { status: 1, err: 'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted' });
   const r = find(world({ answers: { 'codex sandbox -- echo ok': blocked } }).rows().rows, 'Codex can run a command');
-  assert.deepEqual([r.need, r.state], ['optional', 'missing']);
-  assert.match(r.fix, /setup\.mjs --codex-apparmor/);
+  // The AppArmor fix is offered only where this system restricts user namespaces.
+  let restricted = false;
+  try { restricted = fs.readFileSync('/proc/sys/kernel/apparmor_restrict_unprivileged_userns', 'utf8').trim() === '1'; } catch {}
+  if (restricted) {
+    assert.deepEqual([r.need, r.state], ['optional', 'missing']);
+    assert.match(r.fix, /setup\.mjs --codex-apparmor/);
+  } else assert.equal(r.state, 'unknown');
+  const other = say('', { status: 1, err: 'bwrap: execvp echo: Operation not permitted' });
+  assert.equal(find(world({ answers: { 'codex sandbox -- echo ok': other } }).rows().rows, 'Codex can run a command').state, 'unknown',
+    'another "Operation not permitted" is not sent to the AppArmor fix');
   const odd = find(world({ answers: { 'codex sandbox -- echo ok': say('', { status: 2, err: 'error: unrecognized subcommand' }) } }).rows().rows, 'Codex can run a command');
   assert.equal(odd.state, 'unknown');
   assert.ok(!world({ fresh: true }).rows().rows.some((x) => x.check.includes('Codex can run a command')), 'Codex never ran here, so it is not tested');
@@ -378,6 +392,8 @@ test('the AppArmor profile names the bwrap found on this machine, with version f
   const run = (PATH) => spawnSync(process.execPath, [SETUP, '--codex-apparmor'], { env: { ...w.env, PATH }, encoding: 'utf8' });
   const ok = run(bin);
   assert.equal(ok.status, 0);
+  assert.match(ok.stdout, /every program it starts, may hold all/, 'the comment says what the profile allows');
+  assert.match(ok.stdout, /# Warning: this path is owned by you, not by root\./);
   const tmp = fs.realpathSync(w.tmp).split(path.sep).join('/');
   assert.ok(ok.stdout.includes(`profile codex-bwrap ${tmp}/versions/node/*/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/*/codex-resources/bwrap flags=(unconfined) {\n  userns,\n`), ok.stdout);
   const none = run(path.join(w.tmp, 'bin'));
@@ -397,11 +413,11 @@ test('automation: no webhook is missing, one is unknown, and the schedule is alw
   const none = world().rows().rows;
   assert.equal(find(none, 'webhook fires').state, 'missing');
   assert.equal(find(none, 'Daily triage').state, 'unknown');
-  const one = world({ answers: { 'gh api repos/octo/demo/hooks *': say([['push'], ['pull_request', 'push']]) } }).rows().rows;
+  const one = world({ answers: { 'gh api --paginate repos/octo/demo/hooks *': say('push\npull_request,push\n') } }).rows().rows;
   const r = find(one, 'webhook fires');
   assert.equal(r.state, 'unknown');
   assert.match(r.found, /^1 webhook fires on pull requests/);
-  const denied = world({ answers: { 'gh api repos/octo/demo/hooks *': null } }).rows().rows;
+  const denied = world({ answers: { 'gh api --paginate repos/octo/demo/hooks *': null } }).rows().rows;
   assert.equal(find(denied, 'webhook fires').state, 'unknown');
 });
 
@@ -429,6 +445,22 @@ test('run log: a file that cannot be written is a required line that is missing'
   assert.equal(r.state, 'missing');
   assert.match(r.fix, /AGENT_RUNLOG/);
   assert.equal(code, 1);
+});
+
+test('run log: a folder, or a file where a folder is needed, is missing', () => {
+  const w = world();
+  const folder = path.join(w.tmp, 'logs');
+  fs.mkdirSync(folder);
+  const a = world({ env: { AGENT_RUNLOG: folder } }).rows();
+  const r = find(a.rows, 'A row can be written');
+  assert.equal(r.state, 'missing');
+  assert.match(r.found, /is a folder: the run log is a file/);
+  assert.equal(a.code, 1);
+  const file = path.join(w.tmp, 'plain-file');
+  fs.writeFileSync(file, '');
+  const b = find(world({ env: { AGENT_RUNLOG: path.join(file, 'x', 'runs.jsonl') } }).rows().rows, 'A row can be written');
+  assert.equal(b.state, 'missing');
+  assert.match(b.found, /plain-file is a file where a folder is needed/);
 });
 
 test('test run: ok once a run is logged for this repository, else the command to type', () => {
