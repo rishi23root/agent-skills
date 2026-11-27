@@ -72,12 +72,12 @@
 
 <style>
   :root {
-    /* The colour of each kind of circle. The first four are the first page's. */
+    /* The colour of each kind of circle, in light. The first four are the first page's. */
     --manager: #F79767; --manager-e: #D9743F; --front: #57C7E3; --front-e: #2FA3C2;
     --seat: #6DCE9E; --seat-e: #43A877; --procedure: #C990C0; --procedure-e: #A9689F;
     --extra: #FFC454; --extra-e: #D99E27; --source: #DA7194; --source-e: #B84D72;
     --ticket: #B4BAC5; --ticket-e: #8A92A1;
-    /* Text on a circle or a pill. The fills are light in both themes, so it stays dark. */
+    /* Text on a circle or a pill. The fills are mid tones in both themes, so it is dark in both. */
     --ink: #151a23;
     --disc-shadow: rgba(0, 0, 0, .22);
     /* Spacing and type, on the first page's scales. */
@@ -85,10 +85,24 @@
     --t-xs: 12.5px; --t-s: 14px; --t-m: 16px; --t-l: 20px;
     --r: 10px;
   }
+  /* In dark the fills are a step deeper, so they glare less on the dark page,
+     and each outline is lighter than its fill, so the edge of a circle shows. */
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --disc-shadow: rgba(0, 0, 0, .55); }
+    :root:not([data-theme="light"]) {
+      --disc-shadow: rgba(0, 0, 0, .55); --ink: #0e1218;
+      --manager: #E58250; --manager-e: #FFB592; --front: #3FB2D0; --front-e: #94E0F4;
+      --seat: #54BA88; --seat-e: #A3E8C4; --procedure: #B877AE; --procedure-e: #E4B9DD;
+      --extra: #EBAE38; --extra-e: #FFDC94; --source: #C95C81; --source-e: #F0A3BC;
+      --ticket: #9AA1AE; --ticket-e: #D3D8E0;
+    }
   }
-  :root[data-theme="dark"] { --disc-shadow: rgba(0, 0, 0, .55); }
+  :root[data-theme="dark"] {
+    --disc-shadow: rgba(0, 0, 0, .55); --ink: #0e1218;
+    --manager: #E58250; --manager-e: #FFB592; --front: #3FB2D0; --front-e: #94E0F4;
+    --seat: #54BA88; --seat-e: #A3E8C4; --procedure: #B877AE; --procedure-e: #E4B9DD;
+    --extra: #EBAE38; --extra-e: #FFDC94; --source: #C95C81; --source-e: #F0A3BC;
+    --ticket: #9AA1AE; --ticket-e: #D3D8E0;
+  }
   /* Each kind hands its two colours to whatever draws it: a circle, a dot, a pill. */
   .k-manager { --c: var(--manager); --ce: var(--manager-e); }
   .k-front { --c: var(--front); --ce: var(--front-e); }
