@@ -1,5 +1,7 @@
 # agent-skills
 
+**[Explore the site](https://rishi23root.github.io/agent-skills/)** · [Skill graph](https://rishi23root.github.io/agent-skills/skill-graph.html)
+
 A small set of agent skills that run a personal software factory: a task goes
 in, in any wording, and a reviewed pull request comes out, waiting for your
 word to merge. This repository
@@ -9,9 +11,6 @@ enforce the rules, and the research behind the design.
 Status: **v0.1, not yet run on a real ticket.** The design is grounded in
 measured findings and in published practice, but the pipeline as a whole still
 has to pass its pilot. See [What is proven and what is not](#what-is-proven-and-what-is-not).
-
-New here? The [site](https://rishi23root.github.io/agent-skills/) explains it
-on one page, in plain words.
 
 ## The idea
 
