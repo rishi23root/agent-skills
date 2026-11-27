@@ -163,6 +163,7 @@ what the script prints. These rows cover what the agent does with it.
 | I15 | The owner confirms three of five by-hand harness settings and skips two | The final table has one line per setting: three `ok` with "confirmed by the owner", two `unknown` with their steps. No setting was changed by the agent | |
 | I16 | Every required line is `ok`. The owner says yes to the test run, in a harness that can start a session | A session of its own is started with the command from the script's Test run line, word for word. Its link is under the table. Setup does not load `factory` | |
 | I17 | A required line is still `missing` at the end | The test run is not offered. The report says the factory is not ready and names the line | |
+| I18 | Linux. Codex is signed in, and the script's line for its sandbox is `missing` | The profile is printed by the script and shown whole, with what it grants. The owner is given the save and reload steps to run with sudo. The agent runs neither and asks for no password. After the owner says it is done, the script is run again, and Codex is offered as a reviewer only when the line is `ok` | |
 
 ## Run record
 

@@ -5,11 +5,14 @@
 //
 //   node scripts/setup.mjs [--project <dir>] [--require-check <name,name>] [--json]
 //   node scripts/setup.mjs --draft-profile [--project <dir>]
+//   node scripts/setup.mjs --codex-apparmor
 //
 // The first form prints one table. Every line is `ok`, `missing` or `unknown`,
 // and every line that is not `ok` says how to fix it. `required` means a
 // factory run cannot finish without it: a logged PR at the merge gate.
 // The second form prints templates/factory.md with what it detected filled in.
+// The third prints the AppArmor profile that lets Codex's sandbox start on a
+// Linux that restricts user namespaces.
 //
 // Exit code 0: no required line is missing. 1: at least one is. 2: bad usage.
 import fs from 'node:fs';
@@ -21,8 +24,8 @@ import { ROOT, loadLock, parseArgs, posix, runlogFile } from './lib.mjs';
 const args = parseArgs(process.argv.slice(2));
 // An option that is misspelled or has no value must not be dropped in silence:
 // the table would then answer a question the owner did not ask.
-const OPTIONS = { project: true, 'require-check': true, json: false, 'draft-profile': false };
-const usage = (why) => { console.error(`${why}\nusage: setup.mjs [--project <dir>] [--require-check <name,name>] [--json] | --draft-profile [--project <dir>]`); process.exit(2); };
+const OPTIONS = { project: true, 'require-check': true, json: false, 'draft-profile': false, 'codex-apparmor': false };
+const usage = (why) => { console.error(`${why}\nusage: setup.mjs [--project <dir>] [--require-check <name,name>] [--json] | --draft-profile [--project <dir>] | --codex-apparmor`); process.exit(2); };
 if (args._.length) usage(`unexpected argument: ${args._[0]}`);
 for (const [name, value] of Object.entries(args)) {
   if (name === '_') continue;
@@ -31,6 +34,7 @@ for (const [name, value] of Object.entries(args)) {
 }
 const project = path.resolve(args.project || process.cwd());
 if (!fs.existsSync(project)) usage('no such folder: ' + project);
+if (args['codex-apparmor']) { process.stdout.write(codexProfile()); process.exit(0); }
 const HOME = os.homedir();
 // The fixes are commands the owner or an agent may paste. Names and paths in
 // them come from the project, from GitHub and from the machine, so they are
@@ -255,6 +259,21 @@ add('Providers', 'Agents from two providers signed in', 'required', signed.lengt
 add('Providers', 'A provider other than the builder\'s can run a review', 'required', 'unknown', 'signed in is not able to run, and a script cannot start a worker',
   `${GATE}. The setup skill asks the harness and, on a yes, proves it with one small read-only run`);
 
+// On Linux, Codex runs each command of a worker inside a sandbox that needs
+// its own user namespace. Where AppArmor refuses that to a program without a
+// profile, a Codex worker can run no command at all, so it can review nothing.
+const codexState = AGENTS.find((a) => a.login === 'codex login').state;
+if (process.platform === 'linux' && codexState !== 'not found' && fs.existsSync(codexHome)) {
+  const box = run('codex', ['sandbox', '--', 'echo', 'ok']);
+  const check = 'Codex can run a command in its sandbox';
+  if (box.ok && /^ok$/m.test(box.out)) add('Providers', check, 'optional', 'ok', 'a test command ran inside it');
+  else if (/RTM_NEWADDR|user namespace|Operation not permitted/i.test(`${box.out}\n${box.err}`)) add('Providers', check, 'optional', 'missing',
+    'the sandbox cannot start: this system refuses it a user namespace, so a Codex worker can run no command',
+    `\`node ${repoPath}/scripts/setup.mjs --codex-apparmor\` prints an AppArmor profile that allows it. The setup skill shows it, and the two steps that need sudo are yours`);
+  else add('Providers', check, 'optional', 'unknown', box.slow ? 'the test command did not finish in time' : 'the test command failed for a reason the script does not know',
+    'Run `codex sandbox -- echo ok` and read the error');
+}
+
 // ---- 6. harness settings ----------------------------------------------------
 add('Harness', 'Settings the factory relies on', 'optional', 'unknown', 'a script cannot read a harness\'s settings',
   'The setup skill goes through them with you: "Settings the factory relies on" in skills/dispatch/harness.md');
@@ -384,6 +403,38 @@ const logged = slug ? logLines.filter((l) => { try { const r = JSON.parse(l); re
 add('Test run', 'A factory run is logged for this repository', 'optional', logged ? 'ok' : slug ? 'missing' : 'unknown',
   logged ? `${logged} logged run${logged > 1 ? 's' : ''} for ${slug}` : slug ? 'none in the run log' : 'the repository could not be read',
   logged ? '' : `In a fresh session, type: ${TEST_TASK}`);
+
+// ---- the AppArmor profile for Codex's sandbox --------------------------------
+// The path is found on this machine, never written in the repository. Version
+// folders become * so the profile survives an upgrade of Node or of Codex.
+function codexProfile() {
+  const bin = (process.env.PATH || '').split(path.delimiter).map((d) => path.join(d, 'codex')).find((f) => fs.existsSync(f));
+  let dir = bin ? path.dirname(fs.realpathSync(bin)) : '';
+  while (dir && path.dirname(dir) !== dir && !fs.existsSync(path.join(dir, 'node_modules', '@openai'))) dir = path.dirname(dir);
+  const scope = path.join(dir, 'node_modules', '@openai');
+  const found = (fs.existsSync(scope) ? fs.readdirSync(scope) : []).flatMap((pkg) => {
+    const vendor = path.join(scope, pkg, 'vendor');
+    return (fs.existsSync(vendor) ? fs.readdirSync(vendor) : []).map((triple) => path.join(vendor, triple, 'codex-resources', 'bwrap'));
+  }).find((f) => fs.existsSync(f));
+  if (!found) { console.error('Codex\'s bundled bwrap was not found from the `codex` on PATH. Find it with: find / -path "*codex-resources/bwrap" 2>/dev/null'); process.exit(1); }
+  if (/[\s"{}\[\]*?,]/.test(found)) { console.error('The path of Codex\'s bwrap holds characters an AppArmor profile cannot take as they are: ' + found); process.exit(1); }
+  const glob = posix(found).replace(/\/versions\/node\/[^/]+\//, '/versions/node/*/').replace(/\/vendor\/[^/]+\//, '/vendor/*/');
+  return [
+    '# Lets the bwrap bundled with the Codex CLI create the user namespace its',
+    '# sandbox needs. Some Linux systems refuse that to any program without a',
+    '# profile like this one (kernel.apparmor_restrict_unprivileged_userns=1).',
+    '# It grants that one program user namespaces, and nothing else.',
+    'abi <abi/4.0>,',
+    'include <tunables/global>',
+    '',
+    `profile codex-bwrap ${glob} flags=(unconfined) {`,
+    '  userns,',
+    '',
+    '  include if exists <local/codex-bwrap>',
+    '}',
+    '',
+  ].join('\n');
+}
 
 // ---- the draft profile ------------------------------------------------------
 // Fills the template with what the repository shows. A line it could not

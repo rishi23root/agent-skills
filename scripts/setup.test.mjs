@@ -56,6 +56,7 @@ function world({ answers = {}, identity = true, files = {}, fresh = false, env: 
     'claude auth status': say({ loggedIn: true, email: EMAIL }),
     'codex login status': say('Logged in using ChatGPT'),
     'cursor-agent status': say(`Not logged in`, { status: 1 }),
+    'codex sandbox -- echo ok': say('ok'),
     ...answers,
   };
   fs.writeFileSync(path.join(tmp, 'stubs.json'), JSON.stringify(table));
@@ -331,6 +332,38 @@ test('providers: two signed in is ok, one is unknown, and able-to-run is never c
   assert.match(b.fix, /condition 7/);
   assert.match(b.fix, /`codex login`/);
   assert.equal(one.code, 0, 'unknown is not missing');
+});
+
+test('Codex sandbox on Linux: ok when a command runs, missing with the profile command when it cannot start', { skip: process.platform !== 'linux' }, () => {
+  assert.equal(find(world().rows().rows, 'Codex can run a command').state, 'ok');
+  const blocked = say('', { status: 1, err: 'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted' });
+  const r = find(world({ answers: { 'codex sandbox -- echo ok': blocked } }).rows().rows, 'Codex can run a command');
+  assert.deepEqual([r.need, r.state], ['optional', 'missing']);
+  assert.match(r.fix, /setup\.mjs --codex-apparmor/);
+  const odd = find(world({ answers: { 'codex sandbox -- echo ok': say('', { status: 2, err: 'error: unrecognized subcommand' }) } }).rows().rows, 'Codex can run a command');
+  assert.equal(odd.state, 'unknown');
+  assert.ok(!world({ fresh: true }).rows().rows.some((x) => x.check.includes('Codex can run a command')), 'Codex never ran here, so it is not tested');
+});
+
+test('the AppArmor profile names the bwrap found on this machine, with version folders as globs', { skip: process.platform === 'win32' }, () => {
+  const w = world();
+  const pkg = path.join(w.tmp, 'versions', 'node', 'v9.9.9', 'lib', 'node_modules', '@openai', 'codex');
+  const bwrap = path.join(pkg, 'node_modules', '@openai', 'codex-linux-x64', 'vendor', 'x86_64-unknown-linux-musl', 'codex-resources', 'bwrap');
+  fs.mkdirSync(path.dirname(bwrap), { recursive: true });
+  fs.writeFileSync(bwrap, '');
+  fs.mkdirSync(path.join(pkg, 'bin'));
+  fs.writeFileSync(path.join(pkg, 'bin', 'codex.js'), '');
+  const bin = path.join(w.tmp, 'npm-bin');
+  fs.mkdirSync(bin);
+  fs.symlinkSync(path.join(pkg, 'bin', 'codex.js'), path.join(bin, 'codex'));
+  const run = (PATH) => spawnSync(process.execPath, [SETUP, '--codex-apparmor'], { env: { ...w.env, PATH }, encoding: 'utf8' });
+  const ok = run(bin);
+  assert.equal(ok.status, 0);
+  const tmp = fs.realpathSync(w.tmp).split(path.sep).join('/');
+  assert.ok(ok.stdout.includes(`profile codex-bwrap ${tmp}/versions/node/*/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/*/codex-resources/bwrap flags=(unconfined) {\n  userns,\n`), ok.stdout);
+  const none = run(path.join(w.tmp, 'bin'));
+  assert.equal(none.status, 1, 'a codex with no bundled bwrap next to it gives no profile');
+  assert.equal(none.stdout, '');
 });
 
 test('the harness line is one unknown line that points at the settings table', () => {

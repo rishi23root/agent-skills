@@ -163,7 +163,7 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 | `/handoff` | ~800 | ~800 | ~1700 |
 | `/improve` | ~1300 | ~2300 | ~2300 |
 | `/review` | ~1900 | ~3300 | ~11200 |
-| `/setup` | ~1700 | ~6000 | ~10300 |
+| `/setup` | ~1700 | ~6200 | ~10500 |
 | `/ship` | ~1700 | ~1700 | ~6000 |
 | `/spec` | ~900 | ~900 | ~12400 |
 

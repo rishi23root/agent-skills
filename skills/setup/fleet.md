@@ -36,6 +36,19 @@ that in writing, PR by PR. So this section comes before anything is built.
    error. A provider that stops to ask before each command can review only
    while the owner is at the desk: say so. The line is `ok` only after a run
    you saw.
+   One cause has a known fix. On Linux the script tests Codex's sandbox. When
+   that line is `missing`, the system refuses the sandbox a user namespace,
+   and every Codex worker fails before its first command. The fix is one
+   AppArmor profile and one reload, both as root, so both are the owner's:
+   - Print the profile with the command in that line and show it whole. Say
+     what it grants: that one program may create user namespaces, and
+     nothing else.
+   - On a yes, the owner saves it as the file its first line of `profile`
+     names, in the system's AppArmor folder, and reloads it with
+     `sudo apparmor_parser -r <that file>`. You run neither: you have no
+     password, and you never ask for one in the conversation.
+   - Run the script again. The line must read `ok` before Codex is offered
+     as a reviewer.
 6. **Write the choice on a yes**, to the Families line in the Fleet section
    of the project's profile: `manager <provider>, builders <provider>,
    reviewers <provider>`. Providers, not models. Change that one line only.
