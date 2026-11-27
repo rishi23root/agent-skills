@@ -28,6 +28,10 @@ It checks names, layers, links and sizes, and regenerates
 `docs/skill-graph.md` and `skills/<seat>/extras.md`. Commit the regenerated
 files with your change. CI fails if they are stale.
 
+If you changed a skill's `metadata`, `upstream.lock.json` or a plan in
+`docs/plans`, also run `node scripts/graph.mjs`. It regenerates
+`docs/skill-graph.html`, which CI checks the same way.
+
 If you changed `upstream.lock.json`, also run it against the clones:
 
 ```
@@ -56,7 +60,8 @@ copies update only when it changes.
 
 ## Do not
 
-- Do not edit generated files by hand (`docs/skill-graph.md`, `extras.md`).
+- Do not edit generated files by hand (`docs/skill-graph.md`,
+  `docs/skill-graph.html`, `extras.md`).
 - Do not copy third-party skill text into this repository. Reference it
   through `upstream.lock.json`.
 - Do not install these skills into a user-level skills folder as part of a
