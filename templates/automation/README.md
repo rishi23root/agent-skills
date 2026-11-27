@@ -15,3 +15,4 @@ and approve its recurring prompts once.
 |---|---|
 | [pr-opened.md](pr-opened.md) | A PR opens |
 | [daily-triage.md](daily-triage.md) | Every weekday morning |
+| [dispatcher.md](dispatcher.md) | On the interval you set, or always on |
