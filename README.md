@@ -77,10 +77,15 @@ Every skill is called by name only, so none of them is loaded until you ask.
 
 Standing cost is zero. These are bytes divided by 4, not measurements; the
 full table is generated into [docs/skill-graph.md](docs/skill-graph.md).
+`claude plugin details` reports an always-on cost for these skills, but it
+counts every description and ignores `disable-model-invocation`. To see the
+real cost, run `/context` in a session.
 
 The full dependency graph, generated from the skills themselves, is in
 [docs/skill-graph.md](docs/skill-graph.md). An interactive version you can
-drag, filter and click through is `docs/skill-graph.html`: open it in a browser.
+drag, filter and click through is
+[online](https://rishi23root.github.io/agent-skills/skill-graph.html), built
+from `docs/skill-graph.html` on `main`.
 
 ## Read next
 
@@ -98,7 +103,37 @@ drag, filter and click through is `docs/skill-graph.html`: open it in a browser.
 | [docs/plans/2026-11-26-next-round.md](docs/plans/2026-11-26-next-round.md) | The second round of changes, ticket by ticket, with its status |
 | [evals/scenarios.md](evals/scenarios.md) | The cases the skills must get right |
 
-## Try it
+## Install
+
+One command per agent. Each one installs every skill and the scripts, and
+updates itself when a new version is released.
+
+**Claude Code** (2.1.275 or later):
+
+```
+claude plugin install agent-skills --marketplace rishi23root/agent-skills
+```
+
+**Codex:**
+
+```
+codex plugin marketplace add rishi23root/agent-skills
+codex plugin add agent-skills@rishi23root
+```
+
+These install for your user, in every project. To try it in one project first,
+add `--scope project` to the Claude Code command. Restart the agent session,
+then type `/factory` or `/improve` followed by a task.
+
+The optional third-party extras are a second step. Ask the agent to set up
+the extras, or run the command printed in any seat's `extras.md`. They go in
+`~/.agent-skills/upstream`, outside the plugin, so an update does not wipe
+them.
+
+Requirements: Node 20 or later, git, and an authenticated GitHub CLI (`gh`).
+Python 3 for tstack's `babysit-pr` extra.
+
+## Install from a clone (for working on the skills)
 
 Nothing here installs itself. Start with one test project so it cannot affect
 the skills you already use.
@@ -118,7 +153,8 @@ followed by a task. To take it out again:
 node scripts/install.mjs --target <project>/.claude/skills --remove
 ```
 
-Optional third-party extras, pinned to known commits:
+Optional third-party extras, pinned to known commits. Fetch them before you
+install, so `local.md` records the folder:
 
 ```
 node scripts/sync-upstream.mjs        # clones into ./upstream, which is not in git
@@ -131,14 +167,12 @@ Rules of your own that a reviewer should apply to every diff go in the
 project as `checks/`, one plain-English rule per file. Copy
 [templates/checks](templates/checks).
 
-Requirements: Node 20 or later. The GitHub CLI for the gate script.
-
 ## Scripts
 
 | Script | What it does |
 |---|---|
 | `scripts/validate.mjs` | Checks every skill against the rules. Regenerates the graph and the per-seat extras lists with `--write`. Runs in CI |
-| `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. Open the file in a browser |
+| `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. [Published here](https://rishi23root.github.io/agent-skills/skill-graph.html) from `main` |
 | `scripts/install.mjs` | Links or copies the skills into a skills folder you name. Refuses to overwrite anything it did not install |
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
 | `scripts/runlog.mjs` | Adds, closes, summarises and audits run log rows. The log is append-only |

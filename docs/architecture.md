@@ -170,6 +170,7 @@ owner.
 | 13 | A blocking review finding needs a run that shows the failure | A reviewer asked to find something always finds something. A command and its output can be checked by the author and the owner | Run log data showing real defects were waved through as suspicions |
 | 14 | A review verdict covers a patch id as well as a commit | A rebase changes the commit and not the change, and used to void every approval | n/a |
 | 15 | The run log is append-only | A row that can be rewritten cannot be audited | n/a |
+| 16 | The repository is also a Claude Code and Codex plugin, from `.claude-plugin/` | One command installs every skill with the scripts beside them and updates itself, the route `mattpocock/skills` uses. A plugin install writes no `local.md`, so `principles/locations.md` says how a skill finds the scripts and the extras without it. No setup skill was added: the extras lists carry the one command | A harness that drops the scripts from its plugin copy, or extras that most runs need |
 
 ## Open questions
 

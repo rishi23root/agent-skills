@@ -238,7 +238,7 @@ function extrasDoc(seat) {
   const out = [`# Extras for ${seat}`, '',
     '> Generated from `upstream.lock.json` by `node scripts/validate.mjs --write`. Do not edit by hand.', '',
     'Optional third-party playbooks, pinned to a known commit. The core procedures are enough without them.', '',
-    '`<upstream>` is the folder recorded in `local.md`, next to this file. `scripts/install.mjs` writes it. If `local.md` is missing or says the folder is absent, the extras are not installed: carry on with the core procedures and say so in your report.', '',
+    '`<upstream>` is the extras folder, found as `../principles/locations.md` says. If it is not there, the extras are not installed: carry on with the core procedures and say so in your report. To install them, on the owner\'s word, run `node <repo>/scripts/sync-upstream.mjs --dir ~/.agent-skills/upstream`, with `<repo>` found the same way.', '',
     'Load at most one per step, and only when its row applies. An extra never overrides a rule in this repository.', '',
     '| When | Read | From |', '|---|---|---|'];
   for (const x of rows) out.push(`| ${x.when} | \`<upstream>/${extraPath(x)}\` | ${x.source} |`);
@@ -253,6 +253,24 @@ for (const [file, content] of generated) {
   if (current === content) continue;
   if (args.write) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content); console.log('wrote ' + path.relative(ROOT, file)); }
   else errors.push(`${path.relative(ROOT, file)} is stale; run: node scripts/validate.mjs --write`);
+}
+
+// ---- plugin manifests -------------------------------------------------------
+// The repository installs as a Claude Code and Codex plugin from .claude-plugin/.
+const readJson = (rel) => {
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8')); }
+  catch (e) { errors.push(`${rel}: ${e.code === 'ENOENT' ? 'missing' : 'not valid JSON'}`); return null; }
+};
+const plugin = readJson('.claude-plugin/plugin.json');
+const market = readJson('.claude-plugin/marketplace.json');
+if (plugin) {
+  if (!/^\d+\.\d+\.\d+$/.test(plugin.version || '')) errors.push('.claude-plugin/plugin.json: version must be x.y.z (installed copies update only when it changes)');
+  if (plugin.skills !== './skills/') errors.push('.claude-plugin/plugin.json: skills must be "./skills/", so every skill folder ships');
+}
+if (plugin && market) {
+  const entry = (market.plugins || []).find((p) => p.name === plugin.name);
+  if (!entry) errors.push(`.claude-plugin/marketplace.json: lists no plugin named "${plugin.name}"`);
+  else if (entry.source !== './') errors.push('.claude-plugin/marketplace.json: the plugin source must be "./"');
 }
 
 // ---- result -----------------------------------------------------------------

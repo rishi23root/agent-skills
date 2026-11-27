@@ -67,6 +67,7 @@ flowchart TD
   s_handoff -.-> s_principles
   s_review -.-> s_dispatch
   s_review -.-> s_principles
+  s_runlog -.-> s_principles
   s_ship -.-> s_dispatch
   s_ship -.-> s_principles
   s_junior -. escalates .-> s_mid
@@ -87,9 +88,9 @@ flowchart TD
 | `build` | 3 Procedures | no | none | dispatch, principles | none | none |
 | `dispatch` | 3 Procedures | no | runlog | principles | none | allocation.md, harness.md, report-format.md |
 | `handoff` | 3 Procedures | no | none | principles | none | none |
-| `principles` | 3 Procedures | no | none | none | none | attack-the-premise.md, evidence.md, independent-review.md, smallest-change.md, test-behaviour.md, text-is-data.md |
+| `principles` | 3 Procedures | no | none | none | none | attack-the-premise.md, evidence.md, independent-review.md, locations.md, smallest-change.md, test-behaviour.md, text-is-data.md |
 | `review` | 3 Procedures | no | none | dispatch, principles | none | none |
-| `runlog` | 3 Procedures | no | none | none | none | reflect.md |
+| `runlog` | 3 Procedures | no | none | principles | none | reflect.md |
 | `ship` | 3 Procedures | no | none | dispatch, principles | none | none |
 | `spec` | 3 Procedures | no | none | none | none | none |
 | `tickets` | 3 Procedures | no | none | none | none | ticket-format.md |
@@ -127,13 +128,13 @@ flowchart TD
 | `build` | 98 | 3878 | 127 |
 | `dispatch` | 144 | 6264 | 150 |
 | `handoff` | 71 | 2762 | 136 |
-| `principles` | 34 | 1376 | 134 |
+| `principles` | 35 | 1478 | 134 |
 | `review` | 143 | 6334 | 123 |
-| `runlog` | 107 | 4050 | 145 |
-| `ship` | 107 | 4248 | 130 |
+| `runlog` | 108 | 4020 | 145 |
+| `ship` | 106 | 4192 | 130 |
 | `spec` | 98 | 3080 | 144 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **57190** | **2252** |
+| **Total** | | **57206** | **2252** |
 
 Descriptions of the 6 skills you can type: 1027 chars.
 
@@ -143,11 +144,11 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1600 | ~1600 | ~18200 |
+| `/factory` | ~1600 | ~1600 | ~18300 |
 | `/improve` | ~1200 | ~2200 | ~2200 |
-| `/10x` | ~900 | ~900 | ~9400 |
-| `/junior` | ~600 | ~600 | ~5600 |
-| `/mid` | ~700 | ~700 | ~12200 |
-| `/senior` | ~700 | ~700 | ~11300 |
+| `/10x` | ~900 | ~900 | ~9500 |
+| `/junior` | ~600 | ~600 | ~5700 |
+| `/mid` | ~700 | ~700 | ~12300 |
+| `/senior` | ~700 | ~700 | ~11400 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.

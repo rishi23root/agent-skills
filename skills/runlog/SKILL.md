@@ -9,6 +9,7 @@ metadata:
   layer: "3"
   role: procedure
   requires: ""
+  reads: "principles"
 ---
 
 # runlog
@@ -33,8 +34,8 @@ A JSON Lines file. The default is `~/agent-logs/task-stats.jsonl`. Set
 
 ## How
 
-When the factory scripts are installed (the repository path is in `local.md`
-next to this file; no `local.md` means they are not installed):
+When the factory scripts are installed (find them as
+`../principles/locations.md` says):
 
 ```
 node <repo>/scripts/runlog.mjs add --type feature --size small --seat junior \

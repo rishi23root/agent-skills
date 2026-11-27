@@ -76,6 +76,7 @@ which is which.
 | Every pinned extra exists, and any skill it calls from its own library is pinned too (or listed in `ignoredCalls` with a reason) | `validate.mjs --upstream`, run in CI after fetching the pinned commits | **Mechanism**. Calls are found by pattern (Skill tool, `../name/`, `name/SKILL.md`); a bare mention is only a warning |
 | The clones on a machine are at those commits | `scripts/sync-upstream.mjs --status` | Mechanism, once it is run |
 | Install never overwrites other skills | `scripts/install.mjs` refuses | **Mechanism** |
+| The plugin manifests ship every skill and carry a version | `scripts/validate.mjs` checks `.claude-plugin/` | **Mechanism** |
 | Run rows have valid fields | `scripts/runlog.mjs` rejects bad values | **Mechanism**, once it is called |
 | A logged row is never rewritten | `runlog.mjs close` appends a closing line | **Mechanism**, once it is called |
 | Rows with weak evidence are visible | `runlog.mjs audit` lists them and exits non-zero | **Mechanism**, once it is called |

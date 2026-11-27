@@ -44,5 +44,5 @@ Give the owner three lists and wait:
 
 A skill change is tested blind before it is merged: the scenarios and method
 are in `evals/scenarios.md`, section F, in the factory repository (its path
-is in `local.md` next to the skill). Record the result there. If the change
+is found as `../principles/locations.md` says). Record the result there. If the change
 did not move a result, remove it.
