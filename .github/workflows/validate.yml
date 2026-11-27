@@ -16,6 +16,8 @@ jobs:
         run: node scripts/validate.mjs
       - name: Check the interactive graph page
         run: node scripts/graph.mjs --check
+      - name: Check the first page of the site
+        run: node scripts/site.mjs --check
       - name: Fetch pinned upstream skills
         run: node scripts/sync-upstream.mjs
       - name: Check pinned extras exist and call only pinned skills

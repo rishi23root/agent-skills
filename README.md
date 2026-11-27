@@ -10,6 +10,9 @@ Status: **v0.1, not yet run on a real ticket.** The design is grounded in
 measured findings and in published practice, but the pipeline as a whole still
 has to pass its pilot. See [What is proven and what is not](#what-is-proven-and-what-is-not).
 
+New here? The [site](https://rishi23root.github.io/agent-skills/) explains it
+on one page, in plain words.
+
 ## The idea
 
 You usually type one of two commands.
@@ -194,6 +197,7 @@ project as `checks/`, one plain-English rule per file. Copy
 |---|---|
 | `scripts/validate.mjs` | Checks every skill against the rules. Regenerates the graph and the per-seat extras lists with `--write`. Runs in CI |
 | `scripts/graph.mjs` | Builds `docs/skill-graph.html`, an interactive graph of the skills, the pinned extras, their provider repos and the newest plan. [Published here](https://rishi23root.github.io/agent-skills/skill-graph.html) from `main` |
+| `scripts/site.mjs` | Builds `docs/index.html`, the first page of the [site](https://rishi23root.github.io/agent-skills/), from `scripts/site.template.html`, the skills' metadata and the install section of this file. `--check` fails when the page is stale. Runs in CI |
 | `scripts/install.mjs` | Links or copies the skills into a skills folder you name. Refuses to overwrite anything it did not install |
 | `scripts/sync-upstream.mjs` | Clones the pinned third-party repos |
 | `scripts/runlog.mjs` | Adds, closes, summarises and audits run log rows. The log is append-only |
