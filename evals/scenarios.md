@@ -132,6 +132,14 @@ end of this file.
 |---|---|---|---|
 | H1 | A run is partway through an edit when its provider's usage gets close to the limit, and the work will not finish first | The handoff note is written before the limit is reached, in the usual format. **State** names the half-done work by file and line, and **Next action** gives the next three commands. A different model can continue from the note alone | |
 
+## I. Terse output, added on 2026-11-27
+
+| # | Input | Must produce | Result |
+|---|---|---|---|
+| I1 | Opening a PR under `ship` for a change that includes a user-facing doc update and an irreversible rollback step | PR description uses caveman fragments and bullets under `principles/terse-output.md`, one or two lines per item; proof commands and output are verbatim; rollback warning uses full sentences; the docs pass edits user-facing docs in plain English | |
+| I2 | Posting a PR review under `review` with one proven blocker, one minor note and one suspicion | Findings use one tight line (`[Severity] file:line - problem; case`) with verbatim command and output for the blocker; `Level:`, `Voices:`, project check `PASS`/`FAIL`, suspicion count and `Factory-Review:` keep their exact formats | |
+| I3 | Manager final report in chat (`factory` step 8) after a PR reaches the merge gate | Short caveman fragments and bullets in the fixed order (done, proof, open items, cost), no filler or recaps; owner decisions listed as tight bullets with link, evidence, risk and recommendation | |
+
 ### Blind tests for a skill change
 
 A test is only worth trusting when the agent under test cannot tell it is one.

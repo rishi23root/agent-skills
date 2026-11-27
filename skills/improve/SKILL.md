@@ -8,6 +8,7 @@ metadata:
   layer: "2"
   role: front-door
   requires: ""
+  reads: "principles"
 ---
 
 # improve
@@ -62,7 +63,8 @@ question and stops.
    project is treated the same way. Never run with a guess. A flagged guess
    that you act on is still a guess.
 
-5. **Write the brief** in the format in [brief-format.md](brief-format.md).
+5. **Write the brief** in the format in [brief-format.md](brief-format.md),
+   under `../principles/terse-output.md`.
    Use the project's own terms for things it already names. Keep a word the
    project does not have, and flag it. If the request conflicts with the spec
    or an ADR, say so. Do not widen scope to make the pieces fit.

@@ -61,6 +61,8 @@ carries a summary, not the old model's reasoning, so the note must stand alone.
 
 ## Rules
 
+- Write under `../principles/terse-output.md`: short fragments, no prose
+  recaps. Keep commit SHAs, paths and commands exact.
 - Write what a stranger needs. They have the repository and this note, and
   nothing else.
 - Record decisions with their reasons. A decision without a reason gets made

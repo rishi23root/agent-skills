@@ -6,7 +6,7 @@ rest is for the agent who builds.
 ```markdown
 ## What I understood
 
-- Up to five plain sentences. No stack names, file names or type names.
+- Up to five short lines. No stack names, file names or type names.
 - Each one is something the requester can accept or reject.
 - Nothing they did not ask for.
 
@@ -48,6 +48,8 @@ Seat and stage this should go to, from the sizing table.
 
 ## Rules
 
+- Write under `../principles/terse-output.md`: short fragments and bullets, no
+  filler. Keep acceptance checks and open questions unambiguous.
 - Behaviour, not procedure. Say what must be true, not which lines to change.
   File ownership (`Touches`) is set later by someone who has read the code: on
   the ticket for `feature` size and above, or as scope lines added to this

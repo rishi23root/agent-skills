@@ -35,4 +35,4 @@ Load at most one per step, and only when its row applies. An extra never overrid
 | Called by typescript-best-practices | `<upstream>/pstack/pstack/skills/principle-boundary-discipline/SKILL.md` | pstack |
 | A longer handoff summary than the core note | `<upstream>/mattpocock/skills/productivity/handoff/SKILL.md` | mattpocock |
 | Stricter lean-code rules while building | `<upstream>/ponytail/skills/ponytail/SKILL.md` | ponytail |
-| Terse output to save tokens in a long build session | `<upstream>/caveman/skills/caveman/SKILL.md` | caveman |
+| Stricter caveman voice for a long session (core terse-output already covers chat and PRs) | `<upstream>/caveman/skills/caveman/SKILL.md` | caveman |

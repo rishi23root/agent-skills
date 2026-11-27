@@ -43,6 +43,9 @@ reply `no relevant locations found`. Do not guess a path.
 
 ## Rules
 
+- Write values under `../principles/terse-output.md`: short fragments and
+  bullets, no filler prose. Keep status codes, paths and quoted output
+  verbatim.
 - Evidence is output the worker saw. Quote it. Do not summarise it as "tests
   pass".
 - A check that was not run is listed as not run.

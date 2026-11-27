@@ -94,8 +94,8 @@ attack in [attacks.md](attacks.md) and report each as that file says.
 
 ## Findings
 
-Each finding has a severity, a location, what is wrong, and a concrete case
-that shows it (an input, a state, a sequence).
+Write findings and PR comments under `../principles/terse-output.md`:
+`[Severity] file:line - problem; case (input, state or sequence)`.
 
 | Severity | Meaning | Effect |
 |---|---|---|
@@ -125,9 +125,9 @@ Exactly one:
 
 ## Recording the verdict
 
-Post the findings and the verdict on the PR, so the record is with the change
-and not in a chat. End the comment with one line that names the commit you
-reviewed and the id of the patch:
+Post findings and verdict on the PR, not in chat. Keep prose terse, and keep
+`Level:`, `Voices:`, `PASS`/`FAIL`, suspicion count and the final line exact
+(commit reviewed and patch id):
 
 ```
 Factory-Review: APPROVE <head commit> patch <patch id>

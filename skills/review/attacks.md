@@ -25,11 +25,9 @@ One line for each attack, all seven, after the findings:
 <attack>: tried | does not apply | not run
 ```
 
-- `tried`: what you did and what you saw. "Held", or the finding it became.
-- `does not apply`: why the change has nothing it could hit. A command with
-  no login has no expired login.
-- `not run`: it applies and you could not run it. Say why. It is not a pass
-  (`../principles/evidence.md`).
+- `tried`: action and result ("held", or the finding it became).
+- `does not apply`: short reason (for example, no login).
+- `not run`: short reason. Not a pass (`../principles/evidence.md`).
 
 An attack that breaks something is a finding like any other. Severity and
 proof by run in [SKILL.md](SKILL.md) decide whether it blocks.
