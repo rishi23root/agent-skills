@@ -73,7 +73,10 @@ by `review/council.md`. This hint changes neither.
    once, without asking the owner: a failed start is not a decision for them.
    Name each skipped model and its error in your report, and log it as a
    `BLOCKED` run. Ask the owner only when no candidate is left in the tier.
-   Step 3 still holds: never drop a tier for a high-risk review or a spec.
+   For a review, an empty list is not yet that point: run the same-provider
+   review that `review/SKILL.md` gives under "Who reviews", and the gap
+   reaches the owner at the gate. Step 3 still holds: never drop a tier for
+   a high-risk review or a spec.
 6. **Size the context.** Use a large context window only when the worker truly
    has to hold a large part of the repository. A focused ticket runs on the
    default window.
@@ -86,7 +89,8 @@ that has an answer:
 1. **The run log.** It records task type, model, effort and outcome. When one
    task type has at least ten rows for a model, use its success rate to
    order it and to adjust this table. Fewer rows than that is an anecdote.
-   One bad run does not move a model down a tier.
+   One bad run does not move a model down a tier. Leave out the `BLOCKED`
+   rows of failed starts: they measure the route, not the model.
 2. **Public coding leaderboards.** Read more than one, and write down the
    date. They often disagree, so none decides alone: a model near the top of
    most of them ranks high, and one that leads a single list does not. None
@@ -106,7 +110,8 @@ best first.
 
 | Tier | Provider | Model | Via | Status |
 |---|---|---|---|---|
-| frontier | Anthropic | Claude Fable 5.2, Claude Opus 5.5 | Claude Code | Opus 5.5 run (manager, builds), 2026-11-27. Near the top of three of four leaderboards read on 2026-11-27 (llm-stats, BenchLeader, AI Stupid Level) |
+| frontier | Anthropic | Claude Opus 5.5 | Claude Code | run (manager, builds, reviews), 2026-11-27. Near the top of three of four leaderboards read on 2026-11-27 (llm-stats, BenchLeader, AI Stupid Level) |
+| frontier | Anthropic | Claude Fable 5.2 | Claude Code | run not recorded. At or near the top of all four leaderboards read on 2026-11-27. Not run on this machine |
 | frontier | OpenAI | `gpt-6-luna` | Codex | run (reviews, unattended), 2026-11-27. No leaderboard read on 2026-11-27 lists it by this name. Placed in frontier because it is the reviewer the owner chose and its reviews held; place it again when a leaderboard lists it |
 | frontier | Google | `gemini-4-neon` | Antigravity, Cursor | offered, 2026-11-27. First on one leaderboard (BenchLM). Antigravity asks the owner to approve each command, so it runs only while the owner watches. Cursor failed to start twice on 2026-11-27 |
 | workhorse | Anthropic | Claude Sonnet 5.5 | Claude Code | run |
