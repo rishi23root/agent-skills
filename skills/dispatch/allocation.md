@@ -118,7 +118,6 @@ yet: place it before you choose it. Rows within a tier are peers, in no order.
 | workhorse | Google | `gemini-4-carbon`, `gemini-4-argon` | Antigravity, Cursor | offered, 2026-11-28 |
 | fast | Anthropic | Claude Haiku 5.5 | Claude Code | run not recorded |
 | fast | Google | `gemini-3.8-flash` | Antigravity, Cursor | offered, 2026-11-28 |
-| not used | Anthropic | Claude Fable 5.2 | Claude Code | the owner's choice |
 | not placed | xAI | `grok-4.7` | Cursor | offered, 2026-11-27 |
 
 Antigravity asks the owner to approve each shell command, so step 1 limits
