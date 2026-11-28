@@ -1,8 +1,6 @@
 ---
 name: junior
-description: >-
-  Junior seat. Builds one ready ticket in one worktree, proves it, opens one
-  small PR and watches its checks. Stops and asks when a fact is missing.
+description: Junior seat. Builds one ready ticket into one small, proven PR.
 disable-model-invocation: true
 metadata:
   layer: "1"

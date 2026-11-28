@@ -1,8 +1,6 @@
 ---
 name: spec
-description: >-
-  Procedure. Writes a spec from an accepted brief and takes it through the
-  spec gate: no open design questions, named seams, checkable acceptance.
+description: Writes a spec from a brief and takes it through the spec gate.
 disable-model-invocation: true
 metadata:
   layer: "2"

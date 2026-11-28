@@ -388,14 +388,14 @@
   <dl class="defs">
     <div><dt><span class="sk p">build</span></dt><dd>Implements one ticket: failing check first, smallest change that passes, observed proof, self-check, commit, report.</dd></div>
     <div><dt><span class="sk p">dispatch</span></dt><dd>The orchestration layer: clone gate and caps, subagent or own thread, model and effort choice, the worker brief, and how results come back.</dd></div>
-    <div><dt><span class="sk p">factory-setup</span></dt><dd>Checks a machine and a project for what a factory run needs, asks only for what it cannot detect, writes on a yes, and ends with one table of what is ready and the fix for what is not.</dd></div>
-    <div><dt><span class="sk p">handoff</span></dt><dd>Writes the note that lets a fresh session continue the work, when context is filling up, a seat changes, or a review bounces.</dd></div>
-    <div><dt><span class="sk f">improve</span></dt><dd>Turns a rough, dictated or client-worded request into a clear agent brief grounded in the current project, then stops. Does not code.</dd></div>
+    <div><dt><span class="sk p">factory-setup</span></dt><dd>First-run check that a machine and project are ready for the factory.</dd></div>
+    <div><dt><span class="sk p">handoff</span></dt><dd>Writes the note that lets a fresh session continue the work.</dd></div>
+    <div><dt><span class="sk f">improve</span></dt><dd>Turns a rough request into a clear agent brief. Does not code.</dd></div>
     <div><dt><span class="sk p">principles</span></dt><dd>One short file per rule that more than one skill relies on. Other skills cite a file by name instead of restating the rule.</dd></div>
-    <div><dt><span class="sk p">review</span></dt><dd>Independent review of a change on two axes, spec and standards, with severity, a verdict, and a capped fix loop.</dd></div>
+    <div><dt><span class="sk p">review</span></dt><dd>Independent review on spec and standards, with a capped fix loop.</dd></div>
     <div><dt><span class="sk p">runlog</span></dt><dd>Records one row per worker run (task type, seat, model, cost, outcome, lesson) so later model choice and process changes rest on data.</dd></div>
-    <div><dt><span class="sk p">ship</span></dt><dd>Opens the PR, watches checks and review bots, starts the independent review, and brings the change to the merge gate. Merges only on the owner's word.</dd></div>
-    <div><dt><span class="sk p">spec</span></dt><dd>Writes a spec from an accepted brief and takes it through the spec gate: no open design questions, named seams, checkable acceptance.</dd></div>
+    <div><dt><span class="sk p">ship</span></dt><dd>Takes a change through PR and checks to the merge gate.</dd></div>
+    <div><dt><span class="sk p">spec</span></dt><dd>Writes a spec from a brief and takes it through the spec gate.</dd></div>
     <div><dt><span class="sk p">tickets</span></dt><dd>Slices a brief or spec into small vertical tickets with blocking edges and file ownership, and marks them ready for an agent.</dd></div>
   </dl>
 

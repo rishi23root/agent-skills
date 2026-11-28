@@ -1,9 +1,6 @@
 ---
 name: ship
-description: >-
-  Procedure. Opens the PR, watches checks and review bots, starts the
-  independent review, and brings the change to the merge gate. Merges only on
-  the owner's word.
+description: Takes a change through PR and checks to the merge gate.
 disable-model-invocation: true
 metadata:
   layer: "2"

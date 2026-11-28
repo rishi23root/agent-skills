@@ -1,8 +1,6 @@
 ---
 name: improve
-description: >-
-  Front door. Turns a rough, dictated or client-worded request into a clear
-  agent brief grounded in the current project, then stops. Does not code.
+description: Turns a rough request into a clear agent brief. Does not code.
 disable-model-invocation: true
 metadata:
   layer: "2"
