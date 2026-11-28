@@ -57,7 +57,7 @@ also runs `node scripts/sync-upstream.mjs` then
 ## Fleet
 
 - **Mode:** steady
-- **Families:** manager Claude, builders Claude, reviewers from another provider than the builder's, the best that can run first, as `skills/dispatch/allocation.md` ranks them
+- **Families:** manager Claude, builders Claude, reviewers from another provider than the builder's, chosen as `skills/dispatch/allocation.md` says. The families are peers
 - **Machines that may run workers:** the owner's machine
 - **Ports and local databases:** none
 - **Council models**, if a council is used: not set
