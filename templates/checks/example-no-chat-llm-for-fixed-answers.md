@@ -1,8 +1,8 @@
 # No chat LLM for fixed-answer decisions
 
 **PASS** when each new or changed decision with a fixed set of answers (routing, tagging,
-policy check) is made by deterministic code, or by a cheap classifier that:
-- can return only those answers, and
+policy check) is made by deterministic code, or by a bounded classifier that:
+- makes one call that only scores those answers, generating no text, and
 - escalates below a stated confidence threshold, to a person, a safe default
   or a stronger model.
 
