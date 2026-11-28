@@ -1,6 +1,7 @@
-# Profile and guards
+# Profile, verification and guards
 
-Detail for the Profile and Guards sections of [SKILL.md](SKILL.md).
+Detail for the Profile, Verification and Guards sections of
+[SKILL.md](SKILL.md).
 
 ## Profile
 
@@ -38,6 +39,39 @@ first, so a fact in it is not guessed again on each run. Its template is
    change in the project. Do not commit or push it: the owner reads the diff
    first, and a profile that reaches the default branch unread teaches every
    later run something nobody checked.
+
+## Verification
+
+A builder learns it is wrong from the project's checks. The cheaper the
+builder and the less anyone watches, the more rests on them. A command in the
+profile is a claim until it has run. So this section runs them.
+
+Take the commands from the profile, or from the draft when there is none.
+Read what each one runs before you offer it. Never offer one that deploys,
+publishes, migrates or reaches a live service or real data. Ask one yes for
+the whole set, and show each command, the install step it needs, and where it
+runs: a throwaway checkout of the current commit, so no edit of the owner's
+is touched. A separate checkout is not a sandbox: the project's code runs
+with the owner's access.
+
+| Check | Passes when |
+|---|---|
+| One test alone | The one-test-file command runs one existing test, exits 0, and its output shows that a test ran. "No tests found" with exit 0 is a fail |
+| A failure shows | With one assertion of that test broken in the throwaway checkout, the same command exits non-zero because of it |
+| Static checks | The type check and the lint each run and exit 0. One the project does not have is named. With neither, this fails |
+| One full check | The full suite is one command that exits non-zero when any part fails. Read its definition: `;`, `\|\| true` or a pipe can hide a failure |
+| Repeatable | The full check, run twice, gives the same result, and asks nobody anything |
+
+- Report how long the one test and the full check took. A builder runs the
+  first often. The owner judges whether it is fast enough.
+- A command the profile calls "none" is a recorded fact, not a pass.
+- Remove the throwaway checkout. Never commit or keep the broken assertion.
+- The line is `ok` only when all five passed in runs you saw. A fail makes it
+  `missing`. A skip leaves it `unknown`.
+- While it is not `ok`, recommend two things: stay in `pilot`, and give no
+  ticket to a fast-tier builder. This is advice. The Mode line is the
+  owner's, also when it already says `steady`.
+- Setup fixes no gap. Name each one as a task the owner can give `/factory`.
 
 ## Guards
 

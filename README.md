@@ -141,7 +141,8 @@ them.
 Requirements: Node 20 or later, git, and an authenticated GitHub CLI (`gh`).
 Python 3 for tstack's `babysit-pr` extra. On a new machine or in a new
 project, type `/factory-setup` first. It checks all of this, asks for what it cannot
-detect, and ends with a table of what is ready and how to fix what is not.
+detect, offers to run the project's checks to see that they catch a wrong
+change, and ends with a table of what is ready and how to fix what is not.
 
 ## Install from a clone (for working on the skills)
 

@@ -85,6 +85,7 @@ GitHub can be read before `gh` is signed in.
 | Providers | which providers can run, who manages, builds and reviews, and that a second provider can review | the Families line of the profile | [fleet.md](fleet.md) |
 | Harness settings | the settings a run relies on: permission modes, fallback, resume | nothing: the owner sets them | [fleet.md](fleet.md) |
 | Profile | `docs/agents/factory.md` exists and has a mode | that file, in the project | [project.md](project.md) |
+| Verification | the project's checks fail on a wrong change, with nobody there | nothing: gaps are reported | [project.md](project.md) |
 | Guards | the default branch is protected, the tracker labels exist | the repository's settings | [project.md](project.md) |
 | Automation | the PR review webhook and the daily triage | the harness's tasks, and one webhook on the repository | [fleet.md](fleet.md) |
 | Run log | where a run row goes, and that one can be written | nothing: the owner sets the path | [fleet.md](fleet.md) |
@@ -108,9 +109,9 @@ show its table whole, as printed. Do not retype it from memory: the table is the
 you typed is a claim, not a check.
 
 Change a line only for something the script cannot see, and only to what the
-harness reported or the owner confirmed in this run. Say which in its Found
-cell. Where the script printed one line for a group it cannot see, replace it
-with one line per item, as [fleet.md](fleet.md) says.
+harness reported, the owner confirmed or a run you saw showed, in this run.
+Say which in its Found cell. Where the script printed one line for a group it
+cannot see, replace it with one line per item, as [fleet.md](fleet.md) says.
 
 Under the table, in this order, written as `../principles/terse-output.md`
 says. A security warning or a step that needs sudo stays in full sentences:
