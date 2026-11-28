@@ -53,16 +53,22 @@ Sibling skills are in the folders next to this one. Load one by reading its
    - `project`: `senior` owns it, beginning with the spec gate.
    - `fog`: `10x` frames it and hands back to you. Then size it again.
 
-4. **Run the seat.** There are two ways, and the choice is about context, not
-   status:
-   - **In this session.** Read `../<seat>/SKILL.md` and work under its
-     contract. `senior` and `10x` always run this way, because they need to
-     start workers and a worker cannot.
+4. **Run the seat.** For `small` and larger, a worker builds by default. You
+   keep the brief, the dispatch, the check of what comes back, the review and
+   the gate. Your context holds the plan, so do not fill it with edits.
    - **As a worker.** Read `../dispatch/SKILL.md`. Only `junior` and `mid` run
-     as workers. Use this when there are several tickets, when this session is
-     already carrying other work, or when the worker should start with a clean
-     context. `dispatch` owns the gate, the caps, the placement test and the
-     model choice.
+     as workers, on the tier `../dispatch/allocation.md` picks. `dispatch` owns
+     the gate, the caps, the placement test and the model choice.
+   - **In this session.** Read `../<seat>/SKILL.md` and work under its
+     contract. `senior` and `10x` always work here, because they need to start
+     workers and a worker cannot. For a `feature`, `mid` works here too: it
+     slices the tickets, and each ticket goes to a worker.
+
+   Building in this session is an exception. It needs one of these:
+   - The size is `trivial`, as step 3 routes it.
+   - The harness has no way to start workers: the last column of
+     `../dispatch/harness.md`.
+   - A reason you write in the ledger.
 
    The top session is the only one that dispatches, whichever seat it is
    working as. A worker never starts workers of its own.
@@ -100,7 +106,7 @@ keep it in `.factory/ledger.md` in the main checkout. That folder is not in
 git, and only the manager reads it. One line per ticket:
 
 ```
-<ticket> | <seat> | <worker or "here"> | <state> | <PR> | <open findings>
+<ticket> | <seat> | <worker, or "here: <why>"> | <state> | <PR> | <open findings>
 ```
 
 States: `ready`, `building`, `in-review`, `sent-back (n)`, `at-gate`, `merged`,
@@ -115,8 +121,9 @@ write in the ledger goes in your report to the owner instead.
 - **Scale the process to the task.** Every stage you run on a trivial task is
   waste. Every stage you skip on a risky one is a debt.
 - **Fan-out is not free.** Each worker pays a cold start, so more workers
-  means more total tokens. Run workers in parallel only when the tickets do
-  not touch the same files and the wall-clock time matters.
+  means more total tokens. That is why a trivial edit gets no worker, and why
+  tickets that touch the same files are not built in parallel
+  (`../dispatch/SKILL.md`, section 1, point 3).
 - **Strong model to manage, small model to do.** You hold the plan. Workers
   get the cheapest model that fits their ticket. `dispatch` has the table.
 - **Pass pointers, not content.** A worker gets the brief, the ticket and
