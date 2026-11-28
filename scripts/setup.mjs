@@ -299,6 +299,8 @@ else {
   add('Project', `Profile \`${PROFILE}\``, 'optional', mode ? 'ok' : 'missing', mode ? `present, mode ${mode}` : 'present, but its Mode line is not filled in',
     mode ? '' : `Set the Mode line in ${PROFILE} to \`pilot\`. Only the owner moves it to \`steady\``);
 }
+add('Project', 'The checks catch a wrong change', 'optional', 'unknown', 'a script does not run a project\'s commands',
+  'The factory-setup skill runs them on a yes: "Verification" in skills/factory-setup/project.md');
 
 // ---- 8. repository guards ---------------------------------------------------
 const want = args['require-check'] ? args['require-check'].split(',').map((s) => s.trim()).filter(Boolean) : [];

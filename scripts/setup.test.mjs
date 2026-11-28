@@ -105,6 +105,8 @@ test('a ready machine and project: nothing required is missing, and the table is
     assert.ok(['required', 'optional'].includes(r.need), `${r.check}: need ${r.need}`);
     assert.equal(r.state === 'ok', r.fix === '', `${r.check}: a fix on every line that is not ok, and only there`);
   }
+  // The script runs no project command, so it never calls the checks proven.
+  assert.deepEqual(['state', 'need'].map((k) => find(rows, 'catch a wrong change')[k]), ['unknown', 'optional']);
   const table = w.setup().out;
   assert.match(table, /^\| Section \| Check \| Need \| State \| Found \| Fix \|$/m);
   assert.match(table, /Nothing required is missing\./);

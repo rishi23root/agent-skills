@@ -54,6 +54,12 @@ carry them out, strictest first.
 - **T3 starts new threads at full access by default.** Tell the owner to
   lower the default to auto. Until then, a manager thread has no limits, which
   the manager's role does not allow.
+- **Not every T3 provider has every mode.** Antigravity's auto depends on the
+  account. Without it, the thread falls back to supervised, and it may ask
+  for approval even at full access. Do not count on it to run unattended
+  until a run showed that. Grok Build has no Auto-accept edits: it runs as
+  supervised. `orchestrator_capabilities` shows the modes each provider
+  accepts here.
 
 ## Settings the factory relies on
 
@@ -73,7 +79,40 @@ and a task the owner said yes to, are its to set.
 | Text-generation model | Titles, branch names and commit messages are fast-tier work | The model the harness writes them with, in the settings. By hand | Not set apart | Not set apart |
 | Resume after a usage limit | A thread that hit its limit goes on when the allowance returns | Auto-resume, or snooze, in the thread settings. By hand | None | None |
 | Tasks that start with nobody there | The automation templates need one each | Reads: `list_scheduled_tasks`. Creates: `schedule_task`. A webhook task's address is returned once, at creation, and needs T3 Connect on | A scheduled cloud task the owner creates. By hand | Whatever scheduler the owner uses. By hand |
+| An outside agent can drive this environment | Only when the owner wants one, such as a dispatcher | "Connect an outside agent", below. By hand | Not available | Not available |
 | A value only the owner has | A secret typed into the conversation is in the transcript for good | `request_secret` | The owner runs the command in their own terminal | The owner runs the command in their own terminal |
+
+## Connect an outside agent
+
+T3 Code only. The owner does every step. Who may approve what, and what stays
+secret, is in `../factory-setup/fleet.md`, "An outside agent".
+
+1. Turn on T3 Connect for the environment (`t3 connect`, or the settings). A
+   cloud assistant needs it. Turning it on can restart T3 Code and stop
+   running turns, so do it between runs.
+2. Settings, Sharing & access: copy the MCP URL. For a saved remote
+   environment it is Copy MCP URL, under Environments.
+3. In the other agent, add it as a remote MCP server over HTTP with OAuth.
+   It needs no client id or secret. OAuth works only over `https://` or on
+   `localhost`.
+4. On the sign-in page, under what it may do, pick the level.
+5. A sign-in lasts 30 days. Revoke it in Sharing & access.
+
+## T3 Code for the owner
+
+- **A second Claude account** gets its own config folder: sign in with
+  `CLAUDE_CONFIG_DIR=<folder> claude auth login`, then add a Claude instance
+  under Settings, Providers, with that folder as its CLAUDE_CONFIG_DIR path.
+  Leave `HOME` alone. That instance loads skills from its own folder, so
+  check the factory skills there too. A thread can move only between
+  instances that share a config folder.
+- **`@model` or `@model:provider`** in a message names a model for the work,
+  such as a delegated review, without changing the thread's own. Pass the one
+  named to the worker's target.
+- **`/btw` or `/side`**, on web and desktop, asks a question in a side chat
+  while the thread keeps working. It starts with the thread's context, folder
+  and permissions. So it is not a read-only worker, and never an independent
+  review.
 
 ## Notes
 

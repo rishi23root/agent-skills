@@ -139,7 +139,7 @@ flowchart TD
 | `senior` | 74 | 2898 | 69 |
 | `build` | 98 | 3878 | 127 |
 | `dispatch` | 137 | 5784 | 150 |
-| `factory-setup` | 132 | 6764 | 69 |
+| `factory-setup` | 133 | 6925 | 69 |
 | `handoff` | 83 | 3413 | 60 |
 | `improve` | 108 | 5253 | 62 |
 | `principles` | 36 | 1598 | 134 |
@@ -148,7 +148,7 @@ flowchart TD
 | `ship` | 166 | 7683 | 55 |
 | `spec` | 108 | 3669 | 62 |
 | `tickets` | 72 | 2765 | 136 |
-| **Total** | | **69925** | **1403** |
+| **Total** | | **70086** | **1403** |
 
 Descriptions of the 11 skills you can type: 711 chars.
 
@@ -158,16 +158,16 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1700 | ~1700 | ~26100 |
-| `/10x` | ~800 | ~800 | ~18400 |
-| `/junior` | ~600 | ~600 | ~20200 |
-| `/mid` | ~700 | ~700 | ~22300 |
-| `/senior` | ~700 | ~700 | ~21400 |
-| `/factory-setup` | ~1700 | ~6500 | ~12400 |
+| `/factory` | ~1700 | ~1700 | ~26700 |
+| `/10x` | ~800 | ~800 | ~19000 |
+| `/junior` | ~600 | ~600 | ~20800 |
+| `/mid` | ~700 | ~700 | ~22900 |
+| `/senior` | ~700 | ~700 | ~21900 |
+| `/factory-setup` | ~1700 | ~7300 | ~13800 |
 | `/handoff` | ~900 | ~900 | ~1800 |
-| `/improve` | ~1300 | ~2400 | ~8300 |
-| `/review` | ~1600 | ~4500 | ~13500 |
-| `/ship` | ~1900 | ~1900 | ~15400 |
-| `/spec` | ~900 | ~900 | ~15200 |
+| `/improve` | ~1300 | ~2400 | ~8800 |
+| `/review` | ~1600 | ~4500 | ~14000 |
+| `/ship` | ~1900 | ~1900 | ~16000 |
+| `/spec` | ~900 | ~900 | ~15700 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.

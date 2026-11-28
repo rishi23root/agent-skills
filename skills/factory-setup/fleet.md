@@ -15,6 +15,7 @@ that in writing, PR by PR. So this section comes before anything is built.
    out, disabled or reporting an error is not a candidate. The script's
    "signed in" line is a hint. It is not the answer.
 2. **Show the candidates as providers**, each with the tiers it can fill.
+   Two accounts or two setups of one provider are one provider.
    Tiers and model names are placed by `../dispatch/allocation.md`. Do not
    write a model name anywhere else.
 3. **Ask one batch:** which provider manages, which builds, which reviews?
@@ -83,6 +84,23 @@ row that applies to this harness:
 
 In the final table, replace the script's one Harness line with one line per
 setting.
+
+### An outside agent
+
+Asked only when the owner says an agent outside the harness should drive it,
+such as an always-on dispatcher. The steps are in `../dispatch/harness.md`,
+under "Connect an outside agent". All of them are the owner's.
+
+- **Approve it as supervised, or read-only when it only has to look. Never
+  full access.** It reads text that strangers write, and the level approved
+  is the most any thread it starts can have.
+- Say what that costs: a thread it starts stops at each approval until the
+  owner answers. Do not offer a looser level to avoid the wait.
+- The address of the environment and any pairing code or token stay out of
+  the conversation and out of every file, command you run, issue, PR and
+  report. The owner copies them straight into the other agent.
+- Its line in the final table is `ok` only when the owner names the level
+  they approved, and it is not full access.
 
 ## Automation
 
