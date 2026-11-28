@@ -96,8 +96,9 @@ the ticket. The waiver is the record. Use it rarely.
   providers would trade them off, pick the row in `../review/council.md`. It
   says who starts the voices, through `dispatch`, and where the scores go.
 - Ask the owner about open questions in one batch, each with the options and
-  what each option costs. Questions the code can answer, you answer by reading
-  the code.
+  what each option costs. Questions the code can answer, you answer from the
+  code. When they spread wide, follow "Locator fan-out" in
+  `../dispatch/brief.md`.
 - Challenge fuzzy terms. If two words are used for one thing, pick one and fix
   the glossary.
 - If the same question survives two rounds, the gate is stuck. Escalate to

@@ -6,7 +6,7 @@ metadata:
   layer: "2"
   role: front-door
   requires: ""
-  reads: "principles"
+  reads: "dispatch principles"
 ---
 
 # improve
@@ -14,7 +14,8 @@ metadata:
 The front door of the factory. Someone describes work in their own words. You
 work out what they are asking, check it against the project as it is today, and
 write the brief the next agent will build from. You do not design the diff, open
-issues, start workers, or edit the product.
+issues, or edit the product. You start no workers, except that a top session may
+start the read-only locators in step 3.
 
 Called on its own (`/improve`), you show the brief and stop. Called by
 `factory`, a seat or `spec`, you return the brief to it. The caller does not build
@@ -38,7 +39,9 @@ question and stops.
 
 3. **Read the context, with a budget.** At most ten reads, where a search
    counts as one. This skill's own reference files do not count. You are
-   learning the ground, not designing.
+   learning the ground, not designing. When the grounding is spread wide, follow
+   "Locator fan-out" in `../dispatch/brief.md`. Each locator reply counts as
+   one read.
    - `docs/agents/factory.md` if it exists. It is the per-repo profile:
      tracker, labels, test and run commands, where the spec and glossary live,
      and any outside notes folder.

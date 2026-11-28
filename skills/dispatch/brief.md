@@ -11,6 +11,14 @@ branch, but it may run checks in its own worktree of the PR's head.
 `review/level.md` has its first line. A worker that only locates code replies
 in the locator format in [report-format.md](report-format.md).
 
+**Locator fan-out.** When grounding spans three or more areas (modules,
+folders or subsystems), do not read them yourself. Start one read-only locator
+per area, all at once, within the caps in [SKILL.md](SKILL.md) section 2, on
+the tier [allocation.md](allocation.md) gives for locating code. Each replies
+in the locator format. Read that map, not the files. Under three areas, read
+them yourself: a cold start costs more than a few reads. Only the top session
+fans out. A worker keeps its one helper.
+
 The role sets the permission mode. Start the worker in it
 ([harness.md](harness.md)): the line in the brief only tells the worker, and
 the harness is what holds it.
