@@ -55,39 +55,72 @@ by `review/council.md`. This hint changes neither.
 
 1. **Ask what can run.** Query the harness for providers that can run a child
    task right now and have no blocking error. A provider that is logged out or
-   disabled is not a candidate.
+   disabled is not a candidate. A provider that asks a person to approve each
+   shell command is skipped only for unattended work that runs commands:
+   building, reviewing, running checks. It stays a full candidate for work
+   that runs none (reading files, locating code, research, docs and copy),
+   and for any work the owner is watching.
 2. **Ask what is left.** Read each candidate model's remaining quota when the
    harness exposes it. If it does not, say so in the run log and go on.
 3. **Apply the quota floor: 15 percent.** A model below the floor is skipped.
    - First switch to another provider's model in the same tier.
    - Only then drop one tier, and only if the task tolerates it.
    - Never drop a tier for a high-risk review or a spec. Wait, or ask the owner.
-4. **Size the context.** Use a large context window only when the worker truly
+4. **Choose by fit.** In the tier the work needs, the families left are
+   peers. Pick one as "Fit within a tier" says. For a review, the provider
+   rules (`../principles/independent-review.md`, `review/council.md`)
+   filter the list first.
+5. **On a failed start, take the next.** A model that fails to start, or
+   errors before it does any work, is skipped. Start another candidate in the
+   tier at once, without asking the owner: a failed start is not a decision for them.
+   Name each skipped model and its error in your report, and log it as a
+   `BLOCKED` run. Ask the owner only when no candidate is left in the tier.
+   For a review, an empty list is not yet that point: run the same-provider
+   review that `review/SKILL.md` gives under "Who reviews", and the gap
+   reaches the owner at the gate. Step 3 still holds: never drop a tier for
+   a high-risk review or a spec.
+6. **Size the context.** Use a large context window only when the worker truly
    has to hold a large part of the repository. A focused ticket runs on the
    default window.
 
-## Learn from the log
+## Fit within a tier
 
-The run log records task type, model, effort and outcome. When one task type
-has at least ten rows for a model, use its success rate to adjust this table.
-Fewer rows than that is an anecdote. One bad run does not move a model down a
-tier.
+No family is another's fallback. Within a tier the families are peers that
+do well at different work. Choose by these, the first that decides:
+
+1. **The run log.** It records task type, model, effort and outcome. When one
+   task type has at least ten rows for a model, its success rate decides
+   for that task type, and adjusts this table. Fewer rows than that is an
+   anecdote. One bad run does not move a model down a tier. Leave out the
+   `BLOCKED` rows of failed starts: they measure the route, not the model.
+2. **Role and spread.** Give the role to the family the Family hint gives
+   it, so builder, reviewer and copywriter sit on different families.
+3. **Quota.** Of the peers still equal, take the one with more quota left.
+
+Public leaderboards help place a new model in a tier. They do not order the
+models inside one. A run on this machine shows that a model can run. It does
+not rank it either.
 
 ## Current examples
 
-Hints only, checked 2026-11-27. The harness is the source of truth. **Run**
+Hints only, checked 2026-11-28. The harness is the source of truth. **Run**
 means a run on this machine confirmed the model. **Offered** means the harness
 listed it but it has not been run. **Not placed** means no tier is recorded
-yet: place it before you choose it.
+yet: place it before you choose it. Rows within a tier are peers, in no order.
 
 | Tier | Provider | Model | Via | Status |
 |---|---|---|---|---|
-| frontier | Anthropic | Claude Fable 5.2, Claude Opus 5.5 | Claude Code | run not recorded |
+| frontier | Anthropic | Claude Opus 5.5 | Claude Code | run (manager, builds, reviews), 2026-11-27 |
+| frontier | OpenAI | `gpt-6-luna`, effort high | Codex | run (reviews, unattended), 2026-11-27 |
+| frontier | Google | `gemini-4-neon` | Antigravity, Cursor | offered, 2026-11-28 |
 | workhorse | Anthropic | Claude Sonnet 5.5 | Claude Code | run |
+| workhorse | OpenAI | `gpt-6-luna`, effort low or medium | Codex | run at medium (a recheck), 2026-11-28 |
+| workhorse | Google | `gemini-4-carbon`, `gemini-4-argon` | Antigravity, Cursor | offered, 2026-11-28 |
 | fast | Anthropic | Claude Haiku 5.5 | Claude Code | run not recorded |
-| not placed | OpenAI | `gpt-6-luna` | Codex | run (reviews), 2026-11-27 |
-| not placed | Google | `gemini-4-neon`, `gemini-3.8-flash` | Antigravity | offered, 2026-11-27 |
+| fast | Google | `gemini-3.8-flash` | Antigravity, Cursor | offered, 2026-11-28 |
 | not placed | xAI | `grok-4.7` | Cursor | offered, 2026-11-27 |
 
-The native Grok provider is disabled on this machine. Mark a model run only
+Antigravity asks the owner to approve each shell command, so step 1 limits
+it for unattended work. Cursor failed to start twice on 2026-11-27. The
+native Grok provider is disabled on this machine. Mark a model run only
 after a run on this machine has confirmed it. Do not copy names from memory.
