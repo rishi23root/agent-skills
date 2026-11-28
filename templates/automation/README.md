@@ -44,14 +44,19 @@ changed. Most of that cost is reading, so cut the reading first.
 ## Weekly audit
 
 Once a week, the daily triage looks at each scheduled and webhook task of the
-project, from its own record of recent runs, and gives it one verdict:
+project and gives it one verdict. It reads only these records: the harness's
+list of the project's tasks, each task's run history where the harness shows
+one, the dispatcher's cursor file (its `no_change` and full-pass lines for the
+week), and the run log rows the runlog summary prints. A task none of these
+records covers gets UNKNOWN, with what was missing.
 
-| Verdict | When |
+| Verdict | When the records show |
 |---|---|
-| KEEP | Its runs usually find work and finish it |
-| SLOW DOWN | Most runs find nothing, and a slower schedule loses nothing |
+| KEEP | Most runs found work |
+| SLOW DOWN | Most runs found nothing, on a schedule tighter than the source changes |
 | EVENT TRIGGER | It polls a source that can send an event instead |
-| CHANGE CHECK | It does a full pass each time, with no cheap check first |
-| RETIRE | It has found no work for weeks, or another task does its job |
+| CHANGE CHECK | It runs on a schedule with no cheap check first |
+| RETIRE | No run found work all week, or another task does its job |
+| UNKNOWN | No record covers it |
 
 The audit only reports. The owner changes or removes a task.
