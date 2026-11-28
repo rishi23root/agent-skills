@@ -136,8 +136,20 @@ Running the fleet day to day.
   - a fallback model on another subscription,
   - auto-resume after a usage limit,
   - the cheapest model for text generation.
-- A scheduled run uses the same permission mode as a thread. Approve its
-  recurring prompts once while you are at the desk, or it stalls overnight.
+- A scheduled run uses the same permission mode as a thread. An approval
+  prompt with nobody there waits and then times out, and the run is lost.
+  Approve its recurring prompts once while you are at the desk. A step you
+  would not approve ahead of time is left out: the run stops at a draft or
+  a PR, and you take the step.
+- A run that repeats is built to stay cheap: a fresh session per run, an
+  event over a poll, a change check before a full pass, and live facts only.
+  The rules and the weekly audit are in
+  [the automation templates](../templates/automation/README.md).
+- Agents on one machine share its files, its logins and its tokens. A
+  sentence in a prompt does not keep one agent out of what another may touch.
+  The boundary is what the agent cannot reach: a credential it was never
+  given, a permission its account lacks, a mode that withholds the step. So
+  give an unattended agent only the logins its job needs.
 
 ## What the manager keeps
 
