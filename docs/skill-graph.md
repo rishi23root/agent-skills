@@ -157,16 +157,16 @@ What a session reads when you call a skill. **Standing cost is zero**: every ski
 
 | You type | Its own `SKILL.md` | With its reference files | Upper bound: everything it can load |
 |---|---|---|---|
-| `/factory` | ~1600 | ~1600 | ~25200 |
-| `/10x` | ~800 | ~800 | ~17600 |
-| `/junior` | ~600 | ~600 | ~19400 |
-| `/mid` | ~700 | ~700 | ~21500 |
-| `/senior` | ~700 | ~700 | ~20600 |
-| `/factory-setup` | ~1700 | ~6500 | ~11700 |
+| `/factory` | ~1600 | ~1600 | ~25800 |
+| `/10x` | ~800 | ~800 | ~18200 |
+| `/junior` | ~600 | ~600 | ~20000 |
+| `/mid` | ~700 | ~700 | ~22100 |
+| `/senior` | ~700 | ~700 | ~21200 |
+| `/factory-setup` | ~1700 | ~6500 | ~12300 |
 | `/handoff` | ~900 | ~900 | ~1800 |
 | `/improve` | ~1300 | ~2300 | ~3300 |
-| `/review` | ~1600 | ~4500 | ~12800 |
-| `/ship` | ~1900 | ~1900 | ~14700 |
-| `/spec` | ~900 | ~900 | ~14400 |
+| `/review` | ~1600 | ~4500 | ~13400 |
+| `/ship` | ~1900 | ~1900 | ~15300 |
+| `/spec` | ~900 | ~900 | ~15000 |
 
 The upper bound is never paid in one run. A skill loads another only when its step starts, and reads a principle or reference file only when a line points at it. A worker is a separate session: it pays for its seat and the procedures it uses, not for the manager's.
