@@ -207,7 +207,7 @@
   #arrow path { fill: var(--edge); }
   #arrow-hi path { fill: var(--edge-hi); }
   .node { cursor: pointer; }
-  .node, .edge { transition: opacity .18s; }
+  .node, .edge { transition: opacity .35s ease; }
   .node .disc { fill: var(--c); stroke: var(--ce); stroke-width: 2; filter: drop-shadow(0 1px 2px var(--disc-shadow)); }
   .node .ring { fill: none; stroke: var(--ce); stroke-width: 2; stroke-opacity: .55; }
   .node text { fill: var(--ink); font-size: 9.5px; font-weight: 600; text-anchor: middle; pointer-events: none; }
@@ -532,7 +532,50 @@ function reheat(a) { alpha = Math.max(alpha, a); if (!raf) raf = requestAnimatio
 // Pan and zoom.
 var scale = 1, tx = 0, ty = 0;
 function applyView() { view.setAttribute('transform', 'translate(' + tx + ',' + ty + ') scale(' + scale + ')'); }
-function fit() {
+// A move of the camera glides along the smooth zoom path of van Wijk and Nuij:
+// it pulls back, pans and closes in, so the eye can follow it. Any pan or zoom
+// by hand stops a glide where it is.
+var glide = 0, REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function stopGlide() { if (glide) { cancelAnimationFrame(glide); glide = 0; } }
+function glideTo(s1, tx1, ty1) {
+  stopGlide();
+  var box = svg.getBoundingClientRect(), w = Math.max(box.width, box.height) || 1;
+  // Centre of the screen in graph units, and the width it shows, before and after.
+  var ux0 = (box.width / 2 - tx) / scale, uy0 = (box.height / 2 - ty) / scale, w0 = w / scale;
+  var ux1 = (box.width / 2 - tx1) / s1, uy1 = (box.height / 2 - ty1) / s1, w1 = w / s1;
+  var dx = ux1 - ux0, dy = uy1 - uy0, d2 = dx * dx + dy * dy, d1 = Math.sqrt(d2), rho = 1.4, rho2 = rho * rho;
+  var at, S;
+  if (d1 < 1e-6) {
+    S = Math.log(w1 / w0) / rho;
+    at = function (t) { return [ux0, uy0, w0 * Math.exp(rho * t * S)]; };
+  } else {
+    var b0 = (w1 * w1 - w0 * w0 + rho2 * rho2 * d2) / (2 * w0 * rho2 * d1);
+    var b1 = (w1 * w1 - w0 * w0 - rho2 * rho2 * d2) / (2 * w1 * rho2 * d1);
+    var r0 = Math.log(Math.sqrt(b0 * b0 + 1) - b0), r1 = Math.log(Math.sqrt(b1 * b1 + 1) - b1);
+    var ch = function (x) { return ((x = Math.exp(x)) + 1 / x) / 2; };
+    var sh = function (x) { return ((x = Math.exp(x)) - 1 / x) / 2; };
+    var th = function (x) { return ((x = Math.exp(2 * x)) - 1) / (x + 1); };
+    S = (r1 - r0) / rho;
+    at = function (t) {
+      var s = t * S, c0 = ch(r0), u = w0 / (rho2 * d1) * (c0 * th(rho * s + r0) - sh(r0));
+      return [ux0 + u * dx, uy0 + u * dy, w0 * c0 / ch(rho * s + r0)];
+    };
+  }
+  var ms = Math.min(1100, Math.max(380, Math.abs(S) * 520));
+  if (REDUCED || !isFinite(S) || Math.abs(S) < 1e-3) { scale = s1; tx = tx1; ty = ty1; applyView(); return; }
+  var t0 = performance.now();
+  function step(now) {
+    var t = Math.min(1, (now - t0) / ms), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    var v = t === 1 ? null : at(e);
+    if (v) { scale = w / v[2]; tx = box.width / 2 - v[0] * scale; ty = box.height / 2 - v[1] * scale; }
+    else { scale = s1; tx = tx1; ty = ty1; }
+    applyView();
+    glide = t < 1 ? requestAnimationFrame(step) : 0;
+  }
+  glide = requestAnimationFrame(step);
+}
+// smooth: glide there. Without it the view jumps, as on the first draw and on a resize.
+function fit(smooth) {
   // During the walkthrough, fit to the skills of the step on show.
   var lit = walk != null ? walkSet() : null, box = svg.getBoundingClientRect();
   var vs = nodes.filter(function (n) { return visible(n) && (!lit || lit[n.id]); });
@@ -544,11 +587,13 @@ function fit() {
   });
   // Keep the row labels on screen, in the walkthrough too.
   if (bandX0 != null) x0 = Math.min(x0, bandX0);
-  scale = Math.min(box.width / (x1 - x0 + 70), box.height / (y1 - y0 + 90), 1.5);
-  tx = box.width / 2 - (x0 + x1) / 2 * scale; ty = box.height / 2 - (y0 + y1) / 2 * scale;
-  applyView();
+  var s1 = Math.min(box.width / (x1 - x0 + 70), box.height / (y1 - y0 + 90), 1.5);
+  var tx1 = box.width / 2 - (x0 + x1) / 2 * s1, ty1 = box.height / 2 - (y0 + y1) / 2 * s1;
+  if (smooth === true) { glideTo(s1, tx1, ty1); return; }
+  stopGlide(); scale = s1; tx = tx1; ty = ty1; applyView();
 }
 function zoomAt(mx, my, factor) {
+  stopGlide();
   var next = Math.min(4, Math.max(0.15, scale * factor));
   tx = mx - (mx - tx) * next / scale; ty = my - (my - ty) * next / scale; scale = next;
   applyView();
@@ -565,12 +610,13 @@ svg.addEventListener('wheel', function (ev) {
 }, { passive: false });
 document.getElementById('zin').addEventListener('click', function () { zoomCentre(1.3); });
 document.getElementById('zout').addEventListener('click', function () { zoomCentre(1 / 1.3); });
-document.getElementById('fit').addEventListener('click', fit);
+document.getElementById('fit').addEventListener('click', function () { fit(true); });
 
 var drag = null;
 svg.addEventListener('pointerdown', function (ev) {
   var g = ev.target.closest ? ev.target.closest('.node') : null, node = null;
   if (g) node = nodes.filter(function (n) { return n.g === g; })[0];
+  stopGlide();
   drag = { node: node, x: ev.clientX, y: ev.clientY, tx: tx, ty: ty, moved: false };
   if (node) node.held = true; else svg.classList.add('panning');
   svg.setPointerCapture(ev.pointerId);
@@ -755,7 +801,7 @@ function showStep(i) {
   walkNext.textContent = i === WALK.length - 1 ? 'Done' : 'Next';
   walkBox.hidden = false; document.body.classList.add('walking');
   walkOpen.setAttribute('aria-expanded', 'true');
-  refresh(); fit();
+  refresh(); fit(true);
 }
 // asked: the visitor pressed the button, so the keyboard focus follows them in.
 function startWalk(asked) {
@@ -772,7 +818,7 @@ function leaveWalk() {
   walkOpen.setAttribute('aria-expanded', 'false');
   document.getElementById('walk-say').textContent = '';
   if (inside) walkOpen.focus();
-  refresh(); fit();
+  refresh(); fit(true);
 }
 walkOpen.setAttribute('aria-expanded', 'false');
 walkOpen.setAttribute('aria-controls', 'walk');
@@ -793,7 +839,7 @@ var start = decodeURIComponent(location.hash.slice(1));
 panel.innerHTML = overview();
 if (byId[start]) { setView(CORE.indexOf(byId[start].kind) >= 0 ? 'core' : 'all'); select(start); }
 else setView(VIEWS[start] ? start : 'core');
-window.addEventListener('resize', fit);
+window.addEventListener('resize', function () { fit(); });
 // A first visit opens on step one, unless the address asked for something else.
 var walkSeen = false;
 try { walkSeen = localStorage.getItem(WALK_SEEN) === '1'; } catch (e) { /* No storage: treat it as a first visit. */ }
